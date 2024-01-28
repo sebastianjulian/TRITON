@@ -3,13 +3,12 @@
 TODO Beschreibung:
 - ENTWICKLUNGSUMGEBUNG (SIEHE UNTEN)
 - Öffentlichkeitsarbeit (Bericht, ...)
+- weiteren Sponsor finden
 - Gehäuse (mehrere wenn möglich zum Testen)
 - Stromversorgung
 - Fallschirme (testen mit Gehäuse)
 - Akkzelerometer bei über 16G testen
 - Lora-Modul senden testen 
-
-
 
 ## Entwicklungsumgebung
 
