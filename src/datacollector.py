@@ -1,6 +1,8 @@
 import asyncio
 import os
 import random
+#import smbus2
+#import bme280
 
 from datetime import datetime, timezone
 
@@ -10,6 +12,12 @@ async def generate_random_sensor_data():
         temperature = round(random.uniform(18, 28), 2)
         pressure = round(random.uniform(980, 1030), 2)
         yield temperature, pressure
+        '''
+        await data = bme.280.sample(bus, address, calibration_params)
+        temperature = data.temperature
+        pressure = data.pressure
+        yield temperatur, pressure
+        '''
 
 
 #def save_to_txt_with_timestamp(data, filename):
@@ -29,6 +37,8 @@ async def main(file):
             #data.append((timestamp, temperature, pressure))
             file.write(f"{timestamp},{temperature},{pressure}\n")
             file.flush()
+            
+            #CODE FÜR ÜBERTRAGUNG MIT LORA-MODUL
             
             # Print the latest temperature and pressure
             print(f"Received data ({timestamp}): Temperature: {temperature} °C, Pressure: {pressure} hPa")
