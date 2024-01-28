@@ -32,3 +32,13 @@ TODO Beschreibung:
 
 - [VSCode](https://code.visualstudio.com/)
     - [Python PlugIn](https://marketplace.visualstudio.com/items?itemName=ms-python.python), einfach direkt in VSCode suchen/installieren
+
+### TortoiseGit mit SSH Key konfigurieren
+
+1. Git Bash terminal öffnen
+    - `ssh-keygen -t ed25519 -C "your_email@example.com"`
+2. `C:\Users\YOUR_USERNAME\.ssh\id_ed25519.pub` auf github unter settings/SSH... dazufügen (New SSH Key)
+3. Puttygen starten
+    - File/Load Private Key   (`.ssh\id_ed25519`, das File OHNE .pub)
+    - Save Private Key Button -> speichern als `.ssh\id_ed25519.ppk`
+4. in tortoisegit/settings/git/remote/origin/putty-key die Datei `.ssh\id_ed25519.ppk` angeben
