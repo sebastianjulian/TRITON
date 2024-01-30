@@ -3,7 +3,6 @@ import os
 import random
 #import smbus2
 #import bme280
-#import mpu6050
 
 from datetime import datetime, timezone
 
@@ -12,17 +11,13 @@ async def generate_random_sensor_data():
         await asyncio.sleep(random.uniform(0.5, 2.0))
         temperature = round(random.uniform(18, 28), 2)
         pressure = round(random.uniform(980, 1030), 2)
-        yield temperature, pressure
+        acceleration = round(random.uniform(0, 20), 2)
+        yield temperature, pressure, acceleration
         '''
-        #reads data from bme280
-        
         await data = bme.280.sample(bus, address, calibration_params)
         temperature = data.temperature
         pressure = data.pressure
         yield temperatur, pressure
-        
-        #reads data from OTHER SENSOR
-        #same as above
         '''
 
 
@@ -35,27 +30,19 @@ async def generate_random_sensor_data():
 
 async def main(file):
     
-    async for temperature, pressure in generate_random_sensor_data():
+    async for temperature, pressure, acceleration in generate_random_sensor_data():
             # Get current timestamp
             timestamp = datetime.now(timezone.utc).isoformat()
 
             # Add temperature and pressure data to the list
             #data.append((timestamp, temperature, pressure))
-            file.write(f"{timestamp},{temperature},{pressure}\n")
+            file.write(f"{timestamp},{temperature},{pressure},{acceleration}\n")
             file.flush()
             
             #CODE FÜR ÜBERTRAGUNG MIT LORA-MODUL
             
             # Print the latest temperature and pressure
-            print(f"Received data ({timestamp}): Temperature: {temperature} °C, Pressure: {pressure} hPa")
-    '''
-    async for acceleration in generate_random_sensor_data():
-            timestamp = datetime.now(timezone.utc).isoformat()
-            file.write(f"{timestamp},{acceleration}\n")
-            file.flush()
-            print(f"Received data ({timestamp}): Acceleration: {acceleration} m/s^2")
-    
-    '''
+            print(f"Received data ({timestamp}): Temperature: {temperature} °C, Pressure: {pressure} hPa, Acceleration: {acceleration} m/s^2")
 
 
 if __name__ == "__main__":
@@ -70,7 +57,7 @@ if __name__ == "__main__":
     
     filename = os.path.abspath(f"{LOGS_DIR}/sensor_data_{t0.strftime('%Y%m%d%H%M%S')}Z.csv")
     file = open(filename, mode='w', encoding='utf-8')
-    file.write(f"Timestamp,Temperature [°C],Pressure [hPa]\n")
+    file.write(f"Timestamp,Temperature [°C],Pressure [hPa], Acceleration [m/s^2]\n")
     
     print(f"logging to file {filename}")
     # sensor:_data = []
@@ -87,6 +74,7 @@ if __name__ == "__main__":
         # Save the collected temperature and pressure data with timestamps to a unique text file before exiting
         
         #save_to_txt_with_timestamp(sensor_data, filename)
-        print(f"Collected temperature and pressure data with timestamps saved to {filename}.")
+        print(f"Collected temperature, pressure and acceleration data with timestamps saved to {filename}.")
         
         file.close()
+        
