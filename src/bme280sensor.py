@@ -18,6 +18,8 @@ bme280 = None
 
 def init ():
     
+    global bme280
+    
     if not isRealSensor: 
         return
     

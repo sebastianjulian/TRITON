@@ -12,6 +12,10 @@ import numpy as np
 import random
 import time
 
+
+bus = None
+address = 0x68 # I2C address
+
 scale0_gyro = 131.0  #scale factors of gyroscope
 scale1_gyro = 65.5
 scale2_gyro = 32.8
@@ -52,11 +56,13 @@ def get_temperature():
   return (temp / 340) + 36.53
 
 def init ():
+        
+        global bus
+        
         if not isRealSensor: 
                 return
 
         bus = smbus.SMBus(1)
-        address = 0x68 # I2C address
         bus.write_byte_data(address, 0x6b, 0)  #initialize MPU
 
         scale0_gyro = 131.0  #scale factors of gyroscope
@@ -71,8 +77,6 @@ def init ():
 
         print("MPU6050")
         print("------------------------------------------------")
-
-        data = np.zeros(5)
 
 def getData (data, offset = 5):
         if isRealSensor:
