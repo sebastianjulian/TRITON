@@ -34,7 +34,7 @@ def init ():
     time.sleep(1)
 
 ### asdasdasdasd
-def getData (data, offset = 0):
+def getData (data, offset):
     
     #data = np.zeros(5)
     

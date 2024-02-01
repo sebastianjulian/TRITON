@@ -78,7 +78,7 @@ def init ():
         print("MPU6050")
         print("------------------------------------------------")
 
-def getData (data, offset = 5):
+def getData (data, offset):
         if isRealSensor:
                 data[offset + 0] = read_word(0x43) / scale0_gyro
                 data[offset + 1] = read_word(0x45) / scale0_gyro
