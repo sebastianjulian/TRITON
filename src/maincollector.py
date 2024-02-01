@@ -6,11 +6,13 @@ import random
 import time
 
 import bme280sensor
+import mpu6050sensor
 
 from datetime import datetime, timezone
 
 # initializations
 bme280sensor.init()
+mpu6050sensor.init()
 #mpu6050sensor.mpu6050init()
 
 # main function: collects data and saves it
@@ -27,15 +29,19 @@ def main():
         
         try:
             bme280sensor.getData (data = data, offset = 0)
-        except:
+        except Exception as e:
             print("failed to read bme280 sensor")
+            print(e)
     
         try:
-            mpu6050sensor.getData( data = data, offset = 5)
-        except:
-            print("failed to read mpu6050 sensor")
+            mpu6050sensor.getData(data = data, offset = 5)
+        except Exception as e:
+            print("failed to read mpu6050 sensor ")
+            print(e)
     
         print(data)
+        
+        time.sleep(1)
         
         
     
