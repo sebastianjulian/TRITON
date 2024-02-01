@@ -13,6 +13,9 @@ print("Pressure: {:.2f} hPa".format(bme280.pressure))
 #!/usr/bin/python3
 import board
 import busio
+import time
+
+
 from adafruit_bme280 import basic as adafruit_bme280
 
 i2c = busio.I2C(board.SCL, board.SDA)

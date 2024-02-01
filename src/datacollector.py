@@ -12,6 +12,7 @@ async def generate_random_sensor_data():
         temperature = round(random.uniform(18, 28), 2)
         pressure = round(random.uniform(980, 1030), 2)
         yield temperature, pressure
+        
         '''
         await data = bme.280.sample(bus, address, calibration_params)
         temperature = data.temperature
