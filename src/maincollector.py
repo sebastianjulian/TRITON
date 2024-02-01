@@ -1,30 +1,46 @@
-# all imports
 import asyncio
+import math
+import numpy as np
 import os
 import random
-import smbus2
-import bme280
-import math
-import smbus
-import numpy as np
-import board
-import busio
 import time
-from adafruit_bme280 import basic as adafruit_bme280
+
 import bme280sensor
-import mpu6050sensor
 
-
+from datetime import datetime, timezone
 
 # initializations
-bme280sensor.bme280init()
-mpu6050sensor.mpu6050init()
-
-
+bme280sensor.init()
+#mpu6050sensor.mpu6050init()
 
 # main function: collects data and saves it
-def main ():
-    bme280sensor.bme280main()
-    mpu6050sensor.mpu6050main()
+def main():
     
-main()
+    startTime = datetime.now(timezone.utc)
+    t0 = time.monotonic_ns()
+
+    print(f"start at {startTime.isoformat()}")
+    
+    data = np.zeros(12)
+    
+    while True:
+        
+        try:
+            bme280sensor.getData (data = data, offset = 0)
+        except:
+            print("failed to read bme280 sensor")
+    
+        try:
+            mpu6050sensor.getData( data = data, offset = 5)
+        except:
+            print("failed to read mpu6050 sensor")
+    
+        print(data)
+        
+        
+    
+    
+# The following block ensures that the 'main()' function is only called
+# if the script is executed as the main program, not if it is imported as a module.
+if __name__ == "__main__":
+    main()
