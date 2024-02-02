@@ -41,3 +41,21 @@ TODO Beschreibung:
     - File/Load Private Key   (`.ssh\id_ed25519`, das File OHNE .pub)
     - Save Private Key Button -> speichern als `.ssh\id_ed25519.ppk`
 4. in tortoisegit/settings/git/remote/origin/putty-key die Datei `.ssh\id_ed25519.ppk` angeben
+
+### Raspberry Pi Zero 2 W
+
+- `sudo apt update`
+- `sudo apt upgrade`
+- `sudo apt install git`
+
+- `sudo raspi-config`
+    - enable ssh
+    - enable i2c
+
+- `ssh-keygen -t ecdsa -b 521`
+    - `more .ssh/id_ecdsa.pub` und den public ssh key bei github registrieren
+
+- `sudo apt install python3-pip`
+- `sudo apt-get install python3-numpy`
+- `sudo pip3 install adafruit-circuitpython-bme280 --break-system-packages`
+- `sudo pip install mpu6050-raspberrypi --break-system-packages`
