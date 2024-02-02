@@ -13,6 +13,7 @@ except:
 import numpy as np
 import random
 import time
+from datetime import datetime, timezone
 
 bme280 = None
 
@@ -34,28 +35,32 @@ def init ():
     time.sleep(1)
 
 ### asdasdasdasd
-def getData (data, offset):
+def getData (data, offset, file):
     
     #data = np.zeros(5)
     
     if isRealSensor:
-        
-        data[offset + 0] = bme280.temperature
-        data[offset + 1] = bme280.humidity
-        data[offset + 2] = bme280.relative_humidity
-        data[offset + 3] = bme280.pressure
-        data[offset + 4] = bme280.altitude
+        timestamp = datetime.now(timezone.utc).isoformat()
+        data[offset + 0] = temperature = bme280.temperature
+        data[offset + 1] = humidity = bme280.humidity
+        data[offset + 2] = relative_humidity = bme280.relative_humidity
+        data[offset + 3] = pressure = bme280.pressure
+        data[offset + 4] = altitude = bme280.altitude
+        file.write(f"{timestamp},{temperature},{humidity},{relative_humidity},{pressure},{altitude}\n")
+        file.flush()
 
     else:
         
         if random.random() > 0.95:
             raise Exception("Simulated I/O error.")
-        
-        data[offset + 0] = random.uniform(-10, 40)
-        data[offset + 1] = random.uniform(0, 100)
-        data[offset + 2] = random.uniform(0, 100)
-        data[offset + 3] = random.uniform(950, 1050)
-        data[offset + 4] = random.uniform(1, 10000)
+        timestamp = datetime.now(timezone.utc).isoformat()
+        data[offset + 0] = temperature = random.uniform(-10, 40)
+        data[offset + 1] = humidity = random.uniform(0, 100)
+        data[offset + 2] = relative_humidity = random.uniform(0, 100)
+        data[offset + 3] = pressure = random.uniform(950, 1050)
+        data[offset + 4] = altitude = random.uniform(1, 10000)
+        file.write(f"{timestamp},{temperature},{humidity},{relative_humidity},{pressure},{altitude}\n")
+        file.flush()
 
     # isChanged = False
     # if (abs(temp - data[0]) > 0.1): isChanged = True 
