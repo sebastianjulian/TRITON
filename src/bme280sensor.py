@@ -41,11 +41,11 @@ def getData (data, offset):
     
     if isRealSensor:
         #timestamp = datetime.now(timezone.utc).isoformat()
-        data[offset + 0] = temperature = bme280.temperature
-        data[offset + 1] = humidity = bme280.humidity
-        data[offset + 2] = relative_humidity = bme280.relative_humidity
-        data[offset + 3] = pressure = bme280.pressure
-        data[offset + 4] = altitude = bme280.altitude
+        data[offset + 0] = temperature = round(bme280.temperature, 2)
+        data[offset + 1] = humidity = round(bme280.humidity, 1)
+        data[offset + 2] = relative_humidity = round(bme280.relative_humidity, 1)
+        data[offset + 3] = pressure = round(bme280.pressure, 2)
+        data[offset + 4] = altitude = round(bme280.altitude, 1)
         #file.write(f"{timestamp},{temperature},{humidity},{relative_humidity},{pressure},{altitude}\n")
         #file.flush()
 
@@ -54,11 +54,11 @@ def getData (data, offset):
         if random.random() > 0.95:
             raise Exception("Simulated I/O error.")
         #timestamp = datetime.now(timezone.utc).isoformat()
-        data[offset + 0] = temperature = random.uniform(-10, 40)
-        data[offset + 1] = humidity = random.uniform(0, 100)
-        data[offset + 2] = relative_humidity = random.uniform(0, 100)
-        data[offset + 3] = pressure = random.uniform(950, 1050)
-        data[offset + 4] = altitude = random.uniform(1, 10000)
+        data[offset + 0] = temperature = round(random.uniform(-10, 40), 2)
+        data[offset + 1] = humidity = round(random.uniform(0, 100), 1)
+        data[offset + 2] = relative_humidity = round(random.uniform(0, 100), 1)
+        data[offset + 3] = pressure = round(random.uniform(950, 1050), 2)
+        data[offset + 4] = altitude = round(random.uniform(1, 10000), 1)
         #file.write(f"{timestamp},{temperature},{humidity},{relative_humidity},{pressure},{altitude}\n")
         #file.flush()
 

@@ -37,6 +37,20 @@ def main():
     print(f"start at {startTime.isoformat()}")
     
     data = np.zeros(13)
+    # Position : sensor : Variable : Einheit : Schwelle : Runden
+    # [0]   :  bme280    :  temp :  °C  :   0.1 : 2
+    # [1]   :  bme280    :  humi :  %   :   0.5 : 1
+    # [2]   :  bme280    :  rehu :  %   :   0.5 : 1
+    # [3]   :  bme280    :  press   hPa :   0.1 : 2
+    # [4]   :  bme280    :  alti    m   :   0.5 : 1
+    # [5]   :  mpu6050   :  xgyr    °/s :   1   : 0
+    # [6]   :  mpu6050   :  ygyr    °/s :   1   : 0
+    # [7]   :  mpu6050   :  zgyr    °/s :   1   : 0
+    # [8]   :  mpu6050   :  xacc    g   :   0.1 : 2
+    # [9]   :  mpu6050   :  yacc    g   :   0.1 : 2
+    # [10]  :  mpu6050   :  zacc    g   :   0.1 : 2
+    # [11]  :  mpu6050   :  temp    °   :   0.1 : 2
+    
     
     while True:
         

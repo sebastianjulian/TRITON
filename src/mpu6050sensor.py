@@ -82,13 +82,13 @@ def init ():
 def getData (data, offset):
         if isRealSensor:
                 #timestamp = datetime.now(timezone.utc).isoformat()
-                data[offset + 0] = gyroxout = read_word(0x43) / scale0_gyro
-                data[offset + 1] = gyroyout = read_word(0x45) / scale0_gyro
-                data[offset + 2] = gyrozout = read_word(0x47) / scale0_gyro
-                data[offset + 3] = acclxout = read_word(0x3b) / scale0_accl
-                data[offset + 4] = acclyout = read_word(0x3d) / scale0_accl
-                data[offset + 5] = acclzout = read_word(0x3f) / scale0_accl
-                data[offset + 6] = temperature = get_temperature()
+                data[offset + 0] = gyroxout = round(read_word(0x43) / scale0_gyro, 0)
+                data[offset + 1] = gyroyout = round(read_word(0x45) / scale0_gyro, 0)
+                data[offset + 2] = gyrozout = round(read_word(0x47) / scale0_gyro, 0)
+                data[offset + 3] = acclxout = round(read_word(0x3b) / scale0_accl, 2)
+                data[offset + 4] = acclyout = round(read_word(0x3d) / scale0_accl, 2)
+                data[offset + 5] = acclzout = round(read_word(0x3f) / scale0_accl, 2)
+                data[offset + 6] = temperature = round(get_temperature(), 2)
                 #file.write(f"{timestamp},{gyroxout},{gyroyout},{gyrozout},{acclxout},{acclyout},{acclzout},{temperature}")
                 #file.flush()
         else:
