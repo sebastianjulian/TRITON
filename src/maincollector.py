@@ -19,52 +19,63 @@ mpu6050sensor.init()
 def main():
     
     startTime = datetime.now(timezone.utc)
-    t0 = time.monotonic_ns()
+    t0_ns = time.monotonic_ns()
     LOGS_DIR = "logs"
      
-    t0 = datetime.now(timezone.utc)
-    print(f"started at {t0}")
+    nowUtc = datetime.now(timezone.utc)
+    print(f"started at {nowUtc}")
    
     if not os.path.exists(LOGS_DIR):
         os.makedirs(LOGS_DIR)
     
-    filename = os.path.abspath(f"{LOGS_DIR}/sensor_data_{t0.strftime('%Y%m%d%H%M%S')}Z.csv")
+    filename = os.path.abspath(f"{LOGS_DIR}/sensor_data_{nowUtc.strftime('%Y%m%d%H%M%S')}Z.csv")
     file = open(filename, mode='w', encoding='utf-8')
-    file.write(f"Timestamp, Temperature [°C], Humidity [%], Relative Humidity [%], Pressure [hPa], Altitude [m], X-Gyro [°/s], Y-Gyro [°/s],Z-Gyro [°/s], X-Acceleration [g], Y-Acceleration [g], Z-Acceleration [g], X-Rotation [°], Y-Rotation [°], Z-Rotation [°]\n")
+    file.write(f"Timestamp, t [s], Temperature [°C], Humidity [%], Relative Humidity [%], Pressure [hPa], Altitude [m], X-Gyro [°/s], Y-Gyro [°/s],Z-Gyro [°/s], X-Acceleration [g], Y-Acceleration [g], Z-Acceleration [g], X-Rotation [°], Y-Rotation [°], Z-Rotation [°]\n")
     
     print(f"logging to file {filename}")
-    # sensor:_data = []
-
+  
     print(f"start at {startTime.isoformat()}")
     
-    data = np.zeros(12)
+    data = np.zeros(13)
     
     while True:
         
         try:
-            #file = open(filename, mode='w', encoding='utf-8')
-            bme280sensor.getData (data = data, offset = 0, file=file)
+            
+            try:
+                bme280sensor.getData (data = data, offset = 1)
+                
+            except Exception as e:
+                print("failed to read bme280 sensor")
+                print(e)
+        
+            try:
+                mpu6050sensor.getData(data = data, offset = 6)
+            except Exception as e:
+                print("failed to read mpu6050 sensor ")
+                print(e)
+            
+            # set current timestamp in seconds since start
+            # (this makes plotting graphs simpler as compared to using date/time strings)
+            data[0] = (time.monotonic_ns() - t0_ns) / 1e9
+            
+            # write data array to file
+            file.write(f"{datetime.now(timezone.utc).isoformat()},{data[0]},{data[1]},{data[2]},{data[3]},{data[4]},{data[5]},{data[6]},{data[7]},{data[8]},{data[9]},{data[10]},{data[11]},{data[12]}\n")
+            file.flush()
+            
+            # write data array to console
+            #print(data)
+            
+            #time.sleep(1)
             
         except Exception as e:
-            print("failed to read bme280 sensor")
+            print("something went wrong")
             print(e)
+            
+    # cleanup
+    # print(f"Collected temperature and pressure data with timestamps saved to {filename}.")   
+    # file.close()
     
-        try:
-            #file = open(filename, mode='w', encoding='utf-8')
-            mpu6050sensor.getData(data = data, offset = 5, file=file)
-        except Exception as e:
-            print("failed to read mpu6050 sensor ")
-            print(e)
-        finally:
-            print(f"Collected temperature and pressure data with timestamps saved to {filename}.")
-        
-            #file.close()
-    
-        
-        print(data)
-        
-        
-        time.sleep(1)
         
         
     

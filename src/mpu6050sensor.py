@@ -79,9 +79,9 @@ def init ():
         print("MPU6050")
         print("------------------------------------------------")
 
-def getData (data, offset, file):
+def getData (data, offset):
         if isRealSensor:
-                timestamp = datetime.now(timezone.utc).isoformat()
+                #timestamp = datetime.now(timezone.utc).isoformat()
                 data[offset + 0] = gyroxout = read_word(0x43) / scale0_gyro
                 data[offset + 1] = gyroyout = read_word(0x45) / scale0_gyro
                 data[offset + 2] = gyrozout = read_word(0x47) / scale0_gyro
@@ -89,13 +89,13 @@ def getData (data, offset, file):
                 data[offset + 4] = acclyout = read_word(0x3d) / scale0_accl
                 data[offset + 5] = acclzout = read_word(0x3f) / scale0_accl
                 data[offset + 6] = temperature = get_temperature()
-                file.write(f"{timestamp},{gyroxout},{gyroyout},{gyrozout},{acclxout},{acclyout},{acclzout},{temperature}")
-                file.flush()
+                #file.write(f"{timestamp},{gyroxout},{gyroyout},{gyrozout},{acclxout},{acclyout},{acclzout},{temperature}")
+                #file.flush()
         else:
                 if random.random() > 0.95:
                     raise Exception("Simulated I/O error.")
             
-                timestamp = datetime.now(timezone.utc).isoformat()
+                #timestamp = datetime.now(timezone.utc).isoformat()
                 data[offset + 0] = gyroxout = random.uniform(0,1) / scale0_gyro
                 data[offset + 1] = gyroyout = random.uniform(0,1) / scale0_gyro
                 data[offset + 2] = gyrozout = random.uniform(0,1) / scale0_gyro
@@ -103,8 +103,8 @@ def getData (data, offset, file):
                 data[offset + 4] = acclyout = random.uniform(0,20) / scale0_accl
                 data[offset + 5] = acclzout = random.uniform(0,20) / scale0_accl
                 data[offset + 6] = temperature = random.uniform(-10,40)
-                file.write(f"{timestamp},{gyroxout},{gyroyout},{gyrozout},{acclxout},{acclyout},{acclzout},{temperature}")
-                file.flush()
+                #file.write(f"{timestamp},{gyroxout},{gyroyout},{gyrozout},{acclxout},{acclyout},{acclzout},{temperature}")
+                #file.flush()
     
    
 #         while True:
