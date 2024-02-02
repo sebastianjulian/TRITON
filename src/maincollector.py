@@ -30,7 +30,7 @@ def main():
     
     filename = os.path.abspath(f"{LOGS_DIR}/sensor_data_{t0.strftime('%Y%m%d%H%M%S')}Z.csv")
     file = open(filename, mode='w', encoding='utf-8')
-    file.write(f"Timestamp, Temperature [°C], Humidity [%], Relative Humidity [%], Pressure [hPa], Altitude [m], X-Gyro [°/s], Y-Gyro [°/s],Z-Gyro [°/s], X-Acceleration [G], Y-Acceleration [G], Z-Acceleration [G], X-Rotation [°], Y-Rotation [°], Z-Rotation [°]\n")
+    file.write(f"Timestamp, Temperature [°C], Humidity [%], Relative Humidity [%], Pressure [hPa], Altitude [m], X-Gyro [°/s], Y-Gyro [°/s],Z-Gyro [°/s], X-Acceleration [g], Y-Acceleration [g], Z-Acceleration [g], X-Rotation [°], Y-Rotation [°], Z-Rotation [°]\n")
     
     print(f"logging to file {filename}")
     # sensor:_data = []
@@ -42,7 +42,7 @@ def main():
     while True:
         
         try:
-            file = open(filename, mode='w', encoding='utf-8')
+            #file = open(filename, mode='w', encoding='utf-8')
             bme280sensor.getData (data = data, offset = 0, file=file)
             
         except Exception as e:
@@ -50,7 +50,8 @@ def main():
             print(e)
     
         try:
-            mpu6050sensor.getData(data = data, offset = 5)
+            #file = open(filename, mode='w', encoding='utf-8')
+            mpu6050sensor.getData(data = data, offset = 5, file=file)
         except Exception as e:
             print("failed to read mpu6050 sensor ")
             print(e)

@@ -11,6 +11,7 @@ import math
 import numpy as np
 import random
 import time
+from datetime import datetime, timezone
 
 
 bus = None
@@ -78,27 +79,32 @@ def init ():
         print("MPU6050")
         print("------------------------------------------------")
 
-def getData (data, offset):
+def getData (data, offset, file):
         if isRealSensor:
-                data[offset + 0] = read_word(0x43) / scale0_gyro
-                data[offset + 1] = read_word(0x45) / scale0_gyro
-                data[offset + 2] = read_word(0x47) / scale0_gyro
-                data[offset + 3] = read_word(0x3b) / scale0_accl
-                data[offset + 4] = read_word(0x3d) / scale0_accl
-                data[offset + 5] = read_word(0x3f) / scale0_accl
-                data[offset + 6] = get_temperature()
+                timestamp = datetime.now(timezone.utc).isoformat()
+                data[offset + 0] = gyroxout = read_word(0x43) / scale0_gyro
+                data[offset + 1] = gyroyout = read_word(0x45) / scale0_gyro
+                data[offset + 2] = gyrozout = read_word(0x47) / scale0_gyro
+                data[offset + 3] = acclxout = read_word(0x3b) / scale0_accl
+                data[offset + 4] = acclyout = read_word(0x3d) / scale0_accl
+                data[offset + 5] = acclzout = read_word(0x3f) / scale0_accl
+                data[offset + 6] = temperature = get_temperature()
+                file.write(f"{timestamp},{gyroxout},{gyroyout},{gyrozout},{acclxout},{acclyout},{acclzout},{temperature}")
+                file.flush()
         else:
                 if random.random() > 0.95:
                     raise Exception("Simulated I/O error.")
             
-                data[offset + 0] = random.uniform(0,1) / scale0_gyro
-                data[offset + 1] = random.uniform(0,1) / scale0_gyro
-                data[offset + 2] = random.uniform(0,1) / scale0_gyro
-                data[offset + 3] = random.uniform(0,20) / scale0_accl
-                data[offset + 4] = random.uniform(0,20) / scale0_accl
-                data[offset + 5] = random.uniform(0,20) / scale0_accl
-                data[offset + 6] = random.uniform(-10,40)
-    
+                timestamp = datetime.now(timezone.utc).isoformat()
+                data[offset + 0] = gyroxout = random.uniform(0,1) / scale0_gyro
+                data[offset + 1] = gyroyout = random.uniform(0,1) / scale0_gyro
+                data[offset + 2] = gyrozout = random.uniform(0,1) / scale0_gyro
+                data[offset + 3] = acclxout = random.uniform(0,20) / scale0_accl
+                data[offset + 4] = acclyout = random.uniform(0,20) / scale0_accl
+                data[offset + 5] = acclzout = random.uniform(0,20) / scale0_accl
+                data[offset + 6] = temperature = random.uniform(-10,40)
+                file.write(f"{timestamp},{gyroxout},{gyroyout},{gyrozout},{acclxout},{acclyout},{acclzout},{temperature}")
+                file.flush()
     
    
 #         while True:
