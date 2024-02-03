@@ -2,10 +2,10 @@
 isRealSensor = False
 
 try:
-        import smbus
-        isRealSensor = True
+    import smbus
+    isRealSensor = True
 except:
-        print("[mpu6050sensor] failed to load sensor libs -> generating random data instead")
+    print("[mpu6050sensor] failed to load sensor libs -> generating random data instead")
         
 import math
 import numpy as np
@@ -28,88 +28,88 @@ scale2_accl = 4096.0
 scale3_accl = 2048.0
 
 def read_word(reg):  #reading values from register
-        high = bus.read_byte_data(address, reg)
-        low = bus.read_byte_data(address, reg+1)
-        value = (high << 8) + low
+    high = bus.read_byte_data(address, reg)
+    low = bus.read_byte_data(address, reg+1)
+    value = (high << 8) + low
 
-        if (value >= 0x8000):
-                return -((65535 - value) + 1)
-        else:
-                return value
+    if (value >= 0x8000):
+        return -((65535 - value) + 1)
+    else:
+        return value
 
 def get_distance(a,b):
-        return math.sqrt((a*a)+(b*b))
+    return math.sqrt((a*a)+(b*b))
 
 def get_y_rotation(x,y,z):
-        radians = math.atan2(x, get_distance(y,z))
-        return -math.degrees(radians)
+    radians = math.atan2(x, get_distance(y,z))
+    return -math.degrees(radians)
 
 def get_x_rotation(x,y,z):
-        radians = math.atan2(y, get_distance(x,z))
-        return math.degrees(radians)
+    radians = math.atan2(y, get_distance(x,z))
+    return math.degrees(radians)
 
 def get_z_rotation(x,y,z):
-  radians = math.atan2(z, get_distance(x,y))
-  return math.degrees(radians)
+    radians = math.atan2(z, get_distance(x,y))
+    return math.degrees(radians)
 
 def get_temperature():
-  temp = read_word(0x41)
-  return (temp / 340) + 36.53
+    temp = read_word(0x41)
+    return (temp / 340) + 36.53
 
 def init ():
         
-        global isRealSensor
-        global bus
-        
-        if not isRealSensor: 
-                return
+    global isRealSensor
+    global bus
 
-        try:
-                bus = smbus.SMBus(1)
-                bus.write_byte_data(address, 0x6b, 0)  #initialize MPU
+    if not isRealSensor: 
+        return
 
-                scale0_gyro = 131.0  #scale factors of gyroscope
-                scale1_gyro = 65.5
-                scale2_gyro = 32.8
-                scale3_gyro = 16.4
+    try:
+        bus = smbus.SMBus(1)
+        bus.write_byte_data(address, 0x6b, 0)  #initialize MPU
 
-                scale0_accl = 16384.0  #scale factors of accelerometer
-                scale1_accl = 8192.0
-                scale2_accl = 4096.0
-                scale3_accl = 2048.0
+        scale0_gyro = 131.0  #scale factors of gyroscope
+        scale1_gyro = 65.5
+        scale2_gyro = 32.8
+        scale3_gyro = 16.4
 
-                print(f"[MPU6050 sensor] FOUND")
+        scale0_accl = 16384.0  #scale factors of accelerometer
+        scale1_accl = 8192.0
+        scale2_accl = 4096.0
+        scale3_accl = 2048.0
 
-        except Exception as e:
-                print(f"[MPU6050 sensor] {e}")
-                isRealSensor = False
+        print(f"[MPU6050 sensor] FOUND")
+
+    except Exception as e:
+        print(f"[MPU6050 sensor] {e}")
+        isRealSensor = False
 
 def getData (data, offset):
-        if isRealSensor:
-                #timestamp = datetime.now(timezone.utc).isoformat()
-                data[offset + 0] = gyroxout = round(read_word(0x43) / scale0_gyro, 0)
-                data[offset + 1] = gyroyout = round(read_word(0x45) / scale0_gyro, 0)
-                data[offset + 2] = gyrozout = round(read_word(0x47) / scale0_gyro, 0)
-                data[offset + 3] = acclxout = round(read_word(0x3b) / scale0_accl, 2)
-                data[offset + 4] = acclyout = round(read_word(0x3d) / scale0_accl, 2)
-                data[offset + 5] = acclzout = round(read_word(0x3f) / scale0_accl, 2)
-                data[offset + 6] = temperature = round(get_temperature(), 2)
-                #file.write(f"{timestamp},{gyroxout},{gyroyout},{gyrozout},{acclxout},{acclyout},{acclzout},{temperature}")
-                #file.flush()
-        else:
-                if random.random() > 0.9999:
-                    raise Exception("Simulated I/O error.")
-            
-                #timestamp = datetime.now(timezone.utc).isoformat()
-                data[offset + 0] = gyroxout = random.uniform(0,1) / scale0_gyro
-                data[offset + 1] = gyroyout = random.uniform(0,1) / scale0_gyro
-                data[offset + 2] = gyrozout = random.uniform(0,1) / scale0_gyro
-                data[offset + 3] = acclxout = random.uniform(0,20) / scale0_accl
-                data[offset + 4] = acclyout = random.uniform(0,20) / scale0_accl
-                data[offset + 5] = acclzout = random.uniform(0,20) / scale0_accl
-                data[offset + 6] = temperature = random.uniform(-10,40)
-                #file.write(f"{timestamp},{gyroxout},{gyroyout},{gyrozout},{acclxout},{acclyout},{acclzout},{temperature}")
-                #file.flush()
+    if isRealSensor:
+        #timestamp = datetime.now(timezone.utc).isoformat()
+        data[offset + 0] = gyroxout = round(read_word(0x43) / scale0_gyro, 0)
+        data[offset + 1] = gyroyout = round(read_word(0x45) / scale0_gyro, 0)
+        data[offset + 2] = gyrozout = round(read_word(0x47) / scale0_gyro, 0)
+        data[offset + 3] = acclxout = round(read_word(0x3b) / scale0_accl, 2)
+        data[offset + 4] = acclyout = round(read_word(0x3d) / scale0_accl, 2)
+        data[offset + 5] = acclzout = round(read_word(0x3f) / scale0_accl, 2)
+        data[offset + 6] = temperature = round(get_temperature(), 2)
+        #file.write(f"{timestamp},{gyroxout},{gyroyout},{gyrozout},{acclxout},{acclyout},{acclzout},{temperature}")
+        #file.flush()
+    else:
+        if random.random() > 0.9999:
+            raise Exception("Simulated I/O error.")
+    
+        #timestamp = datetime.now(timezone.utc).isoformat()
+        data[offset + 0] = gyroxout = random.uniform(0,1) / scale0_gyro
+        data[offset + 1] = gyroyout = random.uniform(0,1) / scale0_gyro
+        data[offset + 2] = gyrozout = random.uniform(0,1) / scale0_gyro
+        data[offset + 3] = acclxout = random.uniform(0,20) / scale0_accl
+        data[offset + 4] = acclyout = random.uniform(0,20) / scale0_accl
+        data[offset + 5] = acclzout = random.uniform(0,20) / scale0_accl
+        data[offset + 6] = temperature = random.uniform(-10,40)
+        #file.write(f"{timestamp},{gyroxout},{gyroyout},{gyrozout},{acclxout},{acclyout},{acclzout},{temperature}")
+        #file.flush()
     
    
 #         while True:
