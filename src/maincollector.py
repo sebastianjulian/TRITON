@@ -71,14 +71,15 @@ def main():
             
             # set current timestamp in seconds since start
             # (this makes plotting graphs simpler as compared to using date/time strings)
-            data[0] = (time.monotonic_ns() - t0_ns) / 1e9
+            data[0] = round((time.monotonic_ns() - t0_ns) / 1e9, 3)
             
             # write data array to file
-            file.write(f"{datetime.now(timezone.utc).isoformat()},{data[0]},{data[1]},{data[2]},{data[3]},{data[4]},{data[5]},{data[6]},{data[7]},{data[8]},{data[9]},{data[10]},{data[11]},{data[12]}\n")
+            line = f"{datetime.now(timezone.utc).isoformat()},{data[0]:8.3f},{data[1]:8.3f},{data[2]:8.3f},{data[3]:8.3f},{data[4]:8.3f},{data[5]:8.3f},{data[6]:8.3f},{data[7]:8.3f},{data[8]:8.3f},{data[9]:8.3f},{data[10]:8.3f},{data[11]:8.3f},{data[12]:8.3f}"
+            file.write(f"{line}\n")
             file.flush()
             
             # write data array to console
-            #print(data)
+            print(line)
             
             #time.sleep(1)
             

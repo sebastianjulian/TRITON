@@ -78,8 +78,8 @@ def init ():
                 scale2_accl = 4096.0
                 scale3_accl = 2048.0
 
-                print("MPU6050")
-                print("------------------------------------------------")
+                print(f"[MPU6050 sensor] FOUND")
+
         except Exception as e:
                 print(f"[MPU6050 sensor] {e}")
                 isRealSensor = False

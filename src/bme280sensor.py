@@ -34,7 +34,9 @@ def init ():
         #bme280.sea_level_pressure = 1013.25
 
         bme280.mode = adafruit_bme280.MODE_NORMAL
-        time.sleep(1)
+        
+        print(f"[BME280 sensor] FOUND")
+
     except Exception as e:
         print(f"[BME280 sensor] {e}")
         isRealSensor = False
