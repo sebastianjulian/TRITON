@@ -10,6 +10,7 @@ except:
 import math
 import numpy as np
 import random
+import struct
 import time
 from datetime import datetime, timezone
 
@@ -85,22 +86,28 @@ def init ():
         isRealSensor = False
 
 def getData (data, offset):
+    
     if isRealSensor:
-        #timestamp = datetime.now(timezone.utc).isoformat()
-        data[offset + 0] = gyroxout = round(read_word(0x43) / scale0_gyro, 0)
-        data[offset + 1] = gyroyout = round(read_word(0x45) / scale0_gyro, 0)
-        data[offset + 2] = gyrozout = round(read_word(0x47) / scale0_gyro, 0)
-        data[offset + 3] = acclxout = round(read_word(0x3b) / scale0_accl, 2)
-        data[offset + 4] = acclyout = round(read_word(0x3d) / scale0_accl, 2)
-        data[offset + 5] = acclzout = round(read_word(0x3f) / scale0_accl, 2)
-        data[offset + 6] = temperature = round(get_temperature(), 2)
-        #file.write(f"{timestamp},{gyroxout},{gyroyout},{gyrozout},{acclxout},{acclyout},{acclzout},{temperature}")
-        #file.flush()
+        # Perform a burst read starting from ACCEL_XOUT_H through GYRO_ZOUT_L
+        # This reads the accelerometer data (6 bytes), temperature data (2 bytes),
+        # and gyroscope data (6 bytes) for a total of 14 bytes
+        data = bus.read_i2c_block_data(0x68, 0x3B, 14)
+        
+        # Unpack the 14 bytes using struct
+        accel_x, accel_y, accel_z, temp, gyro_x, gyro_y, gyro_z = struct.unpack(">hhhhhhh", bytes(data))
+    
+        # data[offset + 0] = gyroxout = round(read_word(0x43) / scale0_gyro, 0)
+        # data[offset + 1] = gyroyout = round(read_word(0x45) / scale0_gyro, 0)
+        # data[offset + 2] = gyrozout = round(read_word(0x47) / scale0_gyro, 0)
+        # data[offset + 3] = acclxout = round(read_word(0x3b) / scale0_accl, 2)
+        # data[offset + 4] = acclyout = round(read_word(0x3d) / scale0_accl, 2)
+        # data[offset + 5] = acclzout = round(read_word(0x3f) / scale0_accl, 2)
+        # data[offset + 6] = temperature = round(get_temperature(), 2)
+    
     else:
         if random.random() > 0.9999:
             raise Exception("Simulated I/O error.")
     
-        #timestamp = datetime.now(timezone.utc).isoformat()
         data[offset + 0] = gyroxout = random.uniform(0,1) / scale0_gyro
         data[offset + 1] = gyroyout = random.uniform(0,1) / scale0_gyro
         data[offset + 2] = gyrozout = random.uniform(0,1) / scale0_gyro
@@ -108,8 +115,6 @@ def getData (data, offset):
         data[offset + 4] = acclyout = random.uniform(0,20) / scale0_accl
         data[offset + 5] = acclzout = random.uniform(0,20) / scale0_accl
         data[offset + 6] = temperature = random.uniform(-10,40)
-        #file.write(f"{timestamp},{gyroxout},{gyroyout},{gyrozout},{acclxout},{acclyout},{acclzout},{temperature}")
-        #file.flush()
     
    
 #         while True:

@@ -10,10 +10,6 @@ import mpu6050sensor
 
 from datetime import datetime, timezone
 
-# initializations
-bme280sensor.init()
-mpu6050sensor.init()
-#mpu6050sensor.mpu6050init()
 
 # main function: collects data and saves it
 def main():
@@ -21,11 +17,12 @@ def main():
     verbose = False
 
     startTime = datetime.now(timezone.utc)
-    t0_ns = time.monotonic_ns()
+    print(f"[MAIN] started at {startTime.isoformat()}")
+    
+    t0_ns = time.monotonic_ns() * 1e-9
     LOGS_DIR = "logs"
      
     nowUtc = datetime.now(timezone.utc)
-    print(f"started at {nowUtc}")
    
     if not os.path.exists(LOGS_DIR):
         os.makedirs(LOGS_DIR)
@@ -34,9 +31,13 @@ def main():
     file = open(filename, mode='w', encoding='utf-8')
     file.write(f"Timestamp, t [s], Temperature [°C], Humidity [%], Relative Humidity [%], Pressure [hPa], Altitude [m], X-Gyro [°/s], Y-Gyro [°/s],Z-Gyro [°/s], X-Acceleration [g], Y-Acceleration [g], Z-Acceleration [g], X-Rotation [°], Y-Rotation [°], Z-Rotation [°]\n")
     
-    print(f"logging to file {filename}")
+    print(f"[MAIN] logging to file {filename}")
   
-    print(f"start at {startTime.isoformat()}")
+    
+    
+    # initialize sensors
+    bme280sensor.init()
+    mpu6050sensor.init()
     
     data = np.zeros(13)
     # Position : sensor : Variable : Einheit : Schwelle : Runden
@@ -66,22 +67,22 @@ def main():
                     bme280sensor.getData (data = data, offset = 1)
                     
                 except Exception as e:
-                    print("failed to read bme280 sensor")
+                    print("[MAIN] failed to read bme280 sensor")
                     print(e)
         
             else:
                 try:
                     mpu6050sensor.getData(data = data, offset = 6)
                 except Exception as e:
-                    print("failed to read mpu6050 sensor ")
+                    print("[MAIN] failed to read mpu6050 sensor ")
                     print(e)
             
             # set current timestamp in seconds since start
             # (this makes plotting graphs simpler as compared to using date/time strings)
-            data[0] = round((time.monotonic_ns() - t0_ns) / 1e9, 3)
+            data[0] = (time.monotonic_ns() - t0_ns) * 1e-9
             
             # write data array to file
-            line = f"{datetime.now(timezone.utc).isoformat()},{data[0]:8.3f},{data[1]:8.3f},{data[2]:8.3f},{data[3]:8.3f},{data[4]:8.3f},{data[5]:8.3f},{data[6]:8.3f},{data[7]:8.3f},{data[8]:8.3f},{data[9]:8.3f},{data[10]:8.3f},{data[11]:8.3f},{data[12]:8.3f}"
+            line = f"{datetime.now(timezone.utc).isoformat()},{data[0]:12.0},{data[1]:8.3f},{data[2]:8.3f},{data[3]:8.3f},{data[4]:8.3f},{data[5]:8.3f},{data[6]:8.3f},{data[7]:8.3f},{data[8]:8.3f},{data[9]:8.3f},{data[10]:8.3f},{data[11]:8.3f},{data[12]:8.3f}"
             file.write(f"{line}\n")
             #file.flush()
             
@@ -99,7 +100,7 @@ def main():
 
             i += 1
             dt = data[0] - lastReport
-            if dt > 1.0:
+            if dt > 1.0: # .. 1 second
                 print(f"\n[MAIN] i = {i:10} | {((i - iPrev)/dt):10.1f} iterations/s")
                 lastReport = data[0]
                 iPrev = i
