@@ -46,7 +46,10 @@ TODO Beschreibung:
 
 - `sudo apt update`
 - `sudo apt upgrade`
+
 - `sudo apt install git`
+    - `git config --global user.email "your@email.org"`
+    - `git config --global user.name "Your Name"`
 
 - `sudo raspi-config`
     - enable ssh

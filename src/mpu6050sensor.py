@@ -58,26 +58,31 @@ def get_temperature():
 
 def init ():
         
+        global isRealSensor
         global bus
         
         if not isRealSensor: 
                 return
 
-        bus = smbus.SMBus(1)
-        bus.write_byte_data(address, 0x6b, 0)  #initialize MPU
+        try:
+                bus = smbus.SMBus(1)
+                bus.write_byte_data(address, 0x6b, 0)  #initialize MPU
 
-        scale0_gyro = 131.0  #scale factors of gyroscope
-        scale1_gyro = 65.5
-        scale2_gyro = 32.8
-        scale3_gyro = 16.4
+                scale0_gyro = 131.0  #scale factors of gyroscope
+                scale1_gyro = 65.5
+                scale2_gyro = 32.8
+                scale3_gyro = 16.4
 
-        scale0_accl = 16384.0  #scale factors of accelerometer
-        scale1_accl = 8192.0
-        scale2_accl = 4096.0
-        scale3_accl = 2048.0
+                scale0_accl = 16384.0  #scale factors of accelerometer
+                scale1_accl = 8192.0
+                scale2_accl = 4096.0
+                scale3_accl = 2048.0
 
-        print("MPU6050")
-        print("------------------------------------------------")
+                print("MPU6050")
+                print("------------------------------------------------")
+        except Exception as e:
+                print(f"[BME280 sensor] {e}")
+                isRealSensor = False
 
 def getData (data, offset):
         if isRealSensor:
@@ -92,7 +97,7 @@ def getData (data, offset):
                 #file.write(f"{timestamp},{gyroxout},{gyroyout},{gyrozout},{acclxout},{acclyout},{acclzout},{temperature}")
                 #file.flush()
         else:
-                if random.random() > 0.95:
+                if random.random() > 0.9999:
                     raise Exception("Simulated I/O error.")
             
                 #timestamp = datetime.now(timezone.utc).isoformat()

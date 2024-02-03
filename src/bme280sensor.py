@@ -19,20 +19,25 @@ bme280 = None
 
 def init ():
     
+    global isRealSensor
     global bme280
     
     if not isRealSensor: 
         return
     
-    i2c = busio.I2C(board.SCL, board.SDA)
-    bme280 = adafruit_bme280.Adafruit_BME280_I2C(i2c, address=0x76)
+    try:
+        i2c = busio.I2C(board.SCL, board.SDA)
+        bme280 = adafruit_bme280.Adafruit_BME280_I2C(i2c, address=0x76)
 
-    # change this to match the location's pressure (hPa) at sea level
-    # need to be configured for the real altitude. Check your next Weatherstation for the pressure
-    #bme280.sea_level_pressure = 1013.25
+        # change this to match the location's pressure (hPa) at sea level
+        # need to be configured for the real altitude. Check your next Weatherstation for the pressure
+        #bme280.sea_level_pressure = 1013.25
 
-    bme280.mode = adafruit_bme280.MODE_NORMAL
-    time.sleep(1)
+        bme280.mode = adafruit_bme280.MODE_NORMAL
+        time.sleep(1)
+    except Exception as e:
+        print(f"[BME280 sensor] {e}")
+        isRealSensor = False
 
 ### asdasdasdasd
 def getData (data, offset):
@@ -51,7 +56,7 @@ def getData (data, offset):
 
     else:
         
-        if random.random() > 0.95:
+        if random.random() > 0.9999:
             raise Exception("Simulated I/O error.")
         #timestamp = datetime.now(timezone.utc).isoformat()
         data[offset + 0] = temperature = round(random.uniform(-10, 40), 2)
