@@ -81,7 +81,7 @@ def init ():
                 print("MPU6050")
                 print("------------------------------------------------")
         except Exception as e:
-                print(f"[BME280 sensor] {e}")
+                print(f"[MPU6050 sensor] {e}")
                 isRealSensor = False
 
 def getData (data, offset):
