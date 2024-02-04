@@ -14,7 +14,7 @@ from datetime import datetime, timezone
 # main function: collects data and saves it
 def main():
     
-    verbose = False
+    verbose = True
 
     startTime = datetime.now(timezone.utc)
     print(f"[MAIN] started at {startTime.isoformat()}")
