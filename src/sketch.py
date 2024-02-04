@@ -20,17 +20,7 @@ while True:
     
     data[0] = time.perf_counter() - t0
     
-    # max = np.maximum(data, max)
-    
-    # line = ", ".join([f"{value:10.3f}" for value in data])
-    # print(line, end = '\n')
-    
     diff = np.abs(data - last)
-    # line = ", ".join([f"{value:10.3f}" for value in diff])
-    # print(line, end = '\n')
-    
-    # line = ", ".join([f"{value:10.3f}" for value in (diff > deltas)])
-    # print(line, end = '\n')
     
     if np.any(diff > deltas):
         line = ", ".join([f"{value:10.3f}" for value in data])
