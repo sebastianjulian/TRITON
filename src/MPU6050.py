@@ -97,16 +97,16 @@ class MPU6050:
             print(f"[MPU6050 sensor] FOUND")
 
             match actual_gyro_range:
-                case GyroRange.RANGE_250       : self.scale_gyro  =  250.0 / 32768
-                case GyroRange.RANGE_500       : self.scale_gyro  =  500.0 / 32768
-                case GyroRange.RANGE_1000      : self.scale_gyro  = 1000.0 / 32768
-                case GyroRange.RANGE_2000      : self.scale_gyro  = 2000.0 / 32768
+                case GyroRange.RANGE_250       : self.scale_gyro  =  250.0 / 32767.0
+                case GyroRange.RANGE_500       : self.scale_gyro  =  500.0 / 32767.0
+                case GyroRange.RANGE_1000      : self.scale_gyro  = 1000.0 / 32767.0
+                case GyroRange.RANGE_2000      : self.scale_gyro  = 2000.0 / 32767.0
                 
             match actual_accel_range:
-                case AccelerationRange.RANGE_2 : self.scale_accel =    2.0 / 32768
-                case AccelerationRange.RANGE_4 : self.scale_accel =    4.0 / 32768
-                case AccelerationRange.RANGE_8 : self.scale_accel =    8.0 / 32768
-                case AccelerationRange.RANGE_16: self.scale_accel =   16.0 / 32768
+                case AccelerationRange.RANGE_2 : self.scale_accel =    2.0 / 32767.0
+                case AccelerationRange.RANGE_4 : self.scale_accel =    4.0 / 32767.0
+                case AccelerationRange.RANGE_8 : self.scale_accel =    8.0 / 32767.0
+                case AccelerationRange.RANGE_16: self.scale_accel =   16.0 / 32767.0
                 
         else:
             
@@ -131,7 +131,6 @@ class MPU6050:
             data[offset + 4] = accel_y * self.scale_accel
             data[offset + 5] = accel_z * self.scale_accel
             data[offset + 6] = (temp / 340.0) + 36.53
-            
         
         else:
             if random.random() > 0.9999:

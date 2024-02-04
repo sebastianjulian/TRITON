@@ -40,6 +40,9 @@ def main():
     mpu6050sensor.init()
     
     data = np.zeros(13)
+    
+    deltas = np.array([0.0, 0.1, 0.5, 0.5, 0.1, 0.5, 1.0, 1.0, 1.0, 0.1, 0.1, 0.1, 0.1])
+    
     # Position : sensor : Variable : Einheit : Schwelle : Runden
     # [0]   :  -         :  t    :  s   :   -   : -   # time since start in seconds
     # [1]   :  bme280    :  temp :  °C  :   0.1 : 2
