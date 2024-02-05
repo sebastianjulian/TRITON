@@ -6,6 +6,7 @@ import random
 import time
 
 import bme280sensor
+#import bmp280sensor
 import mpu6050sensor
 
 from datetime import datetime, timezone
@@ -19,7 +20,7 @@ def main():
     startTime = datetime.now(timezone.utc)
     print(f"[MAIN] started at {startTime.isoformat()}")
     
-    t0_ns = time.monotonic_ns() * 1e-9
+    t0 = time.perf_counter()
     LOGS_DIR = "logs"
      
     nowUtc = datetime.now(timezone.utc)
@@ -37,6 +38,7 @@ def main():
     
     # initialize sensors
     bme280sensor.init()
+    #bmp280sensor.init()
     mpu6050sensor.init()
     
     data = np.zeros(13)
@@ -65,27 +67,25 @@ def main():
         
         try:
             
-            if False: #i % 2 == 0:
-                try:
-                    bme280sensor.getData (data = data, offset = 1)
-                    
-                except Exception as e:
-                    print("[MAIN] failed to read bme280 sensor")
-                    print(e)
+            try:
+                bme280sensor.getData (data = data, offset = 1)
+                #bmp280sensor.getData (data = data, offset = 1)
+            except Exception as e:
+                print("[MAIN] failed to read bme280 sensor")
+                print(e)
         
-            else:
-                try:
-                    mpu6050sensor.getData(data = data, offset = 6)
-                except Exception as e:
-                    print("[MAIN] failed to read mpu6050 sensor ")
-                    print(e)
+            # try:
+            #     mpu6050sensor.getData(data = data, offset = 6)
+            # except Exception as e:
+            #     print("[MAIN] failed to read mpu6050 sensor ")
+            #     print(e)
             
             # set current timestamp in seconds since start
             # (this makes plotting graphs simpler as compared to using date/time strings)
-            data[0] = (time.monotonic_ns() - t0_ns) * 1e-9
+            data[0] = time.perf_counter() - t0
             
             # write data array to file
-            line = f"{datetime.now(timezone.utc).isoformat()},{data[0]:12.0},{data[1]:8.3f},{data[2]:8.3f},{data[3]:8.3f},{data[4]:8.3f},{data[5]:8.3f},{data[6]:8.3f},{data[7]:8.3f},{data[8]:8.3f},{data[9]:8.3f},{data[10]:8.3f},{data[11]:8.3f},{data[12]:8.3f}"
+            line = f"{datetime.now(timezone.utc).isoformat()},{data[0]:8.3f},{data[1]:8.3f},{data[2]:8.3f},{data[3]:8.3f},{data[4]:8.3f},{data[5]:8.3f},{data[6]:8.3f},{data[7]:8.3f},{data[8]:8.3f},{data[9]:8.3f},{data[10]:8.3f},{data[11]:8.3f},{data[12]:8.3f}"
             file.write(f"{line}\n")
             #file.flush()
             

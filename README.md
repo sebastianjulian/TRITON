@@ -1,15 +1,5 @@
 # CanSat
 
-TODO Beschreibung:
-- ENTWICKLUNGSUMGEBUNG (SIEHE UNTEN)
-- Öffentlichkeitsarbeit (Bericht, ...)
-- weiteren Sponsor finden
-- Gehäuse (mehrere wenn möglich zum Testen)
-- Stromversorgung
-- Fallschirme (testen mit Gehäuse)
-- Akkzelerometer bei über 16G testen
-- Lora-Modul senden testen 
-
 ## Entwicklungsumgebung
 
 ### Quickstart
@@ -31,6 +21,21 @@ TODO Beschreibung:
 
 - [VSCode](https://code.visualstudio.com/)
     - [Python PlugIn](https://marketplace.visualstudio.com/items?itemName=ms-python.python), einfach direkt in VSCode suchen/installieren
+
+- Code, Tutorials, Datasheets, ...
+    - https://randomnerdtutorials.com/raspberry-pi-bme280-data-logger/
+    - https://www.laub-home.de/wiki/Raspberry_Pi_BME280_Luftdruck_Sensor
+    - https://learn.adafruit.com/adafruit-bmp280-barometric-pressure-plus-temperature-sensor-breakout/circuitpython-test    
+    - https://www.laub-home.de/wiki/Raspberry_Pi_GPIO_Pin_Belegung_ausgeben
+    - https://www.electronicwings.com/raspberry-pi/mpu6050-accelerometergyroscope-interfacing-with-raspberry-pi
+    - https://invensense.tdk.com/wp-content/uploads/2015/02/MPU-6000-Datasheet1.pdf
+    - https://invensense.tdk.com/wp-content/uploads/2015/02/MPU-6000-Register-Map1.pdf
+    - https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bme280-ds002.pdf
+    - https://lora-developers.semtech.com/documentation/tech-papers-and-guides/lora-and-lorawan/
+    - https://pypi.org/project/smbus2/
+    - https://docs.python.org/3/library/time.htm
+    - https://docs.python.org/3/library/struct.html
+
 
 ### TortoiseGit mit SSH Key konfigurieren
 

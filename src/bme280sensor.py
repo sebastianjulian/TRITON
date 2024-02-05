@@ -31,7 +31,7 @@ def init ():
 
         # change this to match the location's pressure (hPa) at sea level
         # need to be configured for the real altitude. Check your next Weatherstation for the pressure
-        #bme280.sea_level_pressure = 1013.25
+        bme280.sea_level_pressure = 1017.5
 
         bme280.mode = adafruit_bme280.MODE_NORMAL
         
