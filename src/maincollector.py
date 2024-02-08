@@ -2,7 +2,7 @@ import asyncio
 import bme280sensor
 from datetime import datetime, timezone
 import math
-from MPU6050 import MPU6050
+from MPU6050 import MPU6050, GyroRange, AccelerationRange
 import mpu6050sensor
 import numpy as np
 import os
@@ -62,13 +62,17 @@ def main():
     bme280sensor.init()
     #bmp280sensor.init()
     #mpu6050sensor.init()
-    mpu6050 = MPU6050()
+    mpu6050 = MPU6050(
+        gyro_range = GyroRange.RANGE_2000,
+        accel_range = AccelerationRange.RANGE_16
+        )
     
     # 6) Creates data array (for recorded data), last array (for calculating minimal differences between recorded values), deltas array (for minial difference values)
     data = np.zeros(13)
     last = np.zeros(13)
     deltas = np.array([0.0, 0.1, 0.5, 0.5, 0.1, 0.5, 1.0, 1.0, 1.0, 0.1, 0.1, 0.1, 0.1])
-    deltas += 10
+    # deltas = np.array([0.5, 0.1, 0.5, 0.5, 0.1, 0.5, 1.0, 1.0, 1.0, 0.1, 0.1, 0.1, 0.1])
+    # deltas += 10
     
     print(f"Deltas: {deltas}")
     
@@ -92,6 +96,7 @@ def main():
     i = 0
     iPrev = i
     lastReport = 0.0
+    nextSendTime = 0.5
     
     # NEVERENDING LOOP
     # Start of neverending loop
@@ -108,9 +113,17 @@ def main():
                     last[:] = data
                     line = f"{datetime.now(timezone.utc).isoformat()},{data[0]:8.3f},{data[1]:8.3f},{data[2]:8.3f},{data[3]:8.3f},{data[4]:8.3f},{data[5]:8.3f},{data[6]:8.3f},{data[7]:8.3f},{data[8]:8.3f},{data[9]:8.3f},{data[10]:8.3f},{data[11]:8.3f},{data[12]:8.3f}"
                     file.write(f"{line}\n")
+
+                
+                if data[0] > nextSendTime:
+                    print("SENDING")
+                    file.write("SENDING")
+                    nextSendTime += 0.5
+            
             except Exception as e:
                 print("[MAIN] failed to read bme280 sensor")
                 print(e)
+            
             try:
                 # 11) Gets data from MPU6050 sensor and checks if the minimal difference is fulfilled -> if yes, writes data into files
                 mpu6050.get_data(data = data, offset = 6)
@@ -122,6 +135,16 @@ def main():
             except Exception as e:
                 print("Something went wrong")
                 print(e)
+            # try: 
+            #     passedTime = data[0] - last[0]
+            #     if passedTime >= 0.5:
+            #         # SEND DATA VIA LORA-MODULE
+            #         print("SENDING")
+            #         file.write("SENDING")
+            #         pass
+            # except Exception as e:
+            #     print("Something went wrong with SENDING")
+            #     print(e)
                 
         
             # try:

@@ -42,7 +42,7 @@ def init ():
         isRealSensor = False
 
 ### asdasdasdasd
-def getData (data, offset):
+def getData (data, offset = 1):
     
     #data = np.zeros(5)
     
@@ -58,8 +58,8 @@ def getData (data, offset):
 
     else:
         
-        if random.random() > 0.9999:
-            raise Exception("Simulated I/O error.")
+        # if random.random() > 0.9999:
+        #     raise Exception("Simulated I/O error.")
         timestamp = datetime.now(timezone.utc).isoformat()
         data[offset + 0] = temperature = round(random.uniform(-10, 40), 2)
         data[offset + 1] = humidity = round(random.uniform(0, 100), 1)
