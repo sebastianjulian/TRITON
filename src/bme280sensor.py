@@ -60,7 +60,7 @@ def getData (data, offset):
         
         if random.random() > 0.9999:
             raise Exception("Simulated I/O error.")
-        #timestamp = datetime.now(timezone.utc).isoformat()
+        timestamp = datetime.now(timezone.utc).isoformat()
         data[offset + 0] = temperature = round(random.uniform(-10, 40), 2)
         data[offset + 1] = humidity = round(random.uniform(0, 100), 1)
         data[offset + 2] = relative_humidity = round(random.uniform(0, 100), 1)

@@ -14,24 +14,38 @@ import time
 
 
 
-# MAIN FUNCTION: 
-# 1) Checks if directory exists
-# 2) 
-# 3)
-# 4)
+# MAIN FUNCTION:
+
+    # VARIABLES, LOG-FILES, ...
+        # 1) Prints when data gathering begins
+        # 2) Starts time(counter)
+        # 3) Checks if directory exists -> if not, creates one
+        # 4) Creates log file for collected data with timestamp, so that files are not overwritten
+        
+    # SENSOR INITIALIZATION 
+        # 5) Initializes sensors
+        # 6) creates data array (for recorded data), last array (for calculating minimal differences between recorded values), deltas array (for minial difference values)
+        # 7) List for minimal difference between recorded values (from collected data) so that values are written into the file
+        # 8) Iteration counter
+        
+    # NEVERENDING LOOP
+        # 9) Start of neverending loop
+        # 10) Gets data from BME280 sensor and checks if the minimal difference is fulfilled -> if yes, writes data into files
+        # 11) Gets data from MPU6050 sensor and checks if the minimal difference is fulfilled -> if yes, writes data into files
+        
 def main():
-    
+    # VARIABLES, LOG-FILES, ...
     verbose = True
 
-    # Prints when data gathering begins
+    # 1) Prints when data gathering begins
     startTime = datetime.now(timezone.utc)
     print(f"[MAIN] started at {startTime.isoformat()}")
     
-    # Starts time(counter)
+    # 2) Starts time(counter)
     t0 = time.perf_counter()
     
-    # Checks if directory exists -> if not, creates one
-    # Creates log file for collected data with timestamp, so that files are not overwritten
+    # 3) Checks if directory exists -> if not, creates one
+    # 4) Creates log file for collected data with timestamp, so that files are not overwritten
     LOGS_DIR = "logs"
     nowUtc = datetime.now(timezone.utc)
     if not os.path.exists(LOGS_DIR):
@@ -44,20 +58,21 @@ def main():
     
     
     # SENSOR INITIALIZATION 
-    # Initializes sensors
+    # 5) Initializes sensors
     bme280sensor.init()
     #bmp280sensor.init()
     #mpu6050sensor.init()
     mpu6050 = MPU6050()
     
-    # Creates data array (for recorded data), last array (for calculating minimal differences between recorded values), deltas array (for minial difference values)
+    # 6) Creates data array (for recorded data), last array (for calculating minimal differences between recorded values), deltas array (for minial difference values)
     data = np.zeros(13)
     last = np.zeros(13)
     deltas = np.array([0.0, 0.1, 0.5, 0.5, 0.1, 0.5, 1.0, 1.0, 1.0, 0.1, 0.1, 0.1, 0.1])
     deltas += 10
+    
     print(f"Deltas: {deltas}")
     
-    # List for minimal difference between recorded values so that values are written into the file
+    # 7) List for minimal difference between recorded values (from collected data) so that values are written into the file
     # Position : sensor : Variable : Einheit : Schwelle : Runden
     # [0]   :  -         :  t    :  s   :   -   : -   # time since start in seconds
     # [1]   :  bme280    :  temp :  °C  :   0.1 : 2
@@ -73,18 +88,19 @@ def main():
     # [11]  :  mpu6050   :  zacc    g   :   0.1 : 2
     # [12]  :  mpu6050   :  temp    °   :   0.1 : 2
     
-    # Iteration counter
+    # 8) Iteration counter
     i = 0
     iPrev = i
     lastReport = 0.0
     
+    # NEVERENDING LOOP
     # Start of neverending loop
     while True:
         
         try:
             
             try:
-                # Gets data from BME280 sensor and checks if the minimal difference is fulfilled -> if yes, writes data into files
+                # 10) Gets data from BME280 sensor and checks if the minimal difference is fulfilled -> if yes, writes data into files
                 bme280sensor.getData (data = data, offset = 1)
                 #bmp280sensor.getData (data = data, offset = 1)
                 diff = data - last
@@ -96,7 +112,7 @@ def main():
                 print("[MAIN] failed to read bme280 sensor")
                 print(e)
             try:
-                # Gets data from MPU6050 sensor and checks if the minimal difference is fulfilled -> if yes, writes data into files
+                # 11) Gets data from MPU6050 sensor and checks if the minimal difference is fulfilled -> if yes, writes data into files
                 mpu6050.get_data(data = data, offset = 6)
                 diff = data - last
                 if np.any(diff > deltas):

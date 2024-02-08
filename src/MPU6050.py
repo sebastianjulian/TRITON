@@ -143,6 +143,14 @@ class MPU6050:
             data[offset + 4] = accel_y = random.uniform(0,20) #* self.scale_accel
             data[offset + 5] = accel_z = random.uniform(0,20) #* self.scale_accel
             data[offset + 6] = temp = random.uniform(-10,40)
+            
+            # data[offset + 0] = gyro_x = random.uniform(0,0) 
+            # data[offset + 1] = gyro_y = random.uniform(0,0) 
+            # data[offset + 2] = gyro_z = random.uniform(0,0) 
+            # data[offset + 3] = accel_x = random.uniform(0,0)
+            # data[offset + 4] = accel_y = random.uniform(0,0)
+            # data[offset + 5] = accel_z = random.uniform(0,0)
+            # data[offset + 6] = temp = random.uniform(-1,0)
 
 
 
