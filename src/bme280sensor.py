@@ -66,6 +66,11 @@ def getData (data, offset):
         data[offset + 2] = relative_humidity = round(random.uniform(0, 100), 1)
         data[offset + 3] = pressure = round(random.uniform(950, 1050), 2)
         data[offset + 4] = altitude = round(random.uniform(1, 10000), 1)
+        # data[offset + 0] = temperature = round(random.uniform(40, 40), 2)
+        # data[offset + 1] = humidity = round(random.uniform(100, 100), 1)
+        # data[offset + 2] = relative_humidity = round(random.uniform(100, 100), 1)
+        # data[offset + 3] = pressure = round(random.uniform(950, 955), 2)
+        # data[offset + 4] = altitude = round(random.uniform(1, 1.5), 1)
         #file.write(f"{timestamp},{temperature},{humidity},{relative_humidity},{pressure},{altitude}\n")
         #file.flush()
 

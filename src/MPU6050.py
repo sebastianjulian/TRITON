@@ -136,13 +136,13 @@ class MPU6050:
             if random.random() > 0.9999:
                 raise Exception("Simulated I/O error.")
         
-            data[offset + 0] = gyroxout = random.uniform(0,1) / scale0_gyro
-            data[offset + 1] = gyroyout = random.uniform(0,1) / scale0_gyro
-            data[offset + 2] = gyrozout = random.uniform(0,1) / scale0_gyro
-            data[offset + 3] = acclxout = random.uniform(0,20) / scale0_accl
-            data[offset + 4] = acclyout = random.uniform(0,20) / scale0_accl
-            data[offset + 5] = acclzout = random.uniform(0,20) / scale0_accl
-            data[offset + 6] = temperature = random.uniform(-10,40)
+            data[offset + 0] = gyro_x = random.uniform(0,1)   #* self.scale_gyro
+            data[offset + 1] = gyro_y = random.uniform(0,1)   #* self.scale_gyro
+            data[offset + 2] = gyro_z = random.uniform(0,1)   #* self.scale_gyro
+            data[offset + 3] = accel_x = random.uniform(0,20) #* self.scale_accel
+            data[offset + 4] = accel_y = random.uniform(0,20) #* self.scale_accel
+            data[offset + 5] = accel_z = random.uniform(0,20) #* self.scale_accel
+            data[offset + 6] = temp = random.uniform(-10,40)
 
 
 
