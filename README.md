@@ -1,4 +1,11 @@
 # CanSat
+TODO:
+- Auswurfhöhe ermitteln
+- Sinkgeschwindigkeit ermitteln
+- zusätzlicher Sensor für Sekundärmission
+- Lora-Funk testen und einbauen
+- Fallschirm-Test mit 5.1 kg
+- MPU6050 bei über 16 testen
 
 ## Entwicklungsumgebung
 
