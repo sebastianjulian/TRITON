@@ -109,11 +109,11 @@ def main():
                 bme280sensor.getData (data = data, offset = 1)
                 #bmp280sensor.getData (data = data, offset = 1)
                 
-                diff = data - last
-                if np.any(diff > deltas):
-                    last[:] = data
-                    line = f"{datetime.now(timezone.utc).isoformat()},{data[0]:8.3f},{data[1]:8.3f},{data[2]:8.3f},{data[3]:8.3f},{data[4]:8.3f},{data[5]:8.3f},{data[6]:8.3f},{data[7]:8.3f},{data[8]:8.3f},{data[9]:8.3f},{data[10]:8.3f},{data[11]:8.3f},{data[12]:8.3f}"
-                    file.write(f"{line}\n")
+                # diff = data - last
+                # if np.any(diff > deltas):
+                #     last[:] = data
+                #     line = f"{datetime.now(timezone.utc).isoformat()},{data[0]:8.3f},{data[1]:8.3f},{data[2]:8.3f},{data[3]:8.3f},{data[4]:8.3f},{data[5]:8.3f},{data[6]:8.3f},{data[7]:8.3f},{data[8]:8.3f},{data[9]:8.3f},{data[10]:8.3f},{data[11]:8.3f},{data[12]:8.3f}"
+                #     file.write(f"{line}\n")
                 
                 
                 
@@ -131,11 +131,11 @@ def main():
             try:
                 # 11) Gets data from MPU6050 sensor and checks if the minimal difference is fulfilled -> if yes, writes data into files
                 mpu6050.get_data(data = data, offset = 6)
-                diff = data - last
-                if np.any(diff > deltas):
-                    last[:] = data
-                    line = f"{datetime.now(timezone.utc).isoformat()},{data[0]:8.3f},{data[1]:8.3f},{data[2]:8.3f},{data[3]:8.3f},{data[4]:8.3f},{data[5]:8.3f},{data[6]:8.3f},{data[7]:8.3f},{data[8]:8.3f},{data[9]:8.3f},{data[10]:8.3f},{data[11]:8.3f},{data[12]:8.3f}"
-                    file.write(f"{line}\n")
+                # diff = data - last
+                # if np.any(diff > deltas):
+                #     last[:] = data
+                #     line = f"{datetime.now(timezone.utc).isoformat()},{data[0]:8.3f},{data[1]:8.3f},{data[2]:8.3f},{data[3]:8.3f},{data[4]:8.3f},{data[5]:8.3f},{data[6]:8.3f},{data[7]:8.3f},{data[8]:8.3f},{data[9]:8.3f},{data[10]:8.3f},{data[11]:8.3f},{data[12]:8.3f}"
+                #     file.write(f"{line}\n")
             except Exception as e:
                 print("Something went wrong")
                 print(e)
