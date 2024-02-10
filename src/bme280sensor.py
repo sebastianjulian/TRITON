@@ -43,7 +43,6 @@ def init ():
 
 ### asdasdasdasd
 def getData (data, offset = 1):
-    
     #data = np.zeros(5)
     
     if isRealSensor:

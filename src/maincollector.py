@@ -108,11 +108,15 @@ def main():
                 # 10) Gets data from BME280 sensor and checks if the minimal difference is fulfilled -> if yes, writes data into files
                 bme280sensor.getData (data = data, offset = 1)
                 #bmp280sensor.getData (data = data, offset = 1)
+                
                 diff = data - last
                 if np.any(diff > deltas):
                     last[:] = data
                     line = f"{datetime.now(timezone.utc).isoformat()},{data[0]:8.3f},{data[1]:8.3f},{data[2]:8.3f},{data[3]:8.3f},{data[4]:8.3f},{data[5]:8.3f},{data[6]:8.3f},{data[7]:8.3f},{data[8]:8.3f},{data[9]:8.3f},{data[10]:8.3f},{data[11]:8.3f},{data[12]:8.3f}"
                     file.write(f"{line}\n")
+                
+                
+                
 
                 
                 if data[0] > nextSendTime:
@@ -166,21 +170,30 @@ def main():
             if verbose: print(line, end='\r')
             
             #time.sleep(1)
-            
+                        
         except Exception as e:
 
             print("something went wrong")
             print(e)
+            
 
         finally:
-
+            diff = data - last
+            if np.any(diff > deltas):
+                last[:] = data
+                line = f"{datetime.now(timezone.utc).isoformat()},{data[0]:8.3f},{data[1]:8.3f},{data[2]:8.3f},{data[3]:8.3f},{data[4]:8.3f},{data[5]:8.3f},{data[6]:8.3f},{data[7]:8.3f},{data[8]:8.3f},{data[9]:8.3f},{data[10]:8.3f},{data[11]:8.3f},{data[12]:8.3f}"
+                file.write(f"{line}\n")
+                
+                
+                
             i += 1
             dt = data[0] - lastReport
             if dt > 1.0: # .. 1 second
                 print(f"\n[MAIN] i = {i:10} | {((i - iPrev)/dt):10.1f} iterations/s")
                 lastReport = data[0]
                 iPrev = i
-
+          
+        
                 #raise Exception("haha")
 
             
