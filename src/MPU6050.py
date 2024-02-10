@@ -113,8 +113,8 @@ class MPU6050:
             print("bus is none")
 
     def get_data(self, data, offset):
-        """Read sensor values and write into data (there are 7 values).
-        """
+        '''Writes 7 values (gyro_x, gyro_y, gyro_z, accel_x, accel_y, accel_z, temperature) into data array,
+           starting at index offset.'''
         if self.bus is not None:
             # Perform a burst read starting from ACCEL_XOUT_H through GYRO_ZOUT_L
             # This reads the accelerometer data (6 bytes), temperature data (2 bytes),
@@ -155,24 +155,24 @@ class MPU6050:
 
 
 
-def get_distance(a,b):
-    return math.sqrt((a*a)+(b*b))
+# def get_distance(a,b):
+#     return math.sqrt((a*a)+(b*b))
 
-def get_y_rotation(x,y,z):
-    radians = math.atan2(x, get_distance(y,z))
-    return -math.degrees(radians)
+# def get_y_rotation(x,y,z):
+#     radians = math.atan2(x, get_distance(y,z))
+#     return -math.degrees(radians)
 
-def get_x_rotation(x,y,z):
-    radians = math.atan2(y, get_distance(x,z))
-    return math.degrees(radians)
+# def get_x_rotation(x,y,z):
+#     radians = math.atan2(y, get_distance(x,z))
+#     return math.degrees(radians)
 
-def get_z_rotation(x,y,z):
-    radians = math.atan2(z, get_distance(x,y))
-    return math.degrees(radians)
+# def get_z_rotation(x,y,z):
+#     radians = math.atan2(z, get_distance(x,y))
+#     return math.degrees(radians)
 
-def get_temperature():
-    temp = read_word(0x41)
-    return (temp / 340) + 36.53
+# def get_temperature():
+#     temp = read_word(0x41)
+#     return (temp / 340) + 36.53
 
 #         rotX = get_x_rotation(accl_xout_scaled, accl_yout_scaled, accl_zout_scaled)
 #         rotY = get_y_rotation(accl_xout_scaled, accl_yout_scaled, accl_zout_scaled)

@@ -32,7 +32,6 @@ def init ():
         # change this to match the location's pressure (hPa) at sea level
         # need to be configured for the real altitude. Check your next Weatherstation for the pressure
         bme280.sea_level_pressure = 1017.5
-
         bme280.mode = adafruit_bme280.MODE_NORMAL
         
         print(f"[BME280 sensor] FOUND")
@@ -41,57 +40,23 @@ def init ():
         print(f"[BME280 sensor] {e}")
         isRealSensor = False
 
-### asdasdasdasd
 def getData (data, offset = 1):
-    #data = np.zeros(5)
+    '''Writes 4 values (temperature, humidity, pressure, altitude) into data array,
+       starting at index offset.'''
     
     if isRealSensor:
-        #timestamp = datetime.now(timezone.utc).isoformat()
-        data[offset + 0] = temperature = round(bme280.temperature, 2)
-        data[offset + 1] = humidity = round(bme280.humidity, 1)
-        data[offset + 2] = relative_humidity = round(bme280.relative_humidity, 1)
-        data[offset + 3] = pressure = round(bme280.pressure, 2)
-        data[offset + 4] = altitude = round(bme280.altitude, 1)
-        #file.write(f"{timestamp},{temperature},{humidity},{relative_humidity},{pressure},{altitude}\n")
-        #file.flush()
+        
+        data[offset + 0] = round(bme280.temperature, 2)
+        data[offset + 1] = round(bme280.humidity, 1)
+        data[offset + 2] = round(bme280.pressure, 2)
+        data[offset + 3] = round(bme280.altitude, 1)
 
     else:
         
         # if random.random() > 0.9999:
         #     raise Exception("Simulated I/O error.")
-        timestamp = datetime.now(timezone.utc).isoformat()
-        data[offset + 0] = temperature = round(random.uniform(-10, 40), 2)
-        data[offset + 1] = humidity = round(random.uniform(0, 100), 1)
-        data[offset + 2] = relative_humidity = round(random.uniform(0, 100), 1)
-        data[offset + 3] = pressure = round(random.uniform(950, 1050), 2)
-        data[offset + 4] = altitude = round(random.uniform(1, 10000), 1)
-        # data[offset + 0] = temperature = round(random.uniform(40, 40), 2)
-        # data[offset + 1] = humidity = round(random.uniform(100, 100), 1)
-        # data[offset + 2] = relative_humidity = round(random.uniform(100, 100), 1)
-        # data[offset + 3] = pressure = round(random.uniform(950, 955), 2)
-        # data[offset + 4] = altitude = round(random.uniform(1, 1.5), 1)
-        #file.write(f"{timestamp},{temperature},{humidity},{relative_humidity},{pressure},{altitude}\n")
-        #file.flush()
-
-    # isChanged = False
-    # if (abs(temp - data[0]) > 0.1): isChanged = True 
-    # if (abs(hum  - data[1]) > 0.5): isChanged = True
-    # if (abs(rhum - data[2]) > 0.5): isChanged = True
-    # if (abs(prs  - data[3]) > 0.2): isChanged = True
-    # #print("Temperature: %0.1f C" % temp)
-    # #print("Humidity: %0.1f %%" % hum)
-    # #print("relative Humidity: %0.1f %%" % rhum)
-    # #print("absolute Pressure: %0.1f hPa" % prs)
-    # #print("Altitude = %0.2f meters" % alt)
-
-    # if isChanged:
-    #     t = (time.monotonic_ns()-t0)/1000000000.0
-    #     print(f"[{t:10.6f}] {temp:10.1f} °C {hum:10.1f} % {rhum:10.1f} % {prs:10.1f} hPa {alt:10.2f} m")
-
-    #     data[0] = temp
-    #     data[1] = hum
-    #     data[2] = rhum
-    #     data[3] = prs
-    #     data[4] = alt
-
-    #time.sleep(0.5)
+        
+        data[offset + 0] = round(random.uniform(-10, 40), 2)
+        data[offset + 1] = round(random.uniform(0, 100), 1)
+        data[offset + 2] = round(random.uniform(950, 1050), 2)
+        data[offset + 3] = round(random.uniform(1, 10000), 1)

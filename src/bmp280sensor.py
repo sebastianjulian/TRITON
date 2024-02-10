@@ -13,8 +13,6 @@ except Exception as e:
     
 import numpy as np
 import random
-import time
-from datetime import datetime, timezone
 
 bmp280 = None
 
@@ -45,19 +43,17 @@ def init ():
 def getData (data, offset):
     
     if isRealSensor:
-        data[offset + 0] = temperature = round(bmp280.temperature, 2)
-        #data[offset + 1] = humidity = round(bmp280.humidity, 1)
-        #data[offset + 2] = relative_humidity = round(bmp280.relative_humidity, 1)
-        data[offset + 3] = pressure = round(bmp280.pressure, 2)
-        data[offset + 4] = altitude = round(bmp280.altitude, 1)
+        
+        data[offset + 0] = round(bmp280.temperature, 2)
+        data[offset + 1] = round(bmp280.pressure, 2)
+        data[offset + 2] = round(bmp280.altitude, 1)
 
     else:
         
         if random.random() > 0.9999:
             raise Exception("Simulated I/O error.")
-        data[offset + 0] = temperature = round(random.uniform(-10, 40), 2)
-        data[offset + 1] = humidity = round(random.uniform(0, 100), 1)
-        data[offset + 2] = relative_humidity = round(random.uniform(0, 100), 1)
-        data[offset + 3] = pressure = round(random.uniform(950, 1050), 2)
-        data[offset + 4] = altitude = round(random.uniform(1, 10000), 1)
+        
+        data[offset + 0] = round(random.uniform(-10, 40), 2)
+        data[offset + 1] = round(random.uniform(950, 1050), 2)
+        data[offset + 2] = round(random.uniform(1, 10000), 1)
         
