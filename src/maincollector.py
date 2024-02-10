@@ -4,6 +4,7 @@ import numpy as np
 import os
 import sys
 import time
+import threading
 
 from datetime import datetime, timezone
 from MPU6050 import MPU6050, GyroRange, AccelerationRange
@@ -28,10 +29,35 @@ from MPU6050 import MPU6050, GyroRange, AccelerationRange
         # 10) Gets data from BME280 sensor and checks if the minimal difference is fulfilled -> if yes, writes data into files
         # 11) Gets data from MPU6050 sensor and checks if the minimal difference is fulfilled -> if yes, writes data into files
         
+data = np.zeros(12)
+        
+is_lora_send_thread_running = False
+def lora_send ():
+    
+    try:
+        global data
+        global is_lora_send_thread_running
+        is_lora_send_thread_running = True
+        
+        ### TODO replace this test code with actual lora send code
+        print(f"[LORA SEND TEST] START")
+        for i in range(5):
+            time.sleep(1.0)
+            print(f"[LORA SEND TEST] {i}")
+        ### TODO END
+            
+    except Exception as e:
+        print("[ERROR] lora_send failed")
+        print(e)
+        
+    finally:
+        is_lora_send_thread_running = False
+        
+        
 def main():
     # VARIABLES, LOG-FILES, ...
     verbose = True
-
+    
     # 1) Prints when data gathering begins
     startTime = datetime.now(timezone.utc)
     print(f"[MAIN] started at {startTime.isoformat()}")
@@ -63,7 +89,7 @@ def main():
         )
     
     # 6) Creates data array (for recorded data), last array (for calculating minimal differences between recorded values), deltas array (for minial difference values)
-    data = np.zeros(12)
+    global data
     last = np.zeros(12)
     deltas = np.array([1.0, 0.1, 0.5, 0.1, 0.5, 1.0, 1.0, 1.0, 0.1, 0.1, 0.1, 0.1])
     
@@ -132,10 +158,14 @@ def main():
             
             ##################################################################################
             # (4) write data array to file
-            line = f"{datetime.now(timezone.utc).isoformat()},{data[0]:8.3f},{data[1]:8.3f},{data[2]:8.3f},{data[3]:8.3f},{data[4]:8.3f},{data[5]:8.3f},{data[6]:8.3f},{data[7]:8.3f},{data[8]:8.3f},{data[9]:8.3f},{data[10]:8.3f},{data[11]:8.3f}"
-            file.write(f"{line}\n")
-            file.flush()
-            
+            try:
+                line = f"{datetime.now(timezone.utc).isoformat()},{data[0]:8.3f},{data[1]:8.3f},{data[2]:8.3f},{data[3]:8.3f},{data[4]:8.3f},{data[5]:8.3f},{data[6]:8.3f},{data[7]:8.3f},{data[8]:8.3f},{data[9]:8.3f},{data[10]:8.3f},{data[11]:8.3f}"
+                file.write(f"{line}\n")
+                file.flush()
+            except Exception as e:
+                print("[ERROR] File write failed.")
+                print(e)
+                
             ##################################################################################
             # (5) print data to console
             if verbose:
@@ -145,17 +175,12 @@ def main():
                     print(line, end='\r')
             
             ##################################################################################
-            # (n) TODO send via LORA-module
-            # try: 
-            #     passedTime = data[0] - last[0]
-            #     if passedTime >= 0.5:
-            #         # SEND DATA VIA LORA-MODULE
-            #         print("SENDING")
-            #         file.write("SENDING")
-            #         pass
-            # except Exception as e:
-            #     print("Something went wrong with SENDING")
-            #     print(e)
+            # (6) send data to ground station via LORA
+            global is_lora_send_thread_running
+            if not is_lora_send_thread_running:
+                t = threading.Thread(target=lora_send)
+                t.start()
+                print("[MAIN] started LORA send thread")
                 
             ##################################################################################
             # (n) print separation altitude each time there is a new min/max altitude
