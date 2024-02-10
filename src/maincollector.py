@@ -176,11 +176,15 @@ def main():
             
             ##################################################################################
             # (6) send data to ground station via LORA
-            global is_lora_send_thread_running
-            if not is_lora_send_thread_running:
-                t = threading.Thread(target=lora_send)
-                t.start()
-                print("[MAIN] started LORA send thread")
+            try:
+                global is_lora_send_thread_running
+                if not is_lora_send_thread_running:
+                    t = threading.Thread(target=lora_send)
+                    t.start()
+                    print("[MAIN] started LORA send thread")
+            except Exception as e:
+                print("[ERROR] Lora send failed.")
+                print(e)
                 
             ##################################################################################
             # (n) print separation altitude each time there is a new min/max altitude
@@ -197,17 +201,20 @@ def main():
 
         except Exception as e:
 
-            print("something went wrong")
+            print("Something else went wrong.")
             print(e)
             
         finally:
             
-            i += 1
-            dt = data[0] - lastReport
-            if dt > 1.0: # .. 1 second
-                print(f"\n[MAIN] i = {i:10} | {((i - iPrev)/dt):10.1f} iterations/s")
-                lastReport = data[0]
-                iPrev = i
+            try:
+                i += 1
+                dt = data[0] - lastReport
+                if dt > 1.0: # .. 1 second
+                    print(f"\n[MAIN] i = {i:10} | {((i - iPrev)/dt):10.1f} iterations/s")
+                    lastReport = data[0]
+                    iPrev = i
+            except:
+                pass
 
             
     # cleanup (which we NEVER reach)
