@@ -73,4 +73,5 @@ TODO:
 - `sudo apt install python3-pip`
 - `sudo apt-get install python3-numpy`
 - `sudo pip3 install adafruit-circuitpython-bme280 --break-system-packages`
+- `sudo pip3 install adafruit-circuitpython-bmp280 --break-system-packages`
 - `sudo pip install mpu6050-raspberrypi --break-system-packages`
