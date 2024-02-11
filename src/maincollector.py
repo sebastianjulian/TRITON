@@ -73,8 +73,9 @@ def main():
         os.makedirs(LOGS_DIR)
     filename = os.path.abspath(f"{LOGS_DIR}/sensor_data_{nowUtc.strftime('%Y%m%d%H%M%S')}Z.csv")
     file = open(filename, mode='w', encoding='utf-8')
-    file.write(f"Timestamp, t [s], Temperature [°C], Humidity [%], Relative Humidity [%], Pressure [hPa], Altitude [m], X-Gyro [°/s], Y-Gyro [°/s],Z-Gyro [°/s], X-Acceleration [g], Y-Acceleration [g], Z-Acceleration [g], X-Rotation [°], Y-Rotation [°], Z-Rotation [°]\n")
-    print(f"[MAIN] logging to file {filename}")
+    file.write(f"Timestamp, t [s], Temperature [°C], Humidity [%], Pressure [hPa], Altitude [m], X-Gyro [°/s], Y-Gyro [°/s],Z-Gyro [°/s], X-Acceleration [g], Y-Acceleration [g], Z-Acceleration [g], Temperature [°C]\n")
+    if verbose:
+        print(f"[MAIN] logging to file {filename}")
   
     
     
@@ -96,7 +97,8 @@ def main():
     minAlt = sys.float_info.max
     maxAlt = -sys.float_info.max
     
-    print(f"Deltas: {deltas}")
+    if verbose:
+        print(f"Deltas: {deltas}")
     
     # 7) List for minimal difference between recorded values (from collected data) so that values are written into the file
     # Position : sensor : Variable : Einheit : Schwelle : Runden
@@ -138,7 +140,7 @@ def main():
                 #     nextSendTime += 0.5
             
             except Exception as e:
-                print("[MAIN] failed to read bme280 sensor")
+                print("[ERROR] Failed to read BME280-sensor")
                 print(e)
             
             ##################################################################################
@@ -148,7 +150,7 @@ def main():
                 mpu6050.get_data(data = data, offset = 5)
                
             except Exception as e:
-                print("Something went wrong")
+                print("[ERROR] Failed to read MPU6050-sensor")
                 print(e)
               
             ##################################################################################
@@ -181,7 +183,8 @@ def main():
                 if not is_lora_send_thread_running:
                     t = threading.Thread(target=lora_send)
                     t.start()
-                    print("[MAIN] started LORA send thread")
+                    if verbose:
+                        print("[MAIN] started LORA send thread")
             except Exception as e:
                 print("[ERROR] Lora send failed.")
                 print(e)
@@ -201,7 +204,7 @@ def main():
 
         except Exception as e:
 
-            print("Something else went wrong.")
+            print("[ERROR] Something else went wrong in the main function.")
             print(e)
             
         finally:
@@ -210,7 +213,8 @@ def main():
                 i += 1
                 dt = data[0] - lastReport
                 if dt > 1.0: # .. 1 second
-                    print(f"\n[MAIN] i = {i:10} | {((i - iPrev)/dt):10.1f} iterations/s")
+                    if verbose:
+                        print(f"\n[MAIN] i = {i:10} | {((i - iPrev)/dt):10.1f} iterations/s")
                     lastReport = data[0]
                     iPrev = i
             except:
