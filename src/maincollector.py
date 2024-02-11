@@ -43,7 +43,8 @@ def lora_send ():
         print(f"[LORA SEND TEST] START")
         for i in range(5):
             time.sleep(1.0)
-            print(f"[LORA SEND TEST] {i}")
+            # print(f"[LORA SEND TEST] {i}")
+        print(f"[LORA SEND TEST] STOP")
         ### TODO END
             
     except Exception as e:
@@ -56,7 +57,9 @@ def lora_send ():
         
 def main():
     # VARIABLES, LOG-FILES, ...
-    verbose = True
+    verbose = False
+    if "-v" in sys.argv:
+        verbose = True
     
     # 1) Prints when data gathering begins
     startTime = datetime.now(timezone.utc)
@@ -179,12 +182,15 @@ def main():
             ##################################################################################
             # (6) send data to ground station via LORA
             try:
-                global is_lora_send_thread_running
-                if not is_lora_send_thread_running:
-                    t = threading.Thread(target=lora_send)
-                    t.start()
-                    if verbose:
-                        print("[MAIN] started LORA send thread")
+                # global is_lora_send_thread_running
+                # if not is_lora_send_thread_running:
+                #     t = threading.Thread(target=lora_send)
+                #     t.start()
+                #     if verbose:
+                #         print("[MAIN] started LORA send thread")
+                
+                data1 = data[1]
+                
             except Exception as e:
                 print("[ERROR] Lora send failed.")
                 print(e)
