@@ -182,14 +182,12 @@ def main():
             ##################################################################################
             # (6) send data to ground station via LORA
             try:
-                # global is_lora_send_thread_running
-                # if not is_lora_send_thread_running:
-                #     t = threading.Thread(target=lora_send)
-                #     t.start()
-                #     if verbose:
-                #         print("[MAIN] started LORA send thread")
-                
-                data1 = data[1]
+                global is_lora_send_thread_running
+                if not is_lora_send_thread_running:
+                    t = threading.Thread(target=lora_send)
+                    t.start()
+                    if verbose:
+                        print("[MAIN] started LORA send thread")
                 
             except Exception as e:
                 print("[ERROR] Lora send failed.")
