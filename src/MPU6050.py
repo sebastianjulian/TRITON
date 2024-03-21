@@ -96,17 +96,37 @@ class MPU6050:
             
             print(f"[MPU6050 sensor] FOUND")
 
-            match actual_gyro_range:
-                case GyroRange.RANGE_250       : self.scale_gyro  =  250.0 / 32767.0
-                case GyroRange.RANGE_500       : self.scale_gyro  =  500.0 / 32767.0
-                case GyroRange.RANGE_1000      : self.scale_gyro  = 1000.0 / 32767.0
-                case GyroRange.RANGE_2000      : self.scale_gyro  = 2000.0 / 32767.0
+            # match actual_gyro_range:
+            #     case GyroRange.RANGE_250       : self.scale_gyro  =  250.0 / 32767.0
+            #     case GyroRange.RANGE_500       : self.scale_gyro  =  500.0 / 32767.0
+            #     case GyroRange.RANGE_1000      : self.scale_gyro  = 1000.0 / 32767.0
+            #     case GyroRange.RANGE_2000      : self.scale_gyro  = 2000.0 / 32767.0
                 
-            match actual_accel_range:
-                case AccelerationRange.RANGE_2 : self.scale_accel =    2.0 / 32767.0
-                case AccelerationRange.RANGE_4 : self.scale_accel =    4.0 / 32767.0
-                case AccelerationRange.RANGE_8 : self.scale_accel =    8.0 / 32767.0
-                case AccelerationRange.RANGE_16: self.scale_accel =   16.0 / 32767.0
+            # match actual_accel_range:
+            #     case AccelerationRange.RANGE_2 : self.scale_accel =    2.0 / 32767.0
+            #     case AccelerationRange.RANGE_4 : self.scale_accel =    4.0 / 32767.0
+            #     case AccelerationRange.RANGE_8 : self.scale_accel =    8.0 / 32767.0
+            #     case AccelerationRange.RANGE_16: self.scale_accel =   16.0 / 32767.0
+              
+            if actual_gyro_range == GyroRange.RANGE_250:
+                self.scale_gyro = 250.0 / 32767.0
+            elif actual_gyro_range == GyroRange.RANGE_500:
+                self.scale_gyro = 500.0 / 32767.0
+            elif actual_gyro_range == GyroRange.RANGE_1000:
+                self.scale_gyro = 1000.0 / 32767.0
+            elif actual_gyro_range == GyroRange.RANGE_2000:
+                self.scale_gyro = 2000.0 / 32767.0
+
+            if actual_accel_range == AccelerationRange.RANGE_2:
+                self.scale_accel = 2.0 / 32767.0
+            elif actual_accel_range == AccelerationRange.RANGE_4:
+                self.scale_accel = 4.0 / 32767.0
+            elif actual_accel_range == AccelerationRange.RANGE_8:
+                self.scale_accel = 8.0 / 32767.0
+            elif actual_accel_range == AccelerationRange.RANGE_16:
+                self.scale_accel = 16.0 / 32767.0
+  
+              
                 
         else:
             
