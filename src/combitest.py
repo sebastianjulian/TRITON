@@ -23,7 +23,7 @@ logging.basicConfig(filename=Config.LOG_FILE, level=logging.INFO,
 
 class SensorService:
     def __init__(self):
-        self.sensor = self.initialize_bme680()
+        self.sensor = self.initialize_bme280()
         self.lora = self.initialize_lora()
         self.running = True
         self.data_file = None
@@ -44,7 +44,7 @@ class SensorService:
                     logging.info(f"Read sensor data: {data}")
                 time.sleep(Config.SENSOR_READ_INTERVAL)
 
-    def initialize_bme680(self):
+    def initialize_bme280(self):
         try:
             i2c = I2C(board.SCL, board.SDA)
             sensor = bme680.Adafruit_BME680_I2C(i2c, debug=False)
