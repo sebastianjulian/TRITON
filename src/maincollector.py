@@ -6,6 +6,16 @@ import sys
 import time
 import threading
 
+import time
+import logging
+import json
+import signal
+import sys
+import os
+import board
+from busio import I2C
+import serial
+
 from datetime import datetime, timezone
 from MPU6050 import MPU6050, GyroRange, AccelerationRange
 
@@ -32,6 +42,12 @@ from MPU6050 import MPU6050, GyroRange, AccelerationRange
 data = np.zeros(12)
         
 is_lora_send_thread_running = False
+
+LORA_SERIAL_DEVICE = '\dev/serial0'
+LORA_SERIAL_BAUD_RATE = 9600
+lora = serial.Serial(LORA_SERIAL_DEVICE, baudrate=LORA_SERIAL_BAUD_RATE, timeout=3.0)
+
+
 def lora_send ():
     
     try:
@@ -92,6 +108,9 @@ def main():
         accel_range = AccelerationRange.RANGE_16
         )
     
+
+
+
     # 6) Creates data array (for recorded data), last array (for calculating minimal differences between recorded values), deltas array (for minial difference values)
     global data
     last = np.zeros(12)
@@ -123,6 +142,7 @@ def main():
     iPrev = i
     lastReport = 0.0
     nextSendTime = 0.5
+    
     
     # NEVER ENDING LOOP
     # Start of never ending loop
@@ -192,7 +212,29 @@ def main():
             except Exception as e:
                 print("[ERROR] Lora send failed.")
                 print(e)
+
+            ##################################################################################
+
+            try:
+                lora.write('test'.encode('utf-8'))
+            except Exception as e:
+                print("LORA SEND ERROR")
+                print(e)
+                print(e)
+                print("test")
+
+        
+            
+
+
+            ##################################################################################
                 
+            # with open(Config.SENSOR_DATA_FILE, 'a') as self.data_file:
+            #     while self.running:
+            #         data = self.read_sensor_data()
+            #         self.write_data_to_file(data)
+            #         self.write_data_to_lora(data)
+                    
             ##################################################################################
             # (n) print separation altitude each time there is a new min/max altitude
             if verbose:
@@ -237,3 +279,4 @@ def main():
 # if the script is executed as the main program, not if it is imported as a module.
 if __name__ == "__main__":
     main()  
+
