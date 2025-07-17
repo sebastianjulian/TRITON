@@ -765,7 +765,15 @@ try:
             last_log_time = now_perf
 
             # Print to console
-            print(fmt_console.format(now_str, *data))
+            print_line = f"{now_str:<22}"
+            for i in range(len(data)):
+                try:
+                    val = float(data[i])
+                    print_line += f"{val:>{decimals[i] + 8}.{decimals[i]}f}"
+                except:
+                    print_line += f"{'NaN':>{decimals[i] + 8}}"
+            print(print_line)
+
 
             # Write to file
             with open(logfile, "a") as f:
