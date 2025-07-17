@@ -640,9 +640,7 @@ from adafruit_bme280 import basic as adafruit_bme280
 from mpu6050 import mpu6050
 import pytz
 
-# ─────────────────────────────────────────────
-# CONFIG
-# ─────────────────────────────────────────────
+# ─────────────── CONFIG ───────────────
 TZ = pytz.timezone("Europe/Berlin")  # MET with DST
 LOG_DIR = "logs"
 ARCHIVE_DIR = os.path.join(LOG_DIR, "previous_data")
@@ -661,9 +659,7 @@ decimals = np.array([
     1              # MPU6050 Temp
 ], dtype=int)
 
-# ─────────────────────────────────────────────
-# PREPARE LOG FOLDERS AND FILE
-# ─────────────────────────────────────────────
+# ────── Prepare log folders ──────
 os.makedirs(ARCHIVE_DIR, exist_ok=True)
 os.makedirs(LOG_DIR, exist_ok=True)
 
@@ -675,14 +671,12 @@ for path in glob.glob(os.path.join(LOG_DIR, "sensor_data_*.csv")):
 timestamp = datetime.now(TZ).strftime("%Y%m%d_%H%M%S")
 logfile = os.path.join(LOG_DIR, f"sensor_data_{timestamp}.csv")
 
-# Write header
+# Write CSV header
 with open(logfile, "w") as f:
     header = f"{'Timestamp (MET)':<22}" + "".join([f"{label:>{decimals[i] + 12}}" for i, label in enumerate(labels)]) + "\n"
     f.write(header)
 
-# ─────────────────────────────────────────────
-# INIT I2C & SENSORS
-# ─────────────────────────────────────────────
+# ────── Sensor init ──────
 i2c = busio.I2C(board.SCL, board.SDA)
 
 try:
@@ -699,9 +693,7 @@ except Exception as e:
     print("⚠️  MPU6050 init failed:", e)
     mpu = None
 
-# ─────────────────────────────────────────────
-# DATA STORAGE
-# ─────────────────────────────────────────────
+# ────── Data containers ──────
 data = np.zeros(len(labels))
 last_data = np.full(len(labels), np.nan)
 min_data = np.full(len(labels), np.inf)
@@ -709,13 +701,11 @@ max_data = np.full(len(labels), -np.inf)
 
 # Print header to console
 print("\n" + "-" * (22 + (decimals + 12).sum()))
-fmt_console = f"{{:<22}}" + "".join([f"{{:>{decimals[i] + 8}.{decimals[i]}f}}" for i in range(len(labels))])
-print(fmt_console.format("Timestamp (MET)", *labels))
+header_line = f"{'Timestamp (MET)':<22}" + "".join(f"{label:>{decimals[i] + 12}}" for i, label in enumerate(labels))
+print(header_line)
 print("-" * (22 + (decimals + 12).sum()))
 
-# ─────────────────────────────────────────────
-# MAIN LOOP
-# ─────────────────────────────────────────────
+# ────── Main loop ──────
 last_log_time = time.perf_counter()
 
 try:
@@ -753,7 +743,7 @@ try:
         min_data = np.minimum(min_data, data)
         max_data = np.maximum(max_data, data)
 
-        # ─ Check deltas ─
+        # ─ Check for changes ─
         changed = any(
             round(data[i], decimals[i]) != round(last_data[i], decimals[i])
             for i in range(len(data))
@@ -764,40 +754,36 @@ try:
             last_data[:] = data
             last_log_time = now_perf
 
-            # Print to console
+            # ─ Console print ─
             print_line = f"{now_str:<22}"
             for i in range(len(data)):
                 try:
                     val = float(data[i])
-                    print_line += f"{val:>{decimals[i] + 8}.{decimals[i]}f}"
+                    print_line += f"{val:>{decimals[i] + 12}.{decimals[i]}f}"
                 except:
-                    print_line += f"{'NaN':>{decimals[i] + 8}}"
+                    print_line += f"{'NaN':>{decimals[i] + 12}}"
             print(print_line)
 
-
-            # Write to file
+            # ─ CSV file write ─
             with open(logfile, "a") as f:
                 csv_line = f"{now_str:<22}"
                 for i in range(len(data)):
                     try:
-                        value = float(data[i])
-                        csv_line += f"{value:>{decimals[i] + 12}.{decimals[i]}f}"
-                    except (ValueError, TypeError):
+                        val = float(data[i])
+                        csv_line += f"{val:>{decimals[i] + 12}.{decimals[i]}f}"
+                    except:
                         csv_line += f"{'NaN':>{decimals[i] + 12}}"
                 f.write(csv_line + "\n")
 
         time.sleep(0.1)
 
 except KeyboardInterrupt:
-    # ─ Save min/max at the end ─
+    # ─ Log min/max data at end ─
     with open(logfile, "a") as f:
         f.write("\n")
         f.write("MIN" + " " * 18 + "".join(f"{min_data[i]:>{decimals[i] + 12}.{decimals[i]}f}" for i in range(len(data))) + "\n")
         f.write("MAX" + " " * 18 + "".join(f"{max_data[i]:>{decimals[i] + 12}.{decimals[i]}f}" for i in range(len(data))) + "\n")
     print("\n🛑 Gracefully stopped. Min/max written to file.")
-
-
-
 
 
 
