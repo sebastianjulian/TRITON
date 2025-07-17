@@ -121,4 +121,7 @@ while True:
     # Write to file
     with open(filename, "a") as f:
         values = ",".join(f"{v:.2f}" if not np.isnan(v) else "NaN" for v in data)
-        f.wri
+        f.write(f"{now},{values}\n")
+
+    time.sleep(1)
+
