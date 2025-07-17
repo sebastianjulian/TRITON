@@ -483,6 +483,151 @@
 
 
 #TRY6
+# import os
+# import glob
+# import shutil
+# import time
+# import board
+# import busio
+# import numpy as np
+# from datetime import datetime
+# from adafruit_bme280 import basic as adafruit_bme280
+# from mpu6050 import mpu6050
+# import pytz
+
+# # ── CONFIG ───────────────────────────────────────────────────────────────
+# TZ = pytz.timezone("Europe/Berlin")  # MET with DST
+# LOG_DIR = "logs"
+# ARCHIVE_DIR = os.path.join(LOG_DIR, "previous_data")
+
+# # decimal-place thresholds for change detection
+# decimals = np.array([
+#     2,  # Temp [°C]
+#     1,  # Hum [%]
+#     1,  # Pres [hPa]
+#     1,  # Alt [m]
+#     2,  # Ax [m/s²]
+#     2,  # Ay
+#     2,  # Az
+#     2,  # Gx [°/s]
+#     2,  # Gy
+#     2,  # Gz
+#     1,  # T_MPU [°C]
+# ], dtype=int)
+
+# labels = [
+#     "Temp[°C]", "Hum[%]", "Pres[hPa]", "Alt[m]",
+#     "Ax[m/s²]", "Ay", "Az",
+#     "Gx[°/s]", "Gy", "Gz",
+#     "T_MPU[°C]"
+# ]
+
+# # ── ARCHIVE OLD LOGS ─────────────────────────────────────────────────────
+# os.makedirs(ARCHIVE_DIR, exist_ok=True)
+# for path in glob.glob(os.path.join(LOG_DIR, "sensor_data_*.csv")):
+#     shutil.move(path, ARCHIVE_DIR)
+
+# # ── NEW LOG FILE ─────────────────────────────────────────────────────────
+# timestamp = datetime.now(TZ).strftime("%Y%m%d_%H%M%S")
+# logfile = os.path.join(LOG_DIR, f"sensor_data_{timestamp}.csv")
+
+# # write header
+# with open(logfile, "w") as f:
+#     f.write("Timestamp (MET)," + ",".join(labels) + "\n")
+
+# # ── INIT SENSORS ─────────────────────────────────────────────────────────
+# i2c = busio.I2C(board.SCL, board.SDA)
+# try:
+#     bme = adafruit_bme280.Adafruit_BME280_I2C(i2c, address=0x76)
+#     print("BME280 detected.")
+# except Exception as e:
+#     print("BME280 init failed:", e)
+#     bme = None
+
+# try:
+#     mpu = mpu6050(0x68)
+#     print("MPU6050 detected.")
+# except Exception as e:
+#     print("MPU6050 init failed:", e)
+#     mpu = None
+
+# # ── DATA STORAGE ──────────────────────────────────────────────────────────
+# data = np.zeros(len(labels))
+# last_data = np.full(len(labels), np.nan)
+# min_data = np.full(len(labels), np.inf)
+# max_data = np.full(len(labels), -np.inf)
+
+# # ── CONSOLE HEADER ────────────────────────────────────────────────────────
+# print("\n" + "-"*130)
+# fmt = "{:<20}" + "".join(["{:>12}" for _ in labels])
+# print(fmt.format("Timestamp (MET)", *labels))
+# print("-"*130)
+
+# # ── MAIN LOOP ─────────────────────────────────────────────────────────────
+# last_log_time = time.perf_counter()
+# try:
+#     while True:
+#         now = datetime.now(TZ)
+#         now_str = now.strftime("%Y-%m-%d %H:%M:%S")
+
+#         # read sensors
+#         if bme:
+#             try:
+#                 data[0] = bme.temperature
+#                 data[1] = bme.humidity
+#                 data[2] = bme.pressure
+#                 data[3] = bme.altitude
+#             except Exception as e:
+#                 print("[WARN] BME read failed:", e)
+#                 data[0:4] = np.nan
+
+#         if mpu:
+#             try:
+#                 accel = mpu.get_accel_data()
+#                 gyro  = mpu.get_gyro_data()
+#                 data[4] = accel["x"]; data[5] = accel["y"]; data[6] = accel["z"]
+#                 data[7] = gyro["x"];  data[8] = gyro["y"];  data[9] = gyro["z"]
+#                 data[10] = mpu.get_temp()
+#             except Exception as e:
+#                 print("[WARN] MPU read failed:", e)
+#                 data[4:11] = np.nan
+
+#         # update min/max
+#         min_data = np.minimum(min_data, data)
+#         max_data = np.maximum(max_data, data)
+
+#         # check deltas
+#         changed = any(
+#             round(data[i], decimals[i]) != round(last_data[i], decimals[i])
+#             for i in range(len(data))
+#         )
+#         now_perf = time.perf_counter()
+#         if changed or (now_perf - last_log_time) >= 1.0:
+#             # log/update
+#             last_data[:] = data
+#             last_log_time = now_perf
+
+#             # console
+#             print(fmt.format(now_str, *data))
+
+#             # file
+#             with open(logfile, "a") as f:
+#                 row = ",".join(f"{v:.2f}" if not np.isnan(v) else "NaN" for v in data)
+#                 f.write(f"{now_str},{row}\n")
+
+#         time.sleep(0.1)
+
+# except KeyboardInterrupt:
+#     # on exit, append min/max
+#     with open(logfile, "a") as f:
+#         f.write("MIN," + ",".join(f"{v:.2f}" for v in min_data) + "\n")
+#         f.write("MAX," + ",".join(f"{v:.2f}" for v in max_data) + "\n")
+#     print("\nGraceful exit, min/max written to file.")
+
+
+
+
+#TRY7
 import os
 import glob
 import shutil
@@ -507,23 +652,24 @@ decimals = np.array([
     1,  # Pres [hPa]
     1,  # Alt [m]
     2,  # Ax [m/s²]
-    2,  # Ay
-    2,  # Az
+    2,  # Ay [m/s²]
+    2,  # Az [m/s²]
     2,  # Gx [°/s]
-    2,  # Gy
-    2,  # Gz
+    2,  # Gy [°/s]
+    2,  # Gz [°/s]
     1,  # T_MPU [°C]
 ], dtype=int)
 
 labels = [
-    "Temp[°C]", "Hum[%]", "Pres[hPa]", "Alt[m]",
-    "Ax[m/s²]", "Ay", "Az",
-    "Gx[°/s]", "Gy", "Gz",
-    "T_MPU[°C]"
+    "Temp [°C]", "Hum [%]", "Pres [hPa]", "Alt [m]",
+    "Ax [m/s²]", "Ay [m/s²]", "Az [m/s²]",
+    "Gx [°/s]", "Gy [°/s]", "Gz [°/s]",
+    "T_MPU [°C]"
 ]
 
 # ── ARCHIVE OLD LOGS ─────────────────────────────────────────────────────
 os.makedirs(ARCHIVE_DIR, exist_ok=True)
+os.makedirs(LOG_DIR, exist_ok=True)
 for path in glob.glob(os.path.join(LOG_DIR, "sensor_data_*.csv")):
     shutil.move(path, ARCHIVE_DIR)
 
@@ -531,9 +677,10 @@ for path in glob.glob(os.path.join(LOG_DIR, "sensor_data_*.csv")):
 timestamp = datetime.now(TZ).strftime("%Y%m%d_%H%M%S")
 logfile = os.path.join(LOG_DIR, f"sensor_data_{timestamp}.csv")
 
-# write header
+# write header with units
 with open(logfile, "w") as f:
-    f.write("Timestamp (MET)," + ",".join(labels) + "\n")
+    header = f"{'Timestamp (MET)':<22}" + "".join([f"{label:>15}" for label in labels]) + "\n"
+    f.write(header)
 
 # ── INIT SENSORS ─────────────────────────────────────────────────────────
 i2c = busio.I2C(board.SCL, board.SDA)
@@ -558,10 +705,10 @@ min_data = np.full(len(labels), np.inf)
 max_data = np.full(len(labels), -np.inf)
 
 # ── CONSOLE HEADER ────────────────────────────────────────────────────────
-print("\n" + "-"*130)
-fmt = "{:<20}" + "".join(["{:>12}" for _ in labels])
-print(fmt.format("Timestamp (MET)", *labels))
-print("-"*130)
+print("\n" + "-" * (22 + 15 * len(labels)))
+fmt_console = f"{{:<22}}" + "".join([f"{{:>{decimals[i] + 5}.{decimals[i]}f}}" for i in range(len(labels))])
+print(fmt_console.format("Timestamp (MET)", *labels))
+print("-" * (22 + 15 * len(labels)))
 
 # ── MAIN LOOP ─────────────────────────────────────────────────────────────
 last_log_time = time.perf_counter()
@@ -608,21 +755,27 @@ try:
             last_log_time = now_perf
 
             # console
-            print(fmt.format(now_str, *data))
+            print(fmt_console.format(now_str, *data))
 
-            # file
+            # CSV row with spacing
             with open(logfile, "a") as f:
-                row = ",".join(f"{v:.2f}" if not np.isnan(v) else "NaN" for v in data)
-                f.write(f"{now_str},{row}\n")
+                csv_line = f"{now_str:<22}" + "".join(
+                    f"{data[i]:>{decimals[i] + 5}.{decimals[i]}f}" if not np.isnan(data[i]) else f"{'NaN':>{decimals[i] + 5}}"
+                    for i in range(len(data))
+                )
+                f.write(csv_line + "\n")
 
         time.sleep(0.1)
 
 except KeyboardInterrupt:
     # on exit, append min/max
     with open(logfile, "a") as f:
-        f.write("MIN," + ",".join(f"{v:.2f}" for v in min_data) + "\n")
-        f.write("MAX," + ",".join(f"{v:.2f}" for v in max_data) + "\n")
-    print("\nGraceful exit, min/max written to file.")
+        f.write("\n")
+        f.write("MIN" + " " * 19 + "".join(f"{min_data[i]:>{decimals[i] + 5}.{decimals[i]}f}" for i in range(len(data))) + "\n")
+        f.write("MAX" + " " * 19 + "".join(f"{max_data[i]:>{decimals[i] + 5}.{decimals[i]}f}" for i in range(len(data))) + "\n")
+    print("\nGraceful exit. Min/max values saved.")
+
+
 
 
 
