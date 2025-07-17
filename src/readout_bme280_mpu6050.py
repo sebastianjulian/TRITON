@@ -3,6 +3,8 @@ import board
 import busio
 from adafruit_bme280 import basic as adafruit_bme280
 from mpu6050 import mpu6050
+import numpy as np
+import bme280sensor
 
 # I2C bus setup
 i2c = busio.I2C(board.SCL, board.SDA)
@@ -25,9 +27,10 @@ except Exception as e:
 
 # Loop to read data
 
-data = np.zeros(12)
-deltas = np.array([1.0, 0.1, 0.5, 0.1, 0.5, 1.0, 1.0, 1.0, 0.1, 0.1, 0.1, 0.1])
+data = np.zeros(9)
 
+#(Temperature [°C], Humidity [%], Pressure [hPa], X-Acceleration [g], Y-Acceleration [g], Z-Acceleration [g], X-Gyro [°/s], Y-Gyro [°/s],Z-Gyro [°/s],)
+deltas = np.array([0.1, 0.5, 0.1, 0.1, 0.1, 0.1, 1.0, 1.0, 1.0])   
 
 
 
@@ -39,12 +42,31 @@ while True:
         print(f"Temperature: {bme280.temperature:.2f} °C")
         print(f"Humidity: {bme280.humidity:.2f} %")
         print(f"Pressure: {bme280.pressure:.2f} hPa")
-    bme280sensor.getData (data = data, offset = 1)
+        data[offset = 0] = bme280.temperature:.2f
+        data[offset = 1] = bme280.humidity:.2f
+        data[offset = 2] = bme280.pressure:.2f
+        
 
     if mpu:
         accel = mpu.get_accel_data()
         gyro = mpu.get_gyro_data()
         print(f"Accel  (m/s²): x={accel['x']:.2f}, y={accel['y']:.2f}, z={accel['z']:.2f}")
         print(f"Gyro (°/s):    x={gyro['x']:.2f}, y={gyro['y']:.2f}, z={gyro['z']:.2f}")
-    mpu6050.get_data(data = data, offset = 5)
+        data[offset = 3] = accel['x']:.2f
+        data[offset = 4] = accel['y']:.2f
+        data[offset = 5] = accel['z']:.2f
+        data[offset = 6] = gyro['x']:.2f
+        data[offset = 7] = gyro['y']:.2f
+        data[offset = 8] = gyro['z']:.2f
+
+    print(data)
+
+
+
     time.sleep(1)
+  
+  
+  
+  
+  #data[offset + 5] = accel_z * self.scale_accel
+  #data[offset + 2] = round(bme280.pressure, 2)
