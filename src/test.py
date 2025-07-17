@@ -1,3 +1,4 @@
+#TRY1
 # import time
 # import board
 # import busio
@@ -50,13 +51,109 @@
 
 #     print(data)
 #     time.sleep(1)
+
+
+
+
+
+#TRY2
+# import time
+# import board
+# import busio
+# import numpy as np
+# from datetime import datetime
+# from adafruit_bme280 import basic as adafruit_bme280
+# from mpu6050 import mpu6050
+
+# # Set up I2C
+# i2c = busio.I2C(board.SCL, board.SDA)
+
+# # Try to initialize BME280
+# try:
+#     bme280 = adafruit_bme280.Adafruit_BME280_I2C(i2c, address=0x76)
+#     print("BME280 detected.")
+# except Exception as e:
+#     print("BME280 not found:", e)
+#     bme280 = None
+
+# # Try to initialize MPU6050
+# try:
+#     mpu = mpu6050(0x68)
+#     print("MPU6050 detected.")
+# except Exception as e:
+#     print("MPU6050 not found:", e)
+#     mpu = None
+
+# # Data array
+# data = np.zeros(11)
+
+# # CSV file setup
+# timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+# filename = f"sensor_data_{timestamp}.csv"
+# with open(filename, "w") as f:
+#     f.write("timestamp,temp,humidity,pressure,altitude,ax,ay,az,gx,gy,gz,mpu_temp\n")
+
+# # Loop
+# while True:
+#     now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+#     if bme280:
+#         try:
+#             data[0] = bme280.temperature
+#             data[1] = bme280.humidity
+#             data[2] = bme280.pressure
+#             data[3] = bme280.altitude
+#         except Exception as e:
+#             print("[WARNING] BME280 read failed:", e)
+#             data[0:4] = np.nan
+
+#     if mpu:
+#         try:
+#             accel = mpu.get_accel_data()
+#             gyro = mpu.get_gyro_data()
+#             data[4] = accel['x']
+#             data[5] = accel['y']
+#             data[6] = accel['z']
+#             data[7] = gyro['x']
+#             data[8] = gyro['y']
+#             data[9] = gyro['z']
+#             data[10] = mpu.get_temp()
+#         except Exception as e:
+#             print("[WARNING] MPU6050 read failed:", e)
+#             data[4:11] = np.nan
+
+#     # Print to console
+#     print(data)
+
+#     # Write to file
+#     with open(filename, "a") as f:
+#         values = ",".join(f"{v:.2f}" if not np.isnan(v) else "NaN" for v in data)
+#         f.write(f"{now},{values}\n")
+
+#     time.sleep(1)
+
+
+
+
+
+
+#TRY3
 import time
+import os
 import board
 import busio
 import numpy as np
 from datetime import datetime
 from adafruit_bme280 import basic as adafruit_bme280
 from mpu6050 import mpu6050
+
+# Create logs directory if it doesn't exist
+LOG_DIR = "logs"
+os.makedirs(LOG_DIR, exist_ok=True)
+
+# Create filename with timestamp
+timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+filename = os.path.join(LOG_DIR, f"sensor_data_{timestamp}.csv")
 
 # Set up I2C
 i2c = busio.I2C(board.SCL, board.SDA)
@@ -77,18 +174,28 @@ except Exception as e:
     print("MPU6050 not found:", e)
     mpu = None
 
-# Data array
+# Data array: [temp, hum, pressure, alt, ax, ay, az, gx, gy, gz, mpu_temp]
 data = np.zeros(11)
 
-# CSV file setup
-timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-filename = f"sensor_data_{timestamp}.csv"
+# Open file and write header
 with open(filename, "w") as f:
-    f.write("timestamp,temp,humidity,pressure,altitude,ax,ay,az,gx,gy,gz,mpu_temp\n")
+    f.write(
+        "Timestamp,Temperature [°C],Humidity [%],Pressure [hPa],Altitude [m],"
+        "Accel X [m/s²],Accel Y [m/s²],Accel Z [m/s²],"
+        "Gyro X [°/s],Gyro Y [°/s],Gyro Z [°/s],MPU Temp [°C]\n"
+    )
 
-# Loop
+print(f"[INFO] Logging to {filename}")
+
+# Print table header
+print(
+    f"{'Time':<20} {'T [°C]':>8} {'H [%]':>8} {'P [hPa]':>10} {'Alt [m]':>8}"
+    f" {'Ax':>8} {'Ay':>8} {'Az':>8} {'Gx':>8} {'Gy':>8} {'Gz':>8} {'T_mpu':>8}"
+)
+
+# Main loop
 while True:
-    now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     if bme280:
         try:
@@ -115,13 +222,17 @@ while True:
             print("[WARNING] MPU6050 read failed:", e)
             data[4:11] = np.nan
 
-    # Print to console
-    print(data)
+    # Print formatted output
+    print(
+        f"{now_str:<20} "
+        f"{data[0]:8.2f} {data[1]:8.2f} {data[2]:10.2f} {data[3]:8.2f} "
+        f"{data[4]:8.2f} {data[5]:8.2f} {data[6]:8.2f} "
+        f"{data[7]:8.2f} {data[8]:8.2f} {data[9]:8.2f} {data[10]:8.2f}"
+    )
 
     # Write to file
     with open(filename, "a") as f:
-        values = ",".join(f"{v:.2f}" if not np.isnan(v) else "NaN" for v in data)
-        f.write(f"{now},{values}\n")
+        line = ",".join(f"{v:.2f}" if not np.isnan(v) else "NaN" for v in data)
+        f.write(f"{now_str},{line}\n")
 
     time.sleep(1)
-
