@@ -32,7 +32,7 @@ from datetime import datetime, timezone
 from MPU6050 import MPU6050, GyroRange, AccelerationRange
 
 
-node = sx126x.sx126x(serial_num="/dev/ttyS0", freq=866, addr=0, power=22, rssi=True, air_speed=2400, relay=False)
+#node = sx126x.sx126x(serial_num="/dev/ttyS0", freq=866, addr=0, power=22, rssi=True, air_speed=2400, relay=False)
 
 
 
@@ -208,7 +208,7 @@ def main():
                 file.flush()
                 message_payload = "Test123"  # Ensure this is defined or available
                 data = bytes([255]) + bytes([255]) + bytes([16]) + bytes([255]) + bytes([255]) + bytes([16]) + message_payload.encode()
-                node.send(data)
+                #node.send(data)
             except Exception as e:
                 print("[ERROR] File write failed.")
                 print(e)
