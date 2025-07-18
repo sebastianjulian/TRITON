@@ -815,14 +815,39 @@ try:
             last_log_time = now_perf
 
             # ─ Console print ─
+            # print_line = f"{now_str:<22}"
+            # for i in range(len(data)):
+            #     try:
+            #         val = float(data[i])
+            #         print_line += f"{val:>{decimals[i] + 12}.{decimals[i]}f}"
+            #    except:
+            #         print_line += f"{str(data[i]):>{decimals[i] + 12}}"
+
+            # print(print_line)
+
+            # # ─ CSV file write ─
+            # with open(logfile, "a") as f:
+            #     csv_line = f"{now_str:<22}"
+            #     for i in range(len(data)):
+            #         try:
+            #             val = float(data[i])
+            #             csv_line += f"{val:>{decimals[i] + 12}.{decimals[i]}f}"
+            #         except:
+            #             print_line += f"{str(data[i]):>{decimals[i] + 12}}"
+
+            #     f.write(csv_line + "\n")
+
+
+
+
+                # ─ Console output ─
             print_line = f"{now_str:<22}"
             for i in range(len(data)):
                 try:
                     val = float(data[i])
                     print_line += f"{val:>{decimals[i] + 12}.{decimals[i]}f}"
-               except:
+                except:
                     print_line += f"{str(data[i]):>{decimals[i] + 12}}"
-
             print(print_line)
 
             # ─ CSV file write ─
@@ -833,9 +858,9 @@ try:
                         val = float(data[i])
                         csv_line += f"{val:>{decimals[i] + 12}.{decimals[i]}f}"
                     except:
-                        print_line += f"{str(data[i]):>{decimals[i] + 12}}"
-
+                        csv_line += f"{str(data[i]):>{decimals[i] + 12}}"
                 f.write(csv_line + "\n")
+
 
         time.sleep(0.1)
 
