@@ -923,7 +923,7 @@ try:
                 data[4] = bme.altitude
             except OSError as e:
                 print("[WARN] BME read failed:", e)
-                msg = "Unplugged" if e.errno == 5 else "Ppower loss" if e.errno == 121 else "Reading error"
+                msg = "Unplugged" if e.errno == 5 else "Power loss" if e.errno == 121 else "Reading error"
                 for i in range(1, 5):
                     data[i] = msg
             except Exception as e:
@@ -1008,13 +1008,33 @@ except KeyboardInterrupt:
         f.write("\n")
         min_line = "MIN" + " " * 18
         max_line = "MAX" + " " * 18
+        
+        
+        
+        # for i in range(len(data)):
+        #     try:
+        #         min_line += f"{min_data[i]:>{decimals[i] + 14}.{decimals[i]}f}"
+        #         max_line += f"{max_data[i]:>{decimals[i] + 14}.{decimals[i]}f}"
+        #     except:
+        #         min_line += f"{'':>{decimals[i] + 14}}"
+        #         max_line += f"{'':>{decimals[i] + 14}}"
+        
+        
         for i in range(len(data)):
+            if i == 0:  # Skip min/max for elapsed time
+                min_line += f"{'-':>{decimals[i] + 14}}"
+                max_line += f"{'-':>{decimals[i] + 14}}"
+                continue
             try:
                 min_line += f"{min_data[i]:>{decimals[i] + 14}.{decimals[i]}f}"
                 max_line += f"{max_data[i]:>{decimals[i] + 14}.{decimals[i]}f}"
             except:
                 min_line += f"{'':>{decimals[i] + 14}}"
                 max_line += f"{'':>{decimals[i] + 14}}"
+
+
+
+        
         f.write(min_line + "\n")
         f.write(max_line + "\n")
     print("\n🛑 Gracefully stopped. Min/max written to file.")
