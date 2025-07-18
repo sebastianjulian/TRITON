@@ -9,9 +9,24 @@
             font-family: Arial, sans-serif;
             padding: 20px;
         }
-        .chart-container {
-            margin-bottom: 40px;
+
+        h1 {
+            text-align: center;
         }
+
+        .section {
+            margin-top: 40px;
+        }
+
+        .section h2 {
+            border-bottom: 2px solid #444;
+            padding-bottom: 5px;
+        }
+
+        .chart-container {
+            margin: 20px 0;
+        }
+
         canvas {
             width: 100%;
             height: 300px;
@@ -19,84 +34,90 @@
     </style>
 </head>
 <body>
-    <h1>📊 TRITON Live Sensor Data Dashboard (Raspberry Pi)</h1>
-    <div id="charts"></div>
+    <h1>📊 Raspberry Pi Sensor Dashboard</h1>
+
+    <div class="section" id="bme280">
+        <h2>BME280</h2>
+        <div class="chart-container"><h3>Temperature [°C]</h3><canvas id="Temp_BME280"></canvas></div>
+        <div class="chart-container"><h3>Humidity [%]</h3><canvas id="Hum"></canvas></div>
+        <div class="chart-container"><h3>Pressure [hPa]</h3><canvas id="Press"></canvas></div>
+        <div class="chart-container"><h3>Altitude [m]</h3><canvas id="Alt"></canvas></div>
+    </div>
+
+    <div class="section" id="mpu6050">
+        <h2>MPU6050</h2>
+        <div class="chart-container"><h3>Acc X [m/s²]</h3><canvas id="Acc_x"></canvas></div>
+        <div class="chart-container"><h3>Acc Y [m/s²]</h3><canvas id="Acc_y"></canvas></div>
+        <div class="chart-container"><h3>Acc Z [m/s²]</h3><canvas id="Acc_z"></canvas></div>
+        <div class="chart-container"><h3>Gyro X [°/s]</h3><canvas id="Gyro_x"></canvas></div>
+        <div class="chart-container"><h3>Gyro Y [°/s]</h3><canvas id="Gyro_y"></canvas></div>
+        <div class="chart-container"><h3>Gyro Z [°/s]</h3><canvas id="Gyro_z"></canvas></div>
+        <div class="chart-container"><h3>Temperature [°C]</h3><canvas id="Temp_MPU"></canvas></div>
+    </div>
 
     <script>
         const chartRefs = {};
+        const fields = {
+            "Temp_BME280": "Temp_BME280 [°C]",
+            "Hum": "Hum [%]",
+            "Press": "Press [hPa]",
+            "Alt": "Alt [m]",
+            "Acc_x": "Acc x [m/s²]",
+            "Acc_y": "Acc y [m/s²]",
+            "Acc_z": "Acc z [m/s²]",
+            "Gyro_x": "Gyro x [°/s]",
+            "Gyro_y": "Gyro y [°/s]",
+            "Gyro_z": "Gyro z [°/s]",
+            "Temp_MPU": "Temp_MPU [°C]"
+        };
 
-        async function fetchData() {
-            try {
-                const res = await fetch("/data");
-                const json = await res.json();
-                const data = json.history;
-                const elapsed = data["Elapsed [s]"];
-
-                const chartDiv = document.getElementById("charts");
-
-                for (const label in data) {
-                    if (label === "Elapsed [s]") continue;
-
-                    const yValues = data[label];
-
-                    if (!chartRefs[label]) {
-                        // Create container
-                        const container = document.createElement("div");
-                        container.className = "chart-container";
-
-                        // Create title
-                        const h3 = document.createElement("h3");
-                        h3.textContent = label;
-                        container.appendChild(h3);
-
-                        // Create canvas
-                        const canvas = document.createElement("canvas");
-                        canvas.id = label.replace(/\s+/g, "_");
-                        container.appendChild(canvas);
-
-                        chartDiv.appendChild(container);
-
-                        // Create chart
-                        chartRefs[label] = new Chart(canvas, {
-                            type: "line",
-                            data: {
-                                labels: elapsed,
-                                datasets: [{
-                                    label: label,
-                                    data: yValues,
-                                    borderColor: "black",
-                                    fill: false,
-                                    tension: 0.2,
-                                    pointRadius: 0
-                                }]
-                            },
-                            options: {
-                                animation: false,
-                                responsive: true,
-                                scales: {
-                                    x: {
-                                        title: { display: true, text: "Elapsed [s]" },
-                                        type: "linear"
-                                    },
-                                    y: {
-                                        title: { display: true, text: label }
-                                    }
-                                }
-                            }
-                        });
-                    } else {
-                        chartRefs[label].data.labels = elapsed;
-                        chartRefs[label].data.datasets[0].data = yValues;
-                        chartRefs[label].update();
+        function createChart(canvasId, label) {
+            const ctx = document.getElementById(canvasId).getContext("2d");
+            return new Chart(ctx, {
+                type: "line",
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: label,
+                        data: [],
+                        borderColor: "blue",
+                        fill: false,
+                        tension: 0.2,
+                        pointRadius: 0
+                    }]
+                },
+                options: {
+                    animation: false,
+                    scales: {
+                        x: {
+                            type: "linear",
+                            title: { display: true, text: "Elapsed [s]" }
+                        },
+                        y: {
+                            title: { display: true, text: label }
+                        }
                     }
                 }
-            } catch (e) {
-                console.error("Fetch error:", e);
+            });
+        }
+
+        async function fetchData() {
+            const res = await fetch("/data");
+            const json = await res.json();
+            const elapsed = json.history["Elapsed [s]"];
+
+            for (const [canvasId, label] of Object.entries(fields)) {
+                const values = json.history[label];
+                if (!chartRefs[canvasId]) {
+                    chartRefs[canvasId] = createChart(canvasId, label);
+                }
+                chartRefs[canvasId].data.labels = elapsed;
+                chartRefs[canvasId].data.datasets[0].data = values;
+                chartRefs[canvasId].update();
             }
         }
 
         setInterval(fetchData, 1000);
-        fetchData(); // initial fetch
     </script>
 </body>
 </html>
