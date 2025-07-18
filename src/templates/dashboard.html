@@ -1,101 +1,143 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>TRITON Live Data Dashboard (Raspberry Pi)</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            margin: 0;
             padding: 20px;
-            background-color: #f8f9fa;
+            background-color: #1e1e1e;
+            color: #f0f0f0;
+            font-family: "Segoe UI", sans-serif;
         }
 
         h1 {
             text-align: center;
             margin-bottom: 40px;
+            color: #00bfff;
         }
 
-        .section {
-            margin-top: 40px;
-        }
-
-        .section h2 {
+        h2 {
             border-bottom: 2px solid #333;
-            padding-bottom: 6px;
-            margin-bottom: 20px;
+            padding-bottom: 5px;
+            margin-top: 40px;
+            color: #ffcc00;
+        }
+
+        .grid-2, .grid-3 {
+            display: grid;
+            gap: 20px;
+            margin-bottom: 30px;
         }
 
         .grid-2 {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
         }
 
         .grid-3 {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
         }
 
         .chart-container {
-            margin: 10px 0;
+            background-color: #2a2a2a;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px #00000055;
+        }
+
+        .chart-container h3 {
+            text-align: center;
+            margin-bottom: 10px;
+            color: #dddddd;
         }
 
         canvas {
-            height: 300px !important;
+            width: 100% !important;
+            height: 250px !important;
         }
     </style>
 </head>
 <body>
     <h1>TRITON Live Data Dashboard (Raspberry Pi)</h1>
 
-    <!-- BME280 Section -->
-    <div class="section" id="bme280">
-        <h2>BME280</h2>
+    <section id="bme280">
+        <h2>BME280 Sensor</h2>
         <div class="grid-2">
-            <div class="chart-container"><h3>Temperature [°C]</h3><canvas id="Temp_BME280"></canvas></div>
-            <div class="chart-container"><h3>Humidity [%]</h3><canvas id="Hum"></canvas></div>
+            <div class="chart-container">
+                <h3>Temperature [°C]</h3>
+                <canvas id="Temp_BME280 [°C]"></canvas>
+            </div>
+            <div class="chart-container">
+                <h3>Humidity [%]</h3>
+                <canvas id="Hum [%]"></canvas>
+            </div>
         </div>
         <div class="grid-2">
-            <div class="chart-container"><h3>Pressure [hPa]</h3><canvas id="Press"></canvas></div>
-            <div class="chart-container"><h3>Altitude [m]</h3><canvas id="Alt"></canvas></div>
+            <div class="chart-container">
+                <h3>Pressure [hPa]</h3>
+                <canvas id="Press [hPa]"></canvas>
+            </div>
+            <div class="chart-container">
+                <h3>Altitude [m]</h3>
+                <canvas id="Alt [m]"></canvas>
+            </div>
         </div>
-    </div>
+    </section>
 
-    <!-- MPU6050 Section -->
-    <div class="section" id="mpu6050">
-        <h2>MPU6050</h2>
+    <section id="mpu6050">
+        <h2>MPU6050 Sensor</h2>
         <div class="grid-3">
-            <div class="chart-container"><h3>Acc X [m/s²]</h3><canvas id="Acc_x"></canvas></div>
-            <div class="chart-container"><h3>Acc Y [m/s²]</h3><canvas id="Acc_y"></canvas></div>
-            <div class="chart-container"><h3>Acc Z [m/s²]</h3><canvas id="Acc_z"></canvas></div>
+            <div class="chart-container">
+                <h3>Acc X [m/s²]</h3>
+                <canvas id="Acc x [m/s²]"></canvas>
+            </div>
+            <div class="chart-container">
+                <h3>Acc Y [m/s²]</h3>
+                <canvas id="Acc y [m/s²]"></canvas>
+            </div>
+            <div class="chart-container">
+                <h3>Acc Z [m/s²]</h3>
+                <canvas id="Acc z [m/s²]"></canvas>
+            </div>
         </div>
         <div class="grid-3">
-            <div class="chart-container"><h3>Gyro X [°/s]</h3><canvas id="Gyro_x"></canvas></div>
-            <div class="chart-container"><h3>Gyro Y [°/s]</h3><canvas id="Gyro_y"></canvas></div>
-            <div class="chart-container"><h3>Gyro Z [°/s]</h3><canvas id="Gyro_z"></canvas></div>
+            <div class="chart-container">
+                <h3>Gyro X [°/s]</h3>
+                <canvas id="Gyro x [°/s]"></canvas>
+            </div>
+            <div class="chart-container">
+                <h3>Gyro Y [°/s]</h3>
+                <canvas id="Gyro y [°/s]"></canvas>
+            </div>
+            <div class="chart-container">
+                <h3>Gyro Z [°/s]</h3>
+                <canvas id="Gyro z [°/s]"></canvas>
+            </div>
         </div>
-        <div class="grid-3">
-            <div class="chart-container"><h3>Temperature [°C]</h3><canvas id="Temp_MPU"></canvas></div>
+        <div class="grid-2">
+            <div class="chart-container">
+                <h3>Temperature [°C]</h3>
+                <canvas id="Temp_MPU [°C]"></canvas>
+            </div>
         </div>
-    </div>
+    </section>
 
-    <!-- JavaScript -->
     <script>
         const chartRefs = {};
         const fields = {
-            "Temp_BME280": "Temp_BME280 [°C]",
-            "Hum": "Hum [%]",
-            "Press": "Press [hPa]",
-            "Alt": "Alt [m]",
-            "Acc_x": "Acc x [m/s²]",
-            "Acc_y": "Acc y [m/s²]",
-            "Acc_z": "Acc z [m/s²]",
-            "Gyro_x": "Gyro x [°/s]",
-            "Gyro_y": "Gyro y [°/s]",
-            "Gyro_z": "Gyro z [°/s]",
-            "Temp_MPU": "Temp_MPU [°C]"
+            "Temp_BME280 [°C]": "Temp_BME280 [°C]",
+            "Hum [%]": "Hum [%]",
+            "Press [hPa]": "Press [hPa]",
+            "Alt [m]": "Alt [m]",
+            "Acc x [m/s²]": "Acc x [m/s²]",
+            "Acc y [m/s²]": "Acc y [m/s²]",
+            "Acc z [m/s²]": "Acc z [m/s²]",
+            "Gyro x [°/s]": "Gyro x [°/s]",
+            "Gyro y [°/s]": "Gyro y [°/s]",
+            "Gyro z [°/s]": "Gyro z [°/s]",
+            "Temp_MPU [°C]": "Temp_MPU [°C]"
         };
 
         function createChart(canvasId, label) {
@@ -107,28 +149,41 @@
                     datasets: [{
                         label: label,
                         data: [],
-                        borderColor: "black",
-                        fill: false,
-                        tension: 0.2,
-                        pointRadius: 0
+                        borderColor: "#00ffcc",
+                        backgroundColor: "rgba(0,255,204,0.1)",
+                        borderWidth: 2,
+                        pointRadius: 0,
+                        tension: 0.3
                     }]
                 },
                 options: {
                     responsive: true,
-                    maintainAspectRatio: true,
-                    aspectRatio: 2,  // Prevent stretching (2:1 ratio)
                     animation: false,
                     scales: {
                         x: {
                             type: "linear",
-                            title: { display: true, text: "Elapsed [s]" }
+                            title: {
+                                display: true,
+                                text: "Elapsed [s]",
+                                color: "#aaa"
+                            },
+                            ticks: { color: "#ccc" },
+                            grid: { color: "#333" }
                         },
                         y: {
-                            title: { display: true, text: label }
+                            title: {
+                                display: true,
+                                text: label,
+                                color: "#aaa"
+                            },
+                            ticks: { color: "#ccc" },
+                            grid: { color: "#333" }
                         }
                     },
                     plugins: {
-                        legend: { display: false }
+                        legend: {
+                            labels: { color: "#eee" }
+                        }
                     }
                 }
             });
