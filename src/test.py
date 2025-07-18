@@ -1004,14 +1004,37 @@ try:
 
 
             # ─ Web server update ─
+
             try:
+                payload_data = {}
+                for i in range(len(data)):
+                    try:
+                        val = float(data[i])
+                        payload_data[labels[i]] = f"{val:.{decimals[i]}f}"
+                    except:
+                        payload_data[labels[i]] = str(data[i])
+
                 payload = {
                     "timestamp": now_str,
-                    "data": {labels[i]: str(data[i]) for i in range(len(data))}
+                    "data": payload_data
                 }
-                requests.post("http://192.168.1.75:5000/update", json=payload, timeout=0.5)
+
+                requests.post("http://localhost:5000/update", json=payload, timeout=0.5)
+
             except Exception as e:
                 print("[WARN] Could not send data to web server:", e)
+
+
+
+
+            # try:
+            #     payload = {
+            #         "timestamp": now_str,
+            #         "data": {labels[i]: str(data[i]) for i in range(len(data))}
+            #     }
+            #     requests.post("http://192.168.1.75:5000/update", json=payload, timeout=0.5)
+            # except Exception as e:
+            #     print("[WARN] Could not send data to web server:", e)
 
 
 

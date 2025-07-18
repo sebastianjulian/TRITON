@@ -1,0 +1,115 @@
+<!-- <!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Sensor Dashboard</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        table { border-collapse: collapse; width: 100%; }
+        td, th { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+    </style>
+</head>
+<body>
+    <h2>Live Sensor Data</h2>
+    <p>Last updated: {{ data.timestamp }}</p>
+    <table>
+        <tr><th>Measurement</th><th>Value</th></tr>
+        {% for key, value in data.items() if key != 'timestamp' %}
+        <tr><td>{{ key }}</td><td>{{ value }}</td></tr>
+        {% endfor %}
+    </table>
+</body>
+</html> -->
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Sensor Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        .chart-container {
+            margin-bottom: 40px;
+        }
+        canvas {
+            width: 100%;
+            height: 300px;
+        }
+    </style>
+</head>
+<body>
+    <h1>📊 Raspberry Pi Sensor Dashboard</h1>
+    <div id="charts"></div>
+
+    <script>
+        const chartRefs = {};
+
+        async function fetchData() {
+            const res = await fetch("/data");
+            const json = await res.json();
+
+            const chartDiv = document.getElementById("charts");
+
+            for (const label in json) {
+                const entry = json[label];
+
+                if (!chartRefs[label]) {
+                    // Create container
+                    const container = document.createElement("div");
+                    container.className = "chart-container";
+
+                    // Create title
+                    const h3 = document.createElement("h3");
+                    h3.textContent = label;
+                    container.appendChild(h3);
+
+                    // Create canvas
+                    const canvas = document.createElement("canvas");
+                    canvas.id = label.replace(/\s+/g, "_");
+                    container.appendChild(canvas);
+
+                    chartDiv.appendChild(container);
+
+                    // Create chart
+                    chartRefs[label] = new Chart(canvas, {
+                        type: "line",
+                        data: {
+                            labels: entry.x,
+                            datasets: [{
+                                label: label,
+                                data: entry.y,
+                                borderColor: "blue",
+                                fill: false,
+                                tension: 0.2,
+                                pointRadius: 0
+                            }]
+                        },
+                        options: {
+                            scales: {
+                                x: {
+                                    title: { display: true, text: "Elapsed [s]" },
+                                    type: "linear"
+                                },
+                                y: {
+                                    title: { display: true, text: label }
+                                }
+                            }
+                        }
+                    });
+                } else {
+                    chartRefs[label].data.labels = entry.x;
+                    chartRefs[label].data.datasets[0].data = entry.y;
+                    chartRefs[label].update();
+                }
+            }
+        }
+
+        setInterval(fetchData, 1000);
+    </script>
+</body>
+</html>
