@@ -173,8 +173,12 @@ atexit.register(cleanup)
 
 
 if __name__ == "__main__":
+    import logging
+    log = logging.getLogger('werkzeug')
+    log.setLevel(logging.ERROR)  # Or use logging.CRITICAL to suppress all output
+
     try:
-        app.run(debug=False, host="0.0.0.0")
+        app.run(debug=False, host="0.0.0.0", use_reloader=False)
     except KeyboardInterrupt:
         print("\n🛑 Caught Ctrl+C, shutting down...")
         cleanup()
