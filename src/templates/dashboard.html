@@ -43,7 +43,6 @@
         }
 
         canvas {
-            width: 100% !important;
             height: 300px !important;
         }
     </style>
@@ -82,7 +81,7 @@
         </div>
     </div>
 
-    <!-- JavaScript: Chart creation and updates -->
+    <!-- JavaScript -->
     <script>
         const chartRefs = {};
         const fields = {
@@ -115,8 +114,10 @@
                     }]
                 },
                 options: {
-                    animation: false,
                     responsive: true,
+                    maintainAspectRatio: true,
+                    aspectRatio: 2,  // Prevent stretching (2:1 ratio)
+                    animation: false,
                     scales: {
                         x: {
                             type: "linear",
@@ -127,9 +128,7 @@
                         }
                     },
                     plugins: {
-                        legend: {
-                            display: false
-                        }
+                        legend: { display: false }
                     }
                 }
             });
