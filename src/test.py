@@ -1009,7 +1009,7 @@ try:
                     "timestamp": now_str,
                     "data": {labels[i]: str(data[i]) for i in range(len(data))}
                 }
-                requests.post("http://localhost:5000/update", json=payload, timeout=0.5)
+                requests.post("http://192.168.1.75:5000/update", json=payload, timeout=0.5)
             except Exception as e:
                 print("[WARN] Could not send data to web server:", e)
 
