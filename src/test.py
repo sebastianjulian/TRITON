@@ -840,8 +840,8 @@ ARCHIVE_DIR = os.path.join(LOG_DIR, "previous_data")
 
 labels = [
     "Elapsed [s]",
-    "Temperature_BME280 [°C]", "Humidity [%]", "Pressure [hPa]", "Altitude [m]",
-    "Acceleration x [m/s²]", "Acceleration y [m/s²]", "Acceleration z [m/s²]",
+    "Temp_BME280 [°C]", "Hum [%]", "Press [hPa]", "Alt [m]",
+    "Acc x [m/s²]", "Acc y [m/s²]", "Acc z [m/s²]",
     "Gyro x [°/s]", "Gyro y [°/s]", "Gyro z [°/s]",
     "Temperature_MPU [°C]"
 ]
