@@ -750,9 +750,17 @@ try:
                 print("[WARN] MPU read failed:", e)
                 data[4:] = np.nan
 
-        # ─ Update min/max ─
-        min_data = np.minimum(min_data, data)
-        max_data = np.maximum(max_data, data)
+        # # ─ Update min/max ─
+        # min_data = np.minimum(min_data, data)
+        # max_data = np.maximum(max_data, data)
+        # ─ Update min/max safely (ignore NaNs) ─
+        for i in range(len(data)):
+            if not np.isnan(data[i]):
+                min_data[i] = min(min_data[i], data[i])
+                max_data[i] = max(max_data[i], data[i])
+
+
+
 
         # ─ Check for changes ─
         changed = any(
