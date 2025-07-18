@@ -954,7 +954,7 @@ try:
                     data[i] = "Error reading sensor"
 
         # ─ Update min/max ─
-        for i in range(1, len(data)):  # Skip elapsed time
+        for i in range(1, len(data)):
             try:
                 val = float(data[i])
                 if not np.isnan(val):
@@ -972,16 +972,12 @@ try:
         now_perf = time.perf_counter()
 
         if changed or (now_perf - last_log_time) >= 1.0:
-
             for i in range(len(data)):
                 try:
                     last_data[i] = float(data[i])
                 except:
                     last_data[i] = np.nan
 
-
-
-            # last_data[:] = data
             last_log_time = now_perf
 
             # ─ Console output ─
@@ -1022,6 +1018,7 @@ except KeyboardInterrupt:
         f.write(min_line + "\n")
         f.write(max_line + "\n")
     print("\n🛑 Gracefully stopped. Min/max written to file.")
+
 
 
 
