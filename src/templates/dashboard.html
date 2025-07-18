@@ -1,170 +1,156 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>TRITON Live Sensor Dashboard</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <style>
-    body {
-      margin: 0;
-      background-color: #1e1e2f;
-      font-family: 'Segoe UI', sans-serif;
-      color: #eee;
-    }
+    <meta charset="UTF-8">
+    <title>TRITON Live Data Dashboard (Raspberry Pi)</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
 
-    header {
-      padding: 20px;
-      text-align: center;
-      background-color: #282c34;
-      border-bottom: 1px solid #444;
-    }
+        h1 {
+            text-align: center;
+            margin-bottom: 40px;
+        }
 
-    h1 {
-      font-size: 26px;
-      margin: 0;
-      color: #00ffff;
-    }
+        .section {
+            margin-top: 40px;
+        }
 
-    .dashboard {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-      gap: 20px;
-      padding: 20px;
-    }
+        .section h2 {
+            border-bottom: 2px solid #333;
+            padding-bottom: 6px;
+            margin-bottom: 20px;
+        }
 
-    .panel {
-      background-color: #2b2f3a;
-      padding: 15px;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.5);
-    }
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
 
-    .panel h3 {
-      margin-bottom: 10px;
-      font-size: 16px;
-      color: #90caf9;
-    }
+        .grid-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+        }
 
-    canvas {
-      width: 100% !important;
-      height: 250px !important;
-    }
-  </style>
+        .chart-container {
+            margin: 10px 0;
+        }
+
+        canvas {
+            height: 300px !important;
+        }
+    </style>
 </head>
 <body>
-  <header>
-    <h1>TRITON Live Sensor Dashboard</h1>
-  </header>
+    <h1>TRITON Live Data Dashboard (Raspberry Pi)</h1>
 
-  <main class="dashboard" id="dashboard">
-    <!-- Panels will be generated dynamically -->
-  </main>
+    <!-- BME280 Section -->
+    <div class="section" id="bme280">
+        <h2>BME280</h2>
+        <div class="grid-2">
+            <div class="chart-container"><h3>Temperature [°C]</h3><canvas id="Temp_BME280"></canvas></div>
+            <div class="chart-container"><h3>Humidity [%]</h3><canvas id="Hum"></canvas></div>
+        </div>
+        <div class="grid-2">
+            <div class="chart-container"><h3>Pressure [hPa]</h3><canvas id="Press"></canvas></div>
+            <div class="chart-container"><h3>Altitude [m]</h3><canvas id="Alt"></canvas></div>
+        </div>
+    </div>
 
-  <script>
-    const fields = {
-      "Temp_BME280": "Temperature [°C]",
-      "Hum": "Humidity [%]",
-      "Press": "Pressure [hPa]",
-      "Alt": "Altitude [m]",
-      "Acc_x": "Acc X [m/s²]",
-      "Acc_y": "Acc Y [m/s²]",
-      "Acc_z": "Acc Z [m/s²]",
-      "Gyro_x": "Gyro X [°/s]",
-      "Gyro_y": "Gyro Y [°/s]",
-      "Gyro_z": "Gyro Z [°/s]",
-      "Temp_MPU": "MPU Temperature [°C]"
-    };
+    <!-- MPU6050 Section -->
+    <div class="section" id="mpu6050">
+        <h2>MPU6050</h2>
+        <div class="grid-3">
+            <div class="chart-container"><h3>Acc X [m/s²]</h3><canvas id="Acc_x"></canvas></div>
+            <div class="chart-container"><h3>Acc Y [m/s²]</h3><canvas id="Acc_y"></canvas></div>
+            <div class="chart-container"><h3>Acc Z [m/s²]</h3><canvas id="Acc_z"></canvas></div>
+        </div>
+        <div class="grid-3">
+            <div class="chart-container"><h3>Gyro X [°/s]</h3><canvas id="Gyro_x"></canvas></div>
+            <div class="chart-container"><h3>Gyro Y [°/s]</h3><canvas id="Gyro_y"></canvas></div>
+            <div class="chart-container"><h3>Gyro Z [°/s]</h3><canvas id="Gyro_z"></canvas></div>
+        </div>
+        <div class="grid-3">
+            <div class="chart-container"><h3>Temperature [°C]</h3><canvas id="Temp_MPU"></canvas></div>
+        </div>
+    </div>
 
-    const chartRefs = {};
+    <!-- JavaScript -->
+    <script>
+        const chartRefs = {};
+        const fields = {
+            "Temp_BME280": "Temp_BME280 [°C]",
+            "Hum": "Hum [%]",
+            "Press": "Press [hPa]",
+            "Alt": "Alt [m]",
+            "Acc_x": "Acc x [m/s²]",
+            "Acc_y": "Acc y [m/s²]",
+            "Acc_z": "Acc z [m/s²]",
+            "Gyro_x": "Gyro x [°/s]",
+            "Gyro_y": "Gyro y [°/s]",
+            "Gyro_z": "Gyro z [°/s]",
+            "Temp_MPU": "Temp_MPU [°C]"
+        };
 
-    function createPanel(id, label) {
-      const panel = document.createElement("div");
-      panel.className = "panel";
+        function createChart(canvasId, label) {
+            const ctx = document.getElementById(canvasId).getContext("2d");
+            return new Chart(ctx, {
+                type: "line",
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: label,
+                        data: [],
+                        borderColor: "black",
+                        fill: false,
+                        tension: 0.2,
+                        pointRadius: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    aspectRatio: 2,  // Prevent stretching (2:1 ratio)
+                    animation: false,
+                    scales: {
+                        x: {
+                            type: "linear",
+                            title: { display: true, text: "Elapsed [s]" }
+                        },
+                        y: {
+                            title: { display: true, text: label }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+        }
 
-      const title = document.createElement("h3");
-      title.textContent = label;
+        async function fetchData() {
+            const res = await fetch("/data");
+            const json = await res.json();
+            const elapsed = json.history["Elapsed [s]"];
 
-      const canvas = document.createElement("canvas");
-      canvas.id = id;
-
-      panel.appendChild(title);
-      panel.appendChild(canvas);
-      document.getElementById("dashboard").appendChild(panel);
-    }
-
-    function createChart(canvasId, label) {
-      const ctx = document.getElementById(canvasId).getContext("2d");
-      return new Chart(ctx, {
-        type: "line",
-        data: {
-          labels: [],
-          datasets: [{
-            label: label,
-            data: [],
-            borderColor: "#00ffff",
-            borderWidth: 2,
-            fill: false,
-            tension: 0.25,
-            pointRadius: 0
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          animation: false,
-          scales: {
-            x: {
-              type: "linear",
-              ticks: { color: "#ccc" },
-              title: {
-                display: true,
-                text: "Elapsed [s]",
-                color: "#aaa"
-              }
-            },
-            y: {
-              ticks: { color: "#ccc" },
-              title: {
-                display: true,
-                text: label,
-                color: "#aaa"
-              }
+            for (const [canvasId, label] of Object.entries(fields)) {
+                const values = json.history[label];
+                if (!chartRefs[canvasId]) {
+                    chartRefs[canvasId] = createChart(canvasId, label);
+                }
+                chartRefs[canvasId].data.labels = elapsed;
+                chartRefs[canvasId].data.datasets[0].data = values;
+                chartRefs[canvasId].update();
             }
-          },
-          plugins: {
-            legend: { display: false }
-          }
         }
-      });
-    }
 
-    async function fetchData() {
-      try {
-        const res = await fetch("/data");
-        const json = await res.json();
-        const elapsed = json.history["Elapsed [s]"];
-
-        for (const [key, label] of Object.entries(fields)) {
-          const canvasId = key;
-          const values = json.history[label];
-
-          if (!chartRefs[canvasId]) {
-            createPanel(canvasId, label);
-            chartRefs[canvasId] = createChart(canvasId, label);
-          }
-
-          const chart = chartRefs[canvasId];
-          chart.data.labels = elapsed;
-          chart.data.datasets[0].data = values;
-          chart.update();
-        }
-      } catch (err) {
-        console.error("Fetch error:", err);
-      }
-    }
-
-    setInterval(fetchData, 1000);
-  </script>
+        setInterval(fetchData, 1000);
+    </script>
 </body>
 </html>
