@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Sensor Dashboard</title>
+    <title>TRITON Live Data Dashboard (Raspberry Pi)</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body {
@@ -12,6 +12,7 @@
 
         h1 {
             text-align: center;
+            margin-bottom: 40px;
         }
 
         .section {
@@ -21,6 +22,18 @@
         .section h2 {
             border-bottom: 2px solid #444;
             padding-bottom: 5px;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
         }
 
         .chart-container {
@@ -34,25 +47,35 @@
     </style>
 </head>
 <body>
-    <h1>📊 Raspberry Pi Sensor Dashboard</h1>
+    <h1>TRITON Live Data Dashboard (Raspberry Pi)</h1>
 
     <div class="section" id="bme280">
         <h2>BME280</h2>
-        <div class="chart-container"><h3>Temperature [°C]</h3><canvas id="Temp_BME280"></canvas></div>
-        <div class="chart-container"><h3>Humidity [%]</h3><canvas id="Hum"></canvas></div>
-        <div class="chart-container"><h3>Pressure [hPa]</h3><canvas id="Press"></canvas></div>
-        <div class="chart-container"><h3>Altitude [m]</h3><canvas id="Alt"></canvas></div>
+        <div class="grid-2">
+            <div class="chart-container"><h3>Temperature [°C]</h3><canvas id="Temp_BME280"></canvas></div>
+            <div class="chart-container"><h3>Humidity [%]</h3><canvas id="Hum"></canvas></div>
+        </div>
+        <div class="grid-2">
+            <div class="chart-container"><h3>Pressure [hPa]</h3><canvas id="Press"></canvas></div>
+            <div class="chart-container"><h3>Altitude [m]</h3><canvas id="Alt"></canvas></div>
+        </div>
     </div>
 
     <div class="section" id="mpu6050">
         <h2>MPU6050</h2>
-        <div class="chart-container"><h3>Acc X [m/s²]</h3><canvas id="Acc_x"></canvas></div>
-        <div class="chart-container"><h3>Acc Y [m/s²]</h3><canvas id="Acc_y"></canvas></div>
-        <div class="chart-container"><h3>Acc Z [m/s²]</h3><canvas id="Acc_z"></canvas></div>
-        <div class="chart-container"><h3>Gyro X [°/s]</h3><canvas id="Gyro_x"></canvas></div>
-        <div class="chart-container"><h3>Gyro Y [°/s]</h3><canvas id="Gyro_y"></canvas></div>
-        <div class="chart-container"><h3>Gyro Z [°/s]</h3><canvas id="Gyro_z"></canvas></div>
-        <div class="chart-container"><h3>Temperature [°C]</h3><canvas id="Temp_MPU"></canvas></div>
+        <div class="grid-3">
+            <div class="chart-container"><h3>Acc X [m/s²]</h3><canvas id="Acc_x"></canvas></div>
+            <div class="chart-container"><h3>Acc Y [m/s²]</h3><canvas id="Acc_y"></canvas></div>
+            <div class="chart-container"><h3>Acc Z [m/s²]</h3><canvas id="Acc_z"></canvas></div>
+        </div>
+        <div class="grid-3">
+            <div class="chart-container"><h3>Gyro X [°/s]</h3><canvas id="Gyro_x"></canvas></div>
+            <div class="chart-container"><h3>Gyro Y [°/s]</h3><canvas id="Gyro_y"></canvas></div>
+            <div class="chart-container"><h3>Gyro Z [°/s]</h3><canvas id="Gyro_z"></canvas></div>
+        </div>
+        <div class="chart-container">
+            <h3>Temperature [°C]</h3><canvas id="Temp_MPU"></canvas>
+        </div>
     </div>
 
     <script>
@@ -80,7 +103,7 @@
                     datasets: [{
                         label: label,
                         data: [],
-                        borderColor: "blue",
+                        borderColor: "black",
                         fill: false,
                         tension: 0.2,
                         pointRadius: 0
