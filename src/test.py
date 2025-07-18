@@ -972,7 +972,16 @@ try:
         now_perf = time.perf_counter()
 
         if changed or (now_perf - last_log_time) >= 1.0:
-            last_data[:] = data
+
+            for i in range(len(data)):
+                try:
+                    last_data[i] = float(data[i])
+                except:
+                    last_data[i] = np.nan
+
+
+
+            # last_data[:] = data
             last_log_time = now_perf
 
             # ─ Console output ─
