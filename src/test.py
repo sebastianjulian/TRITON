@@ -764,7 +764,7 @@ try:
                     display_data[i] = f"{data[i]:.{decimals[i]}f}"
             except OSError as e:
                 print("[WARN] BME read failed:", e)
-                msg = "Sensor unplugged" if e.errno == 5 else "Sensor power loss" if e.errno == 121 else "Error reading sensor"
+                msg = "Unplugged" if e.errno == 5 else "Powerloss" if e.errno == 121 else "Readingerror"
                 for i in range(0, 4):
                     data[i] = np.nan
                     display_data[i] = msg
@@ -772,7 +772,7 @@ try:
                 print("[WARN] BME read failed:", e)
                 for i in range(0, 4):
                     data[i] = np.nan
-                    display_data[i] = "Error reading sensor"
+                    display_data[i] = "Readingerror"
 
 
 
@@ -830,7 +830,7 @@ try:
                     display_data[i] = f"{data[i]:.{decimals[i]}f}"
             except OSError as e:
                 print("[WARN] MPU read failed:", e)
-                msg = "Sensor unplugged" if e.errno == 5 else "Sensor power loss" if e.errno == 121 else "Error reading sensor"
+                msg = "Unplugged" if e.errno == 5 else "Powerloss" if e.errno == 121 else "Readingerror"
                 for i in range(4, 11):
                     data[i] = np.nan
                     display_data[i] = msg
@@ -838,7 +838,7 @@ try:
                 print("[WARN] MPU read failed:", e)
                 for i in range(4, 11):
                     data[i] = np.nan
-                    display_data[i] = "Error reading sensor"
+                    display_data[i] = "Readingerror"
 
 
 
