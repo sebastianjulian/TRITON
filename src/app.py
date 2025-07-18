@@ -156,6 +156,10 @@ def cleanup():
 atexit.register(cleanup)
 
 
-
 if __name__ == "__main__":
-    app.run(debug=True, host="0.0.0.0")
+    try:
+        app.run(debug=False, host="0.0.0.0")
+    except KeyboardInterrupt:
+        print("\n🛑 Caught Ctrl+C, shutting down...")
+        cleanup()
+
