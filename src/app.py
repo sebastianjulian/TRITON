@@ -168,6 +168,7 @@ def cleanup():
     except Exception as e:
         print(f"[WARN] Cleanup failed or port already free: {e}")
 
+cleanup()
 atexit.register(cleanup)
 
 
@@ -177,5 +178,3 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         print("\n🛑 Caught Ctrl+C, shutting down...")
         cleanup()
-        kill_port(5000)
-
