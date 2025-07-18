@@ -93,6 +93,11 @@
 #     app.run(host="0.0.0.0", port=5000)
 
 
+import os
+import signal
+import subprocess
+import atexit
+
 from flask import Flask, request, jsonify, render_template
 from datetime import datetime
 
@@ -137,6 +142,18 @@ def get_data():
         "timestamp": latest_data["timestamp"],
         "history": history
     })
+
+def cleanup():
+    try:
+        result = subprocess.check_output(["lsof", "-t", "-i:5000"]).decode().strip()
+        if result:
+            for pid in result.splitlines():
+                os.kill(int(pid), signal.SIGKILL)
+                print(f"[INFO] Killed leftover process on port 5000 (PID {pid})")
+    except Exception as e:
+        print(f"[WARN] Cleanup failed or port already free: {e}")
+
+atexit.register(cleanup)
 
 
 
