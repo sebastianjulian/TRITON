@@ -39,8 +39,10 @@
       padding: 15px;
       border-radius: 10px;
       box-shadow: 0 0 10px #00000055;
-      flex: 1 1 350px;
+      flex: 1 1 300px;
       max-width: 100%;
+      display: flex;
+      flex-direction: column;
     }
 
     .chart-container h3 {
@@ -50,15 +52,15 @@
     }
 
     canvas {
-      display: block;
-      width: 100%;
-      height: auto;
+      width: 100% !important;
+      aspect-ratio: 1.6;
     }
   </style>
 </head>
 <body>
   <h1>TRITON Live Data Dashboard (Raspberry Pi)</h1>
 
+  <!-- BME280 Section -->
   <section id="bme280">
     <h2>BME280 Sensor</h2>
     <div class="flex-wrap">
@@ -81,8 +83,11 @@
     </div>
   </section>
 
+  <!-- MPU6050 Section -->
   <section id="mpu6050">
     <h2>MPU6050 Sensor</h2>
+
+    <!-- Acceleration -->
     <div class="flex-wrap">
       <div class="chart-container">
         <h3>Acc X [m/s²]</h3>
@@ -96,6 +101,10 @@
         <h3>Acc Z [m/s²]</h3>
         <canvas id="Acc z [m/s²]"></canvas>
       </div>
+    </div>
+
+    <!-- Gyroscope -->
+    <div class="flex-wrap">
       <div class="chart-container">
         <h3>Gyro X [°/s]</h3>
         <canvas id="Gyro x [°/s]"></canvas>
@@ -108,13 +117,18 @@
         <h3>Gyro Z [°/s]</h3>
         <canvas id="Gyro z [°/s]"></canvas>
       </div>
-      <div class="chart-container">
+    </div>
+
+    <!-- Temperature -->
+    <div class="flex-wrap" style="justify-content: center;">
+      <div class="chart-container" style="flex: 1 1 300px; max-width: 33%;">
         <h3>Temperature [°C]</h3>
         <canvas id="Temp_MPU [°C]"></canvas>
       </div>
     </div>
   </section>
 
+  <!-- Chart Logic -->
   <script>
     const chartRefs = {};
     const fields = {
@@ -150,33 +164,22 @@
         options: {
           responsive: true,
           maintainAspectRatio: true,
-          aspectRatio: 1.6,
           animation: false,
           scales: {
             x: {
               type: "linear",
-              title: {
-                display: true,
-                text: "Elapsed [s]",
-                color: "#aaa"
-              },
+              title: { display: true, text: "Elapsed [s]", color: "#aaa" },
               ticks: { color: "#ccc" },
               grid: { color: "#333" }
             },
             y: {
-              title: {
-                display: true,
-                text: label,
-                color: "#aaa"
-              },
+              title: { display: true, text: label, color: "#aaa" },
               ticks: { color: "#ccc" },
               grid: { color: "#333" }
             }
           },
           plugins: {
-            legend: {
-              labels: { color: "#eee" }
-            }
+            legend: { labels: { color: "#eee" } }
           }
         }
       });
