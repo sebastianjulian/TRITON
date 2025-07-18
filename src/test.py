@@ -923,7 +923,7 @@ try:
                 data[4] = bme.altitude
             except OSError as e:
                 print("[WARN] BME read failed:", e)
-                msg = "Sensor unplugged" if e.errno == 5 else "Sensor power loss" if e.errno == 121 else "Error reading sensor"
+                msg = "Unplugged" if e.errno == 5 else "Ppower loss" if e.errno == 121 else "Reading error"
                 for i in range(1, 5):
                     data[i] = msg
             except Exception as e:
@@ -945,13 +945,13 @@ try:
                 data[11] = mpu.get_temp()
             except OSError as e:
                 print("[WARN] MPU read failed:", e)
-                msg = "Sensor unplugged" if e.errno == 5 else "Sensor power loss" if e.errno == 121 else "Error reading sensor"
+                msg = "Unplugged" if e.errno == 5 else "Power loss" if e.errno == 121 else "Reading error"
                 for i in range(5, 12):
                     data[i] = msg
             except Exception as e:
                 print("[WARN] MPU read failed:", e)
                 for i in range(5, 12):
-                    data[i] = "Error reading sensor"
+                    data[i] = "Reading error"
 
         # ─ Update min/max ─
         for i in range(1, len(data)):
