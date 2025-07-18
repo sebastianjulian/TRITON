@@ -704,6 +704,7 @@ data = np.zeros(len(labels))
 last_data = np.full(len(labels), np.nan)
 min_data = np.full(len(labels), np.inf)
 max_data = np.full(len(labels), -np.inf)
+display_data = [""] * len(labels) # Stores formatted output or error strings
 
 #############################################################################################################################################################################################################################
 # Print header to console
@@ -736,21 +737,43 @@ try:
         #         data[0:4] = np.nan
 
 
+        # if bme:
+        #     try:
+        #         data[0] = bme.temperature
+        #         data[1] = bme.humidity
+        #         data[2] = bme.pressure
+        #         data[3] = bme.altitude
+        #     except OSError as e:
+        #         print("[WARN] BME read failed:", e)
+        #         msg = "Sensor unplugged" if e.errno == 5 else "Sensor power loss" if e.errno == 121 else "Error reading sensor"
+        #         for i in range(0, 4):
+        #             data[i] = msg
+        #     except Exception as e:
+        #         print("[WARN] BME read failed:", e)
+        #         for i in range(0, 4):
+        #             data[i] = "Error reading sensor"
+
+
         if bme:
             try:
                 data[0] = bme.temperature
                 data[1] = bme.humidity
                 data[2] = bme.pressure
                 data[3] = bme.altitude
+                for i in range(0, 4):
+                    display_data[i] = f"{data[i]:.{decimals[i]}f}"
             except OSError as e:
                 print("[WARN] BME read failed:", e)
                 msg = "Sensor unplugged" if e.errno == 5 else "Sensor power loss" if e.errno == 121 else "Error reading sensor"
                 for i in range(0, 4):
-                    data[i] = msg
+                    data[i] = np.nan
+                    display_data[i] = msg
             except Exception as e:
                 print("[WARN] BME read failed:", e)
                 for i in range(0, 4):
-                    data[i] = "Error reading sensor"
+                    data[i] = np.nan
+                    display_data[i] = "Error reading sensor"
+
 
 
         # if mpu:
@@ -768,6 +791,30 @@ try:
         #         print("[WARN] MPU read failed:", e)
         #         data[4:] = np.nan
 
+        # if mpu:
+        #     try:
+        #         accel = mpu.get_accel_data()
+        #         gyro = mpu.get_gyro_data()
+        #         data[4] = accel["x"]
+        #         data[5] = accel["y"]
+        #         data[6] = accel["z"]
+        #         data[7] = gyro["x"]
+        #         data[8] = gyro["y"]
+        #         data[9] = gyro["z"]
+        #         data[10] = mpu.get_temp()
+        #     except OSError as e:
+        #         print("[WARN] MPU read failed:", e)
+        #         msg = "Sensor unplugged" if e.errno == 5 else "Sensor power loss" if e.errno == 121 else "Error reading sensor"
+        #         for i in range(4, 11):
+        #             data[i] = msg
+        #     except Exception as e:
+        #         print("[WARN] MPU read failed:", e)
+        #         for i in range(4, 11):
+        #             data[i] = "Error reading sensor"
+
+
+
+        
         if mpu:
             try:
                 accel = mpu.get_accel_data()
@@ -779,15 +826,20 @@ try:
                 data[8] = gyro["y"]
                 data[9] = gyro["z"]
                 data[10] = mpu.get_temp()
+                for i in range(4, 11):
+                    display_data[i] = f"{data[i]:.{decimals[i]}f}"
             except OSError as e:
                 print("[WARN] MPU read failed:", e)
                 msg = "Sensor unplugged" if e.errno == 5 else "Sensor power loss" if e.errno == 121 else "Error reading sensor"
                 for i in range(4, 11):
-                    data[i] = msg
+                    data[i] = np.nan
+                    display_data[i] = msg
             except Exception as e:
                 print("[WARN] MPU read failed:", e)
                 for i in range(4, 11):
-                    data[i] = "Error reading sensor"
+                    data[i] = np.nan
+                    display_data[i] = "Error reading sensor"
+
 
 
 
@@ -841,25 +893,38 @@ try:
 
 
                 # ─ Console output ─
-            print_line = f"{now_str:<22}"
-            for i in range(len(data)):
-                try:
-                    val = float(data[i])
-                    print_line += f"{val:>{decimals[i] + 12}.{decimals[i]}f}"
-                except:
-                    print_line += f"{str(data[i]):>{decimals[i] + 12}}"
+            # print_line = f"{now_str:<22}"
+            # for i in range(len(data)):
+            #     try:
+            #         val = float(data[i])
+            #         print_line += f"{val:>{decimals[i] + 12}.{decimals[i]}f}"
+            #     except:
+            #         print_line += f"{str(data[i]):>{decimals[i] + 12}}"
+            # print(print_line)
+
+
+            print_line = f"{now_str:<22}" + "".join(f"{display_data[i]:>{decimals[i] + 12}}" for i in range(len(data)))
             print(print_line)
 
+
+
             # ─ CSV file write ─
+            # with open(logfile, "a") as f:
+            #     csv_line = f"{now_str:<22}"
+            #     for i in range(len(data)):
+            #         try:
+            #             val = float(data[i])
+            #             csv_line += f"{val:>{decimals[i] + 12}.{decimals[i]}f}"
+            #         except:
+            #             csv_line += f"{str(data[i]):>{decimals[i] + 12}}"
+            #     f.write(csv_line + "\n")
+
+
+
             with open(logfile, "a") as f:
-                csv_line = f"{now_str:<22}"
-                for i in range(len(data)):
-                    try:
-                        val = float(data[i])
-                        csv_line += f"{val:>{decimals[i] + 12}.{decimals[i]}f}"
-                    except:
-                        csv_line += f"{str(data[i]):>{decimals[i] + 12}}"
+                csv_line = f"{now_str:<22}" + "".join(f"{display_data[i]:>{decimals[i] + 12}}" for i in range(len(data)))
                 f.write(csv_line + "\n")
+
 
 
         time.sleep(0.1)
