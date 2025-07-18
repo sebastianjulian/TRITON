@@ -832,6 +832,7 @@ from datetime import datetime
 from adafruit_bme280 import basic as adafruit_bme280
 from mpu6050 import mpu6050
 import pytz
+import requests
 
 # ───── CONFIG ─────
 TZ = pytz.timezone("Europe/Berlin")  # MET with DST
@@ -843,7 +844,7 @@ labels = [
     "Temp_BME280 [°C]", "Hum [%]", "Press [hPa]", "Alt [m]",
     "Acc x [m/s²]", "Acc y [m/s²]", "Acc z [m/s²]",
     "Gyro x [°/s]", "Gyro y [°/s]", "Gyro z [°/s]",
-    "Temperature_MPU [°C]"
+    "Temp_MPU [°C]"
 ]
 
 decimals = np.array([
@@ -1000,6 +1001,19 @@ try:
                     except:
                         line += f"{str(data[i]):>{decimals[i] + 14}}"
                 f.write(line + "\n")
+
+
+            # ─ Web server update ─
+            try:
+                payload = {
+                    "timestamp": now_str,
+                    "data": {labels[i]: str(data[i]) for i in range(len(data))}
+                }
+                requests.post("http://localhost:5000/update", json=payload, timeout=0.5)
+            except Exception as e:
+                print("[WARN] Could not send data to web server:", e)
+
+
 
         time.sleep(0.1)
 
