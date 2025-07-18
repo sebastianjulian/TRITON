@@ -8,6 +8,7 @@
         body {
             font-family: Arial, sans-serif;
             padding: 20px;
+            background-color: #f8f9fa;
         }
 
         h1 {
@@ -20,8 +21,9 @@
         }
 
         .section h2 {
-            border-bottom: 2px solid #444;
-            padding-bottom: 5px;
+            border-bottom: 2px solid #333;
+            padding-bottom: 6px;
+            margin-bottom: 20px;
         }
 
         .grid-2 {
@@ -37,18 +39,19 @@
         }
 
         .chart-container {
-            margin: 20px 0;
+            margin: 10px 0;
         }
 
         canvas {
-            width: 100%;
-            height: 300px;
+            width: 100% !important;
+            height: 300px !important;
         }
     </style>
 </head>
 <body>
     <h1>TRITON Live Data Dashboard (Raspberry Pi)</h1>
 
+    <!-- BME280 Section -->
     <div class="section" id="bme280">
         <h2>BME280</h2>
         <div class="grid-2">
@@ -61,6 +64,7 @@
         </div>
     </div>
 
+    <!-- MPU6050 Section -->
     <div class="section" id="mpu6050">
         <h2>MPU6050</h2>
         <div class="grid-3">
@@ -73,11 +77,12 @@
             <div class="chart-container"><h3>Gyro Y [°/s]</h3><canvas id="Gyro_y"></canvas></div>
             <div class="chart-container"><h3>Gyro Z [°/s]</h3><canvas id="Gyro_z"></canvas></div>
         </div>
-        <div class="chart-container">
-            <h3>Temperature [°C]</h3><canvas id="Temp_MPU"></canvas>
+        <div class="grid-3">
+            <div class="chart-container"><h3>Temperature [°C]</h3><canvas id="Temp_MPU"></canvas></div>
         </div>
     </div>
 
+    <!-- JavaScript: Chart creation and updates -->
     <script>
         const chartRefs = {};
         const fields = {
@@ -111,6 +116,7 @@
                 },
                 options: {
                     animation: false,
+                    responsive: true,
                     scales: {
                         x: {
                             type: "linear",
@@ -118,6 +124,11 @@
                         },
                         y: {
                             title: { display: true, text: label }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
                         }
                     }
                 }
