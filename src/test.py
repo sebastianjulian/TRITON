@@ -725,15 +725,48 @@ try:
         now_str = now.strftime("%Y-%m-%d %H:%M:%S")
 
         # ─ Read sensors ─
+        # if bme:
+        #     try:
+        #         data[0] = bme.temperature
+        #         data[1] = bme.humidity
+        #         data[2] = bme.pressure
+        #         data[3] = bme.altitude
+        #     except Exception as e:
+        #         print("[WARN] BME read failed:", e)
+        #         data[0:4] = np.nan
+
+
         if bme:
             try:
                 data[0] = bme.temperature
                 data[1] = bme.humidity
                 data[2] = bme.pressure
                 data[3] = bme.altitude
+            except OSError as e:
+                print("[WARN] BME read failed:", e)
+                msg = "Sensor unplugged" if e.errno == 5 else "Sensor power loss" if e.errno == 121 else "Error reading sensor"
+                for i in range(0, 4):
+                    data[i] = msg
             except Exception as e:
                 print("[WARN] BME read failed:", e)
-                data[0:4] = np.nan
+                for i in range(0, 4):
+                    data[i] = "Error reading sensor"
+
+
+        # if mpu:
+        #     try:
+        #         accel = mpu.get_accel_data()
+        #         gyro = mpu.get_gyro_data()
+        #         data[4] = accel["x"]
+        #         data[5] = accel["y"]
+        #         data[6] = accel["z"]
+        #         data[7] = gyro["x"]
+        #         data[8] = gyro["y"]
+        #         data[9] = gyro["z"]
+        #         data[10] = mpu.get_temp()
+        #     except Exception as e:
+        #         print("[WARN] MPU read failed:", e)
+        #         data[4:] = np.nan
 
         if mpu:
             try:
@@ -746,9 +779,17 @@ try:
                 data[8] = gyro["y"]
                 data[9] = gyro["z"]
                 data[10] = mpu.get_temp()
+            except OSError as e:
+                print("[WARN] MPU read failed:", e)
+                msg = "Sensor unplugged" if e.errno == 5 else "Sensor power loss" if e.errno == 121 else "Error reading sensor"
+                for i in range(4, 11):
+                    data[i] = msg
             except Exception as e:
                 print("[WARN] MPU read failed:", e)
-                data[4:] = np.nan
+                for i in range(4, 11):
+                    data[i] = "Error reading sensor"
+
+
 
         # # ─ Update min/max ─
         # min_data = np.minimum(min_data, data)
@@ -779,8 +820,9 @@ try:
                 try:
                     val = float(data[i])
                     print_line += f"{val:>{decimals[i] + 12}.{decimals[i]}f}"
-                except:
-                    print_line += f"{'NaN':>{decimals[i] + 12}}"
+               except:
+                    print_line += f"{str(data[i]):>{decimals[i] + 12}}"
+
             print(print_line)
 
             # ─ CSV file write ─
@@ -791,7 +833,8 @@ try:
                         val = float(data[i])
                         csv_line += f"{val:>{decimals[i] + 12}.{decimals[i]}f}"
                     except:
-                        csv_line += f"{'NaN':>{decimals[i] + 12}}"
+                        print_line += f"{str(data[i]):>{decimals[i] + 12}}"
+
                 f.write(csv_line + "\n")
 
         time.sleep(0.1)
