@@ -101,6 +101,21 @@ import atexit
 from flask import Flask, request, jsonify, render_template
 from datetime import datetime
 
+def kill_port(port=5000):
+    try:
+        output = subprocess.check_output(f"lsof -ti:{port}", shell=True).decode().split()
+        for pid in output:
+            try:
+                os.kill(int(pid), signal.SIGKILL)
+                print(f"[INFO] Killed process on port {port} (PID: {pid})")
+            except Exception as e:
+                print(f"[WARN] Couldn't kill PID {pid}: {e}")
+    except subprocess.CalledProcessError:
+        # No process found using the port
+        pass
+
+kill_port(5000)
+
 app = Flask(__name__)
 latest_data = {"timestamp": "", "data": {}}
 history = {"Elapsed [s]": []}  # For graphing
