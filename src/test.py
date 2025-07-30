@@ -1239,13 +1239,17 @@ try:
                 print("[WARN] Web server failed:", e)
 
             # Send over LoRa
+            # ─ Send over LoRa ─
             if lora_serial:
                 try:
+                    # Send all data in one short CSV-formatted line with newline at the end
                     lora_line = now_str + "," + ",".join(str(x) for x in data) + "\n"
                     lora_serial.write(lora_line.encode())
+                    lora_serial.flush()  # Ensure it's fully written out
                     print("📡 Sent via LoRa")
                 except Exception as e:
                     print("[WARN] LoRa send failed:", e)
+
 
         time.sleep(0.1)
 
