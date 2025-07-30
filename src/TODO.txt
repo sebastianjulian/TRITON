@@ -1,0 +1,5 @@
+- axes scales
+- stop/resume/pause/new file buttons
+- open file folder button
+
+- run files while booting
