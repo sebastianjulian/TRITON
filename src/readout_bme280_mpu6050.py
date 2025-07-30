@@ -4,7 +4,7 @@ import busio
 from adafruit_bme280 import basic as adafruit_bme280
 from mpu6050 import mpu6050
 import numpy as np
-import bme280sensor
+
 
 # I2C bus setup
 i2c = busio.I2C(board.SCL, board.SDA)
