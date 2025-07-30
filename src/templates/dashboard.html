@@ -1,52 +1,286 @@
-<section>
-  <h2>Statistics Summary</h2>
-  <div style="overflow-x:auto">
-    <table id="statsTable" style="width:100%; border-collapse: collapse;">
-      <thead>
-        <tr style="background:#222;">
-          <th style="padding:8px;">Field</th>
-          <th style="padding:8px;">Min</th>
-          <th style="padding:8px;">Max</th>
-          <th style="padding:8px;">Average</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>TRITON Live Data Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #0f1115;
+      color: #f0f0f0;
+      font-family: "Segoe UI", sans-serif;
+    }
+
+    header {
+      background-color: #1e1f26;
+      padding: 20px;
+      text-align: center;
+      border-bottom: 2px solid #2d2f36;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 1.8em;
+      color: #ffffff;
+    }
+
+    section {
+      padding: 20px 40px;
+    }
+
+    h2 {
+      color: #e2e2e2;
+      margin-top: 40px;
+      font-size: 1.4em;
+      border-left: 4px solid #0061a8;
+      padding-left: 12px;
+    }
+
+    .grid-2col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin-top: 20px;
+    }
+
+    .chart-box {
+      background-color: #1c1d22;
+      padding: 16px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px #00000044;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .chart-box h3 {
+      margin: 0 0 10px;
+      text-align: center;
+      font-size: 1.1em;
+      color: #ddd;
+    }
+
+    canvas {
+      width: 100% !important;
+      aspect-ratio: 1.6;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    th, td {
+      border: 1px solid #333;
+      padding: 8px 12px;
+      text-align: center;
+      color: #ccc;
+    }
+
+    th {
+      background-color: #222;
+      color: #fff;
+    }
+
+    .download-controls {
+      margin-top: 40px;
+    }
+
+    .download-controls button,
+    .download-controls select {
+      margin: 10px 10px 0 0;
+      padding: 8px 12px;
+      font-size: 1em;
+      border: none;
+      border-radius: 6px;
+    }
+
+    .download-controls button {
+      background-color: #38bdf8;
+      color: #000;
+      cursor: pointer;
+    }
+
+    .download-controls select {
+      background-color: #1c1d22;
+      color: #f0f0f0;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>TRITON Live Data Dashboard</h1>
+  </header>
+
+  <!-- BME280 Section -->
+  <section>
+    <h2>BME280 Sensor</h2>
+    <div class="grid-2col">
+      <div class="chart-box"><h3>Temperature [°C]</h3><canvas id="Temp_BME280 [°C]"></canvas></div>
+      <div class="chart-box"><h3>Humidity [%]</h3><canvas id="Hum [%]"></canvas></div>
+      <div class="chart-box"><h3>Pressure [hPa]</h3><canvas id="Press [hPa]"></canvas></div>
+      <div class="chart-box"><h3>Altitude [m]</h3><canvas id="Alt [m]"></canvas></div>
+    </div>
+  </section>
+
+  <!-- MPU6050 Section -->
+  <section>
+    <h2>MPU6050 Sensor</h2>
+    <div class="grid-2col">
+      <div class="chart-box"><h3>Acc X [m/s²]</h3><canvas id="Acc x [m/s²]"></canvas></div>
+      <div class="chart-box"><h3>Gyro X [°/s]</h3><canvas id="Gyro x [°/s]"></canvas></div>
+      <div class="chart-box"><h3>Acc Y [m/s²]</h3><canvas id="Acc y [m/s²]"></canvas></div>
+      <div class="chart-box"><h3>Gyro Y [°/s]</h3><canvas id="Gyro y [°/s]"></canvas></div>
+      <div class="chart-box"><h3>Acc Z [m/s²]</h3><canvas id="Acc z [m/s²]"></canvas></div>
+      <div class="chart-box"><h3>Gyro Z [°/s]</h3><canvas id="Gyro z [°/s]"></canvas></div>
+      <div class="chart-box"><h3>Temperature [°C]</h3><canvas id="Temp_MPU [°C]"></canvas></div>
+      <div class="chart-box"><h3></h3></div> <!-- Empty to keep 2-column symmetry -->
+    </div>
+  </section>
+
+  <!-- Statistics Section -->
+  <section>
+    <h2>Statistics: BME280</h2>
+    <table>
+      <thead><tr><th>Metric</th><th>Min</th><th>Max</th><th>Avg</th></tr></thead>
+      <tbody id="bmeSummary"></tbody>
     </table>
-  </div>
-</section>
 
-<script>
-  function updateStats(stats) {
-    const tbody = document.querySelector("#statsTable tbody");
-    tbody.innerHTML = "";
+    <h2 style="margin-top: 50px;">Statistics: MPU6050</h2>
+    <table>
+      <thead><tr><th>Metric</th><th>Min</th><th>Max</th><th>Avg</th></tr></thead>
+      <tbody id="mpuSummary"></tbody>
+    </table>
+  </section>
 
-    for (const field in stats.min) {
-      const row = document.createElement("tr");
-      row.innerHTML = `
-        <td style="padding:8px;">${field}</td>
-        <td style="padding:8px;">${parseFloat(stats.min[field]).toFixed(2)}</td>
-        <td style="padding:8px;">${parseFloat(stats.max[field]).toFixed(2)}</td>
-        <td style="padding:8px;">${parseFloat(stats.avg[field]).toFixed(2)}</td>
-      `;
-      tbody.appendChild(row);
+  <!-- Download Section -->
+  <section class="download-controls">
+    <h2>Download Logs</h2>
+    <button onclick="downloadLatest()">⬇️ Download Latest Log</button>
+    <select id="logSelect" onchange="downloadSelected()">
+      <option value="">-- Select archived log --</option>
+    </select>
+  </section>
+
+  <!-- Chart and Data Script -->
+  <script>
+    const chartRefs = {};
+    const fields = {
+      "Temp_BME280 [°C]": "bme",
+      "Hum [%]": "bme",
+      "Press [hPa]": "bme",
+      "Alt [m]": "bme",
+      "Acc x [m/s²]": "mpu",
+      "Acc y [m/s²]": "mpu",
+      "Acc z [m/s²]": "mpu",
+      "Gyro x [°/s]": "mpu",
+      "Gyro y [°/s]": "mpu",
+      "Gyro z [°/s]": "mpu",
+      "Temp_MPU [°C]": "mpu"
+    };
+
+    function createChart(id, label) {
+      const ctx = document.getElementById(id).getContext("2d");
+      return new Chart(ctx, {
+        type: "line",
+        data: {
+          labels: [],
+          datasets: [{
+            label: label,
+            data: [],
+            borderColor: "#38bdf8",
+            backgroundColor: "rgba(56,189,248,0.1)",
+            borderWidth: 2,
+            pointRadius: 0,
+            tension: 0.3
+          }]
+        },
+        options: {
+          animation: false,
+          responsive: true,
+          maintainAspectRatio: true,
+          scales: {
+            x: {
+              type: "linear",
+              title: { display: true, text: "Elapsed [s]", color: "#aaa" },
+              ticks: { color: "#ccc" },
+              grid: { color: "#333" }
+            },
+            y: {
+              title: { display: true, text: label, color: "#aaa" },
+              ticks: { color: "#ccc" },
+              grid: { color: "#333" }
+            }
+          },
+          plugins: {
+            legend: { labels: { color: "#eee" } }
+          }
+        }
+      });
     }
-  }
 
-  async function fetchData() {
-    const res = await fetch("/data");
-    const json = await res.json();
-    const elapsed = json.history["Elapsed [s]"];
-
-    for (const [canvasId, label] of Object.entries(fields)) {
-      const values = json.history[label];
-      if (!chartRefs[canvasId]) {
-        chartRefs[canvasId] = createChart(canvasId, label);
+    function computeStats(values) {
+      if (!values.length) return ["-", "-", "-"];
+      let min = values[0], max = values[0], sum = 0;
+      for (let v of values) {
+        min = Math.min(min, v);
+        max = Math.max(max, v);
+        sum += v;
       }
-      chartRefs[canvasId].data.labels = elapsed;
-      chartRefs[canvasId].data.datasets[0].data = values;
-      chartRefs[canvasId].update();
+      return [min.toFixed(2), max.toFixed(2), (sum / values.length).toFixed(2)];
     }
 
-    updateStats(json.stats);
-  }
-</script>
+    async function fetchData() {
+      const res = await fetch("/data");
+      const json = await res.json();
+      const elapsed = json.history["Elapsed [s]"];
+      const bmeRows = [], mpuRows = [];
+
+      for (const [id, group] of Object.entries(fields)) {
+        const values = json.history[id] || [];
+        if (!chartRefs[id]) {
+          chartRefs[id] = createChart(id, id);
+        }
+        chartRefs[id].data.labels = elapsed;
+        chartRefs[id].data.datasets[0].data = values;
+        chartRefs[id].update();
+
+        const [min, max, avg] = computeStats(values);
+        const row = `<tr><td>${id}</td><td>${min}</td><td>${max}</td><td>${avg}</td></tr>`;
+        (group === "bme" ? bmeRows : mpuRows).push(row);
+      }
+
+      document.getElementById("bmeSummary").innerHTML = bmeRows.join("");
+      document.getElementById("mpuSummary").innerHTML = mpuRows.join("");
+    }
+
+    async function loadArchivedLogs() {
+      const res = await fetch("/download/list");
+      const logs = await res.json();
+      const select = document.getElementById("logSelect");
+      logs.forEach(filename => {
+        const opt = document.createElement("option");
+        opt.value = filename;
+        opt.textContent = filename;
+        select.appendChild(opt);
+      });
+    }
+
+    function downloadLatest() {
+      window.location.href = "/download/latest";
+    }
+
+    function downloadSelected() {
+      const file = document.getElementById("logSelect").value;
+      if (file) window.location.href = `/download/archive/${encodeURIComponent(file)}`;
+    }
+
+    window.onload = () => {
+      loadArchivedLogs();
+      setInterval(fetchData, 1000);
+    };
+  </script>
+</body>
+</html>
