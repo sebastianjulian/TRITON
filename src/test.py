@@ -821,12 +821,281 @@
 
 
 #TRY8
+# import os
+# import glob
+# import shutil
+# import time
+# import board
+# import busio
+# import numpy as np
+# from datetime import datetime
+# from adafruit_bme280 import basic as adafruit_bme280
+# from mpu6050 import mpu6050
+# import pytz
+# import requests
+
+# # ───── CONFIG ─────
+# TZ = pytz.timezone("Europe/Berlin")  # MET with DST
+# LOG_DIR = "logs"
+# ARCHIVE_DIR = os.path.join(LOG_DIR, "previous_data")
+
+# labels = [
+#     "Elapsed [s]",
+#     "Temp_BME280 [°C]", "Hum [%]", "Press [hPa]", "Alt [m]",
+#     "Acc x [m/s²]", "Acc y [m/s²]", "Acc z [m/s²]",
+#     "Gyro x [°/s]", "Gyro y [°/s]", "Gyro z [°/s]",
+#     "Temp_MPU [°C]"
+# ]
+
+# decimals = np.array([
+#     3,     # Elapsed time
+#     1, 1, 1, 1,     # BME280
+#     1, 1, 1,        # Acceleration
+#     1, 1, 1,        # Gyroscope
+#     1               # MPU6050 Temp
+# ], dtype=int)
+
+# # ───── Prepare directories ─────
+# os.makedirs(ARCHIVE_DIR, exist_ok=True)
+# os.makedirs(LOG_DIR, exist_ok=True)
+
+# # Archive old logs
+# for path in glob.glob(os.path.join(LOG_DIR, "sensor_data_*.csv")):
+#     shutil.move(path, ARCHIVE_DIR)
+
+# # Create new log file
+# timestamp = datetime.now(TZ).strftime("%Y%m%d_%H%M%S")
+# logfile = os.path.join(LOG_DIR, f"sensor_data_{timestamp}.csv")
+
+# # Write CSV header
+# with open(logfile, "w") as f:
+#     header = f"{'Timestamp (MET)':<22}" + "".join(
+#         f"{label:>{decimals[i] + 14}}" for i, label in enumerate(labels)
+#     ) + "\n"
+#     f.write(header)
+
+# # ───── Sensor init ─────
+# i2c = busio.I2C(board.SCL, board.SDA)
+
+# try:
+#     bme = adafruit_bme280.Adafruit_BME280_I2C(i2c, address=0x76)
+#     print("✅ BME280 detected.")
+# except Exception as e:
+#     print("⚠️  BME280 init failed:", e)
+#     bme = None
+
+# try:
+#     mpu = mpu6050(0x68)
+#     print("✅ MPU6050 detected.")
+# except Exception as e:
+#     print("⚠️  MPU6050 init failed:", e)
+#     mpu = None
+
+# # ───── Data containers ─────
+# data = np.zeros(len(labels), dtype=object)
+# last_data = np.full(len(labels), np.nan)
+# min_data = np.full(len(labels), np.inf)
+# max_data = np.full(len(labels), -np.inf)
+
+# # ───── Header print ─────
+# print("\n" + "-" * (22 + (decimals + 14).sum()))
+# header_line = f"{'Timestamp (MET)':<22}" + "".join(
+#     f"{label:>{decimals[i] + 14}}" for i, label in enumerate(labels)
+# )
+# print(header_line)
+# print("-" * (22 + (decimals + 14).sum()))
+
+# # ───── Main loop ─────
+# start_time = time.perf_counter()
+# last_log_time = start_time
+
+# try:
+#     while True:
+#         now = datetime.now(TZ)
+#         now_str = now.strftime("%Y-%m-%d %H:%M:%S")
+#         data[0] = time.perf_counter() - start_time  # Elapsed time
+
+#         # ─ Read BME280 ─
+#         if bme:
+#             try:
+#                 data[1] = bme.temperature
+#                 data[2] = bme.humidity
+#                 data[3] = bme.pressure
+#                 data[4] = bme.altitude
+#             except OSError as e:
+#                 print("[WARN] BME read failed:", e)
+#                 msg = "Unplugged" if e.errno == 5 else "Power loss" if e.errno == 121 else "Reading error"
+#                 for i in range(1, 5):
+#                     data[i] = msg
+#             except Exception as e:
+#                 print("[WARN] BME read failed:", e)
+#                 for i in range(1, 5):
+#                     data[i] = "Error reading sensor"
+
+#         # ─ Read MPU6050 ─
+#         if mpu:
+#             try:
+#                 accel = mpu.get_accel_data()
+#                 gyro = mpu.get_gyro_data()
+#                 data[5] = accel["x"]
+#                 data[6] = accel["y"]
+#                 data[7] = accel["z"]
+#                 data[8] = gyro["x"]
+#                 data[9] = gyro["y"]
+#                 data[10] = gyro["z"]
+#                 data[11] = mpu.get_temp()
+#             except OSError as e:
+#                 print("[WARN] MPU read failed:", e)
+#                 msg = "Unplugged" if e.errno == 5 else "Power loss" if e.errno == 121 else "Reading error"
+#                 for i in range(5, 12):
+#                     data[i] = msg
+#             except Exception as e:
+#                 print("[WARN] MPU read failed:", e)
+#                 for i in range(5, 12):
+#                     data[i] = "Reading error"
+
+#         # ─ Update min/max ─
+#         for i in range(1, len(data)):
+#             try:
+#                 val = float(data[i])
+#                 if not np.isnan(val):
+#                     min_data[i] = min(min_data[i], val)
+#                     max_data[i] = max(max_data[i], val)
+#             except:
+#                 continue
+
+#         # ─ Check deltas or 1 second ─
+#         changed = any(
+#             isinstance(data[i], float)
+#             and round(data[i], decimals[i]) != round(last_data[i], decimals[i])
+#             for i in range(len(data))
+#         )
+#         now_perf = time.perf_counter()
+
+#         if changed or (now_perf - last_log_time) >= 1.0:
+#             for i in range(len(data)):
+#                 try:
+#                     last_data[i] = float(data[i])
+#                 except:
+#                     last_data[i] = np.nan
+
+#             last_log_time = now_perf
+
+#             # ─ Console output ─
+#             line = f"{now_str:<22}"
+#             for i in range(len(data)):
+#                 try:
+#                     val = float(data[i])
+#                     line += f"{val:>{decimals[i] + 14}.{decimals[i]}f}"
+#                 except:
+#                     line += f"{str(data[i]):>{decimals[i] + 14}}"
+#             print(line)
+
+#             # ─ File output ─
+#             with open(logfile, "a") as f:
+#                 line = f"{now_str:<22}"
+#                 for i in range(len(data)):
+#                     try:
+#                         val = float(data[i])
+#                         line += f"{val:>{decimals[i] + 14}.{decimals[i]}f}"
+#                     except:
+#                         line += f"{str(data[i]):>{decimals[i] + 14}}"
+#                 f.write(line + "\n")
+
+
+#             # ─ Web server update ─
+
+#             try:
+#                 payload_data = {}
+#                 for i in range(len(data)):
+#                     try:
+#                         val = float(data[i])
+#                         payload_data[labels[i]] = f"{val:.{decimals[i]}f}"
+#                     except:
+#                         payload_data[labels[i]] = str(data[i])
+
+#                 payload = {
+#                     "timestamp": now_str,
+#                     "data": payload_data
+#                 }
+
+#                 requests.post("http://localhost:5000/update", json=payload, timeout=0.5)
+
+#             except Exception as e:
+#                 print("[WARN] Could not send data to web server:", e)
+
+
+
+
+#             # try:
+#             #     payload = {
+#             #         "timestamp": now_str,
+#             #         "data": {labels[i]: str(data[i]) for i in range(len(data))}
+#             #     }
+#             #     requests.post("http://192.168.1.75:5000/update", json=payload, timeout=0.5)
+#             # except Exception as e:
+#             #     print("[WARN] Could not send data to web server:", e)
+
+
+
+#         time.sleep(0.1)
+
+# except KeyboardInterrupt:
+#     with open(logfile, "a") as f:
+#         f.write("\n")
+#         min_line = "MIN" + " " * 18
+#         max_line = "MAX" + " " * 18
+        
+        
+        
+#         # for i in range(len(data)):
+#         #     try:
+#         #         min_line += f"{min_data[i]:>{decimals[i] + 14}.{decimals[i]}f}"
+#         #         max_line += f"{max_data[i]:>{decimals[i] + 14}.{decimals[i]}f}"
+#         #     except:
+#         #         min_line += f"{'':>{decimals[i] + 14}}"
+#         #         max_line += f"{'':>{decimals[i] + 14}}"
+        
+        
+#         for i in range(len(data)):
+#             if i == 0:  # Skip min/max for elapsed time
+#                 min_line += f"{'-':>{decimals[i] + 14}}"
+#                 max_line += f"{'-':>{decimals[i] + 14}}"
+#                 continue
+#             try:
+#                 min_line += f"{min_data[i]:>{decimals[i] + 14}.{decimals[i]}f}"
+#                 max_line += f"{max_data[i]:>{decimals[i] + 14}.{decimals[i]}f}"
+#             except:
+#                 min_line += f"{'':>{decimals[i] + 14}}"
+#                 max_line += f"{'':>{decimals[i] + 14}}"
+
+
+
+        
+#         f.write(min_line + "\n")
+#         f.write(max_line + "\n")
+#     print("\n🛑 Gracefully stopped. Min/max written to file.")
+
+
+
+
+
+
+# #############################################################################################################################################################################################################################
+# #TODO
+# # timer (elpased time)
+# # integrals
+# # lora
+# # mission control website
+
+#TRY 9
 import os
 import glob
 import shutil
 import time
 import board
 import busio
+import serial
 import numpy as np
 from datetime import datetime
 from adafruit_bme280 import basic as adafruit_bme280
@@ -835,27 +1104,22 @@ import pytz
 import requests
 
 # ───── CONFIG ─────
-TZ = pytz.timezone("Europe/Berlin")  # MET with DST
+TZ = pytz.timezone("Europe/Berlin")
 LOG_DIR = "logs"
 ARCHIVE_DIR = os.path.join(LOG_DIR, "previous_data")
+BAUD_RATE = 9600
+LORA_PORT = '/dev/ttyUSB0'
 
-labels = [
+LABELS = [
     "Elapsed [s]",
     "Temp_BME280 [°C]", "Hum [%]", "Press [hPa]", "Alt [m]",
     "Acc x [m/s²]", "Acc y [m/s²]", "Acc z [m/s²]",
     "Gyro x [°/s]", "Gyro y [°/s]", "Gyro z [°/s]",
     "Temp_MPU [°C]"
 ]
+DECIMALS = [3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
 
-decimals = np.array([
-    3,     # Elapsed time
-    1, 1, 1, 1,     # BME280
-    1, 1, 1,        # Acceleration
-    1, 1, 1,        # Gyroscope
-    1               # MPU6050 Temp
-], dtype=int)
-
-# ───── Prepare directories ─────
+# ───── PREPARE DIRECTORIES ─────
 os.makedirs(ARCHIVE_DIR, exist_ok=True)
 os.makedirs(LOG_DIR, exist_ok=True)
 
@@ -869,221 +1133,125 @@ logfile = os.path.join(LOG_DIR, f"sensor_data_{timestamp}.csv")
 
 # Write CSV header
 with open(logfile, "w") as f:
-    header = f"{'Timestamp (MET)':<22}" + "".join(
-        f"{label:>{decimals[i] + 14}}" for i, label in enumerate(labels)
-    ) + "\n"
-    f.write(header)
+    f.write("Timestamp (MET)," + ",".join(LABELS) + "\n")
 
-# ───── Sensor init ─────
+# ───── INIT SENSORS ─────
 i2c = busio.I2C(board.SCL, board.SDA)
 
 try:
     bme = adafruit_bme280.Adafruit_BME280_I2C(i2c, address=0x76)
     print("✅ BME280 detected.")
 except Exception as e:
-    print("⚠️  BME280 init failed:", e)
+    print("⚠️ BME280 init failed:", e)
     bme = None
 
 try:
     mpu = mpu6050(0x68)
     print("✅ MPU6050 detected.")
 except Exception as e:
-    print("⚠️  MPU6050 init failed:", e)
+    print("⚠️ MPU6050 init failed:", e)
     mpu = None
 
-# ───── Data containers ─────
-data = np.zeros(len(labels), dtype=object)
-last_data = np.full(len(labels), np.nan)
-min_data = np.full(len(labels), np.inf)
-max_data = np.full(len(labels), -np.inf)
+# ───── INIT LORA SERIAL ─────
+try:
+    lora_serial = serial.Serial(LORA_PORT, BAUD_RATE, timeout=1)
+    print("✅ LoRa module connected.")
+except Exception as e:
+    print("⚠️ LoRa module not connected:", e)
+    lora_serial = None
 
-# ───── Header print ─────
-print("\n" + "-" * (22 + (decimals + 14).sum()))
-header_line = f"{'Timestamp (MET)':<22}" + "".join(
-    f"{label:>{decimals[i] + 14}}" for i, label in enumerate(labels)
-)
-print(header_line)
-print("-" * (22 + (decimals + 14).sum()))
+# ───── INIT DATA CONTAINERS ─────
+data = [0] * len(LABELS)
+last_data = [None] * len(LABELS)
+min_data = [float('inf')] * len(LABELS)
+max_data = [float('-inf')] * len(LABELS)
 
-# ───── Main loop ─────
+# ───── MAIN LOOP ─────
 start_time = time.perf_counter()
 last_log_time = start_time
+
+print("\n🟢 Starting data logging...\n")
 
 try:
     while True:
         now = datetime.now(TZ)
         now_str = now.strftime("%Y-%m-%d %H:%M:%S")
-        data[0] = time.perf_counter() - start_time  # Elapsed time
+        elapsed = time.perf_counter() - start_time
+        data[0] = round(elapsed, DECIMALS[0])  # Elapsed time
 
-        # ─ Read BME280 ─
+        # Read BME280
         if bme:
             try:
-                data[1] = bme.temperature
-                data[2] = bme.humidity
-                data[3] = bme.pressure
-                data[4] = bme.altitude
-            except OSError as e:
-                print("[WARN] BME read failed:", e)
-                msg = "Unplugged" if e.errno == 5 else "Power loss" if e.errno == 121 else "Reading error"
-                for i in range(1, 5):
-                    data[i] = msg
-            except Exception as e:
-                print("[WARN] BME read failed:", e)
-                for i in range(1, 5):
-                    data[i] = "Error reading sensor"
+                data[1] = round(bme.temperature, DECIMALS[1])
+                data[2] = round(bme.humidity, DECIMALS[2])
+                data[3] = round(bme.pressure, DECIMALS[3])
+                data[4] = round(bme.altitude, DECIMALS[4])
+            except:
+                data[1:5] = ["Error"] * 4
 
-        # ─ Read MPU6050 ─
+        # Read MPU6050
         if mpu:
             try:
-                accel = mpu.get_accel_data()
+                acc = mpu.get_accel_data()
                 gyro = mpu.get_gyro_data()
-                data[5] = accel["x"]
-                data[6] = accel["y"]
-                data[7] = accel["z"]
-                data[8] = gyro["x"]
-                data[9] = gyro["y"]
-                data[10] = gyro["z"]
-                data[11] = mpu.get_temp()
-            except OSError as e:
-                print("[WARN] MPU read failed:", e)
-                msg = "Unplugged" if e.errno == 5 else "Power loss" if e.errno == 121 else "Reading error"
-                for i in range(5, 12):
-                    data[i] = msg
-            except Exception as e:
-                print("[WARN] MPU read failed:", e)
-                for i in range(5, 12):
-                    data[i] = "Reading error"
-
-        # ─ Update min/max ─
-        for i in range(1, len(data)):
-            try:
-                val = float(data[i])
-                if not np.isnan(val):
-                    min_data[i] = min(min_data[i], val)
-                    max_data[i] = max(max_data[i], val)
+                data[5] = round(acc["x"], DECIMALS[5])
+                data[6] = round(acc["y"], DECIMALS[6])
+                data[7] = round(acc["z"], DECIMALS[7])
+                data[8] = round(gyro["x"], DECIMALS[8])
+                data[9] = round(gyro["y"], DECIMALS[9])
+                data[10] = round(gyro["z"], DECIMALS[10])
+                data[11] = round(mpu.get_temp(), DECIMALS[11])
             except:
-                continue
+                data[5:12] = ["Error"] * 7
 
-        # ─ Check deltas or 1 second ─
-        changed = any(
-            isinstance(data[i], float)
-            and round(data[i], decimals[i]) != round(last_data[i], decimals[i])
-            for i in range(len(data))
-        )
+        # Check if anything changed or if 1s has passed
         now_perf = time.perf_counter()
-
+        changed = any(data[i] != last_data[i] for i in range(len(data)))
         if changed or (now_perf - last_log_time) >= 1.0:
-            for i in range(len(data)):
-                try:
-                    last_data[i] = float(data[i])
-                except:
-                    last_data[i] = np.nan
-
+            last_data = list(data)
             last_log_time = now_perf
 
-            # ─ Console output ─
-            line = f"{now_str:<22}"
-            for i in range(len(data)):
+            # Update min/max
+            for i in range(1, len(data)):
                 try:
                     val = float(data[i])
-                    line += f"{val:>{decimals[i] + 14}.{decimals[i]}f}"
+                    min_data[i] = min(min_data[i], val)
+                    max_data[i] = max(max_data[i], val)
                 except:
-                    line += f"{str(data[i]):>{decimals[i] + 14}}"
+                    continue
+
+            # Print to console
+            line = f"{now_str:<22}" + ", ".join(f"{str(x):>8}" for x in data)
             print(line)
 
-            # ─ File output ─
+            # Write to file
             with open(logfile, "a") as f:
-                line = f"{now_str:<22}"
-                for i in range(len(data)):
-                    try:
-                        val = float(data[i])
-                        line += f"{val:>{decimals[i] + 14}.{decimals[i]}f}"
-                    except:
-                        line += f"{str(data[i]):>{decimals[i] + 14}}"
-                f.write(line + "\n")
+                f.write(now_str + "," + ",".join(str(x) for x in data) + "\n")
 
-
-            # ─ Web server update ─
-
+            # Send to web server
             try:
-                payload_data = {}
-                for i in range(len(data)):
-                    try:
-                        val = float(data[i])
-                        payload_data[labels[i]] = f"{val:.{decimals[i]}f}"
-                    except:
-                        payload_data[labels[i]] = str(data[i])
-
                 payload = {
                     "timestamp": now_str,
-                    "data": payload_data
+                    "data": {LABELS[i]: str(data[i]) for i in range(len(data))}
                 }
-
                 requests.post("http://localhost:5000/update", json=payload, timeout=0.5)
-
             except Exception as e:
-                print("[WARN] Could not send data to web server:", e)
+                print("[WARN] Web server failed:", e)
 
-
-
-
-            # try:
-            #     payload = {
-            #         "timestamp": now_str,
-            #         "data": {labels[i]: str(data[i]) for i in range(len(data))}
-            #     }
-            #     requests.post("http://192.168.1.75:5000/update", json=payload, timeout=0.5)
-            # except Exception as e:
-            #     print("[WARN] Could not send data to web server:", e)
-
-
+            # Send over LoRa
+            if lora_serial:
+                try:
+                    lora_line = now_str + "," + ",".join(str(x) for x in data) + "\n"
+                    lora_serial.write(lora_line.encode())
+                    print("📡 Sent via LoRa")
+                except Exception as e:
+                    print("[WARN] LoRa send failed:", e)
 
         time.sleep(0.1)
 
 except KeyboardInterrupt:
+    print("\n🛑 Logging stopped.")
     with open(logfile, "a") as f:
-        f.write("\n")
-        min_line = "MIN" + " " * 18
-        max_line = "MAX" + " " * 18
-        
-        
-        
-        # for i in range(len(data)):
-        #     try:
-        #         min_line += f"{min_data[i]:>{decimals[i] + 14}.{decimals[i]}f}"
-        #         max_line += f"{max_data[i]:>{decimals[i] + 14}.{decimals[i]}f}"
-        #     except:
-        #         min_line += f"{'':>{decimals[i] + 14}}"
-        #         max_line += f"{'':>{decimals[i] + 14}}"
-        
-        
-        for i in range(len(data)):
-            if i == 0:  # Skip min/max for elapsed time
-                min_line += f"{'-':>{decimals[i] + 14}}"
-                max_line += f"{'-':>{decimals[i] + 14}}"
-                continue
-            try:
-                min_line += f"{min_data[i]:>{decimals[i] + 14}.{decimals[i]}f}"
-                max_line += f"{max_data[i]:>{decimals[i] + 14}.{decimals[i]}f}"
-            except:
-                min_line += f"{'':>{decimals[i] + 14}}"
-                max_line += f"{'':>{decimals[i] + 14}}"
-
-
-
-        
-        f.write(min_line + "\n")
-        f.write(max_line + "\n")
-    print("\n🛑 Gracefully stopped. Min/max written to file.")
-
-
-
-
-
-
-#############################################################################################################################################################################################################################
-#TODO
-# timer (elpased time)
-# integrals
-# lora
-# mission control website
+        f.write("\nMIN," + ",".join(str(round(x, d)) if isinstance(x, float) else "" for x, d in zip(min_data, DECIMALS)) + "\n")
+        f.write("MAX," + ",".join(str(round(x, d)) if isinstance(x, float) else "" for x, d in zip(max_data, DECIMALS)) + "\n")
+    print("Min/Max values written to log.")

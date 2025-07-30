@@ -1,7 +1,7 @@
 import serial
 
 # Replace COM3 with your actual port, if different
-ser = serial.Serial('COM3', 9600, timeout=1)
+ser = serial.Serial('COM8', 9600, timeout=1)
 
 print("Listening for LoRa messages...")
 while True:
