@@ -1,276 +1,52 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>TRITON Live Data Dashboard</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <style>
-    body {
-      margin: 0;
-      padding: 0;
-      background-color: #0f1115;
-      color: #f0f0f0;
-      font-family: "Segoe UI", sans-serif;
-    }
+<section>
+  <h2>Statistics Summary</h2>
+  <div style="overflow-x:auto">
+    <table id="statsTable" style="width:100%; border-collapse: collapse;">
+      <thead>
+        <tr style="background:#222;">
+          <th style="padding:8px;">Field</th>
+          <th style="padding:8px;">Min</th>
+          <th style="padding:8px;">Max</th>
+          <th style="padding:8px;">Average</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</section>
 
-    header {
-      background-color: #1e1f26;
-      padding: 20px;
-      text-align: center;
-      border-bottom: 2px solid #2d2f36;
-    }
+<script>
+  function updateStats(stats) {
+    const tbody = document.querySelector("#statsTable tbody");
+    tbody.innerHTML = "";
 
-    header h1 {
-      margin: 0;
-      font-size: 1.8em;
-      color: #ffffff;
-      letter-spacing: 1px;
+    for (const field in stats.min) {
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td style="padding:8px;">${field}</td>
+        <td style="padding:8px;">${parseFloat(stats.min[field]).toFixed(2)}</td>
+        <td style="padding:8px;">${parseFloat(stats.max[field]).toFixed(2)}</td>
+        <td style="padding:8px;">${parseFloat(stats.avg[field]).toFixed(2)}</td>
+      `;
+      tbody.appendChild(row);
     }
+  }
 
-    section {
-      padding: 20px 40px;
-    }
+  async function fetchData() {
+    const res = await fetch("/data");
+    const json = await res.json();
+    const elapsed = json.history["Elapsed [s]"];
 
-    h2 {
-      color: #e2e2e2;
-      margin-top: 40px;
-      font-size: 1.4em;
-      border-left: 4px solid #0061a8;
-      padding-left: 12px;
-    }
-
-    .chart-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-      gap: 24px;
-      margin-top: 20px;
-    }
-
-    .chart-box {
-      background-color: #1c1d22;
-      padding: 16px;
-      border-radius: 12px;
-      box-shadow: 0 0 10px #00000044;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .chart-box h3 {
-      margin: 0 0 10px;
-      text-align: center;
-      font-size: 1.1em;
-      color: #ddd;
-    }
-
-    canvas {
-      width: 100% !important;
-      aspect-ratio: 1.6;
-    }
-
-    @media (max-width: 600px) {
-      section {
-        padding: 10px 20px;
+    for (const [canvasId, label] of Object.entries(fields)) {
+      const values = json.history[label];
+      if (!chartRefs[canvasId]) {
+        chartRefs[canvasId] = createChart(canvasId, label);
       }
+      chartRefs[canvasId].data.labels = elapsed;
+      chartRefs[canvasId].data.datasets[0].data = values;
+      chartRefs[canvasId].update();
     }
 
-    .download-controls {
-      margin-top: 30px;
-      padding: 0 40px;
-    }
-
-    .download-controls button,
-    .download-controls select {
-      margin: 10px 10px 0 0;
-      padding: 8px 12px;
-      font-size: 1em;
-      border: none;
-      border-radius: 6px;
-    }
-
-    .download-controls button {
-      background-color: #38bdf8;
-      color: #000;
-      cursor: pointer;
-    }
-
-    .download-controls select {
-      background-color: #1c1d22;
-      color: #f0f0f0;
-    }
-  </style>
-</head>
-<body>
-  <header>
-    <h1>TRITON Live Data Dashboard</h1>
-  </header>
-
-  <!-- BME280 Section -->
-  <section>
-    <h2>BME280 Sensor</h2>
-    <div class="chart-grid">
-      <div class="chart-box">
-        <h3>Temperature [°C]</h3>
-        <canvas id="Temp_BME280 [°C]"></canvas>
-      </div>
-      <div class="chart-box">
-        <h3>Humidity [%]</h3>
-        <canvas id="Hum [%]"></canvas>
-      </div>
-      <div class="chart-box">
-        <h3>Pressure [hPa]</h3>
-        <canvas id="Press [hPa]"></canvas>
-      </div>
-      <div class="chart-box">
-        <h3>Altitude [m]</h3>
-        <canvas id="Alt [m]"></canvas>
-      </div>
-    </div>
-  </section>
-
-  <!-- MPU6050 Section -->
-  <section>
-    <h2>MPU6050 Sensor</h2>
-    <div class="chart-grid">
-      <div class="chart-box">
-        <h3>Acc X [m/s²]</h3>
-        <canvas id="Acc x [m/s²]"></canvas>
-      </div>
-      <div class="chart-box">
-        <h3>Acc Y [m/s²]</h3>
-        <canvas id="Acc y [m/s²]"></canvas>
-      </div>
-      <div class="chart-box">
-        <h3>Acc Z [m/s²]</h3>
-        <canvas id="Acc z [m/s²]"></canvas>
-      </div>
-      <div class="chart-box">
-        <h3>Gyro X [°/s]</h3>
-        <canvas id="Gyro x [°/s]"></canvas>
-      </div>
-      <div class="chart-box">
-        <h3>Gyro Y [°/s]</h3>
-        <canvas id="Gyro y [°/s]"></canvas>
-      </div>
-      <div class="chart-box">
-        <h3>Gyro Z [°/s]</h3>
-        <canvas id="Gyro z [°/s]"></canvas>
-      </div>
-      <div class="chart-box" style="grid-column: span 2;">
-        <h3>Temperature [°C]</h3>
-        <canvas id="Temp_MPU [°C]"></canvas>
-      </div>
-    </div>
-  </section>
-
-  <!-- Download Logs Section -->
-  <section class="download-controls">
-    <h2>Download Logs</h2>
-    <button onclick="downloadLatest()">⬇️ Download Latest Log</button>
-
-    <select id="logSelect" onchange="downloadSelected()">
-      <option value="">-- Select archived log --</option>
-    </select>
-  </section>
-
-  <!-- Chart + Download Scripts -->
-  <script>
-    const chartRefs = {};
-    const fields = {
-      "Temp_BME280 [°C]": "Temp_BME280 [°C]",
-      "Hum [%]": "Hum [%]",
-      "Press [hPa]": "Press [hPa]",
-      "Alt [m]": "Alt [m]",
-      "Acc x [m/s²]": "Acc x [m/s²]",
-      "Acc y [m/s²]": "Acc y [m/s²]",
-      "Acc z [m/s²]": "Acc z [m/s²]",
-      "Gyro x [°/s]": "Gyro x [°/s]",
-      "Gyro y [°/s]": "Gyro y [°/s]",
-      "Gyro z [°/s]": "Gyro z [°/s]",
-      "Temp_MPU [°C]": "Temp_MPU [°C]"
-    };
-
-    function createChart(canvasId, label) {
-      const ctx = document.getElementById(canvasId).getContext("2d");
-      return new Chart(ctx, {
-        type: "line",
-        data: {
-          labels: [],
-          datasets: [{
-            label: label,
-            data: [],
-            borderColor: "#38bdf8",
-            backgroundColor: "rgba(56,189,248,0.1)",
-            borderWidth: 2,
-            pointRadius: 0,
-            tension: 0.3
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: true,
-          animation: false,
-          scales: {
-            x: {
-              type: "linear",
-              title: { display: true, text: "Elapsed [s]", color: "#aaa" },
-              ticks: { color: "#ccc" },
-              grid: { color: "#333" }
-            },
-            y: {
-              title: { display: true, text: label, color: "#aaa" },
-              ticks: { color: "#ccc" },
-              grid: { color: "#333" }
-            }
-          },
-          plugins: {
-            legend: { labels: { color: "#eee" } }
-          }
-        }
-      });
-    }
-
-    async function fetchData() {
-      const res = await fetch("/data");
-      const json = await res.json();
-      const elapsed = json.history["Elapsed [s]"];
-
-      for (const [canvasId, label] of Object.entries(fields)) {
-        const values = json.history[label];
-        if (!chartRefs[canvasId]) {
-          chartRefs[canvasId] = createChart(canvasId, label);
-        }
-        chartRefs[canvasId].data.labels = elapsed;
-        chartRefs[canvasId].data.datasets[0].data = values;
-        chartRefs[canvasId].update();
-      }
-    }
-
-    setInterval(fetchData, 1000);
-
-    function downloadLatest() {
-      window.location.href = "/download/latest";
-    }
-
-    async function loadArchivedLogs() {
-      const res = await fetch("/download/list");
-      const logs = await res.json();
-      const select = document.getElementById("logSelect");
-      logs.forEach(filename => {
-        const option = document.createElement("option");
-        option.value = filename;
-        option.textContent = filename;
-        select.appendChild(option);
-      });
-    }
-
-    function downloadSelected() {
-      const selected = document.getElementById("logSelect").value;
-      if (selected) {
-        window.location.href = `/download/archive/${encodeURIComponent(selected)}`;
-      }
-    }
-
-    window.onload = loadArchivedLogs;
-  </script>
-</body>
-</html>
+    updateStats(json.stats);
+  }
+</script>
