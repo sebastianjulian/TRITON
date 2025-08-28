@@ -97,22 +97,40 @@ import os
 import signal
 import subprocess
 import atexit
+import platform
 
 from flask import Flask, request, jsonify, render_template
 from datetime import datetime
 
 def kill_port(port=5000):
     try:
-        output = subprocess.check_output(f"lsof -ti:{port}", shell=True).decode().split()
-        for pid in output:
-            try:
-                os.kill(int(pid), signal.SIGKILL)
-                print(f"[INFO] Killed process on port {port} (PID: {pid})")
-            except Exception as e:
-                print(f"[WARN] Couldn't kill PID {pid}: {e}")
+        if platform.system() == "Windows":
+            # Windows command to find processes using the port
+            output = subprocess.check_output(f'netstat -ano | findstr :{port}', shell=True).decode().strip()
+            if output:
+                lines = output.splitlines()
+                for line in lines:
+                    if 'LISTENING' in line:
+                        pid = line.split()[-1]
+                        try:
+                            subprocess.run(f'taskkill /F /PID {pid}', shell=True, check=True)
+                            print(f"[INFO] Killed process on port {port} (PID: {pid})")
+                        except subprocess.CalledProcessError as e:
+                            print(f"[WARN] Couldn't kill PID {pid}: {e}")
+        else:
+            # Unix/Linux command
+            output = subprocess.check_output(f"lsof -ti:{port}", shell=True).decode().split()
+            for pid in output:
+                try:
+                    os.kill(int(pid), signal.SIGKILL)
+                    print(f"[INFO] Killed process on port {port} (PID: {pid})")
+                except Exception as e:
+                    print(f"[WARN] Couldn't kill PID {pid}: {e}")
     except subprocess.CalledProcessError:
         # No process found using the port
         pass
+    except Exception as e:
+        print(f"[WARN] Port cleanup failed: {e}")
 
 kill_port(5000)
 
@@ -160,11 +178,26 @@ def get_data():
 
 def cleanup():
     try:
-        result = subprocess.check_output(["lsof", "-t", "-i:5000"]).decode().strip()
-        if result:
-            for pid in result.splitlines():
-                os.kill(int(pid), signal.SIGKILL)
-                print(f"[INFO] Killed leftover process on port 5000 (PID {pid})")
+        if platform.system() == "Windows":
+            # Windows cleanup
+            result = subprocess.check_output('netstat -ano | findstr :5000', shell=True).decode().strip()
+            if result:
+                lines = result.splitlines()
+                for line in lines:
+                    if 'LISTENING' in line:
+                        pid = line.split()[-1]
+                        try:
+                            subprocess.run(f'taskkill /F /PID {pid}', shell=True, check=True)
+                            print(f"[INFO] Killed leftover process on port 5000 (PID {pid})")
+                        except subprocess.CalledProcessError:
+                            pass  # Process may have already ended
+        else:
+            # Unix/Linux cleanup
+            result = subprocess.check_output(["lsof", "-t", "-i:5000"]).decode().strip()
+            if result:
+                for pid in result.splitlines():
+                    os.kill(int(pid), signal.SIGKILL)
+                    print(f"[INFO] Killed leftover process on port 5000 (PID {pid})")
     except Exception as e:
         print(f"[WARN] Cleanup failed or port already free: {e}")
 
