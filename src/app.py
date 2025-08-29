@@ -99,7 +99,7 @@ import subprocess
 import atexit
 import platform
 
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify, render_template, send_from_directory
 from datetime import datetime
 
 def kill_port(port=5000):
@@ -135,6 +135,13 @@ def kill_port(port=5000):
 kill_port(5000)
 
 app = Flask(__name__)
+
+# Directory setup for downloads
+LOG_DIR = "logs"
+ARCHIVE_DIR = os.path.join(LOG_DIR, "previous_data")
+os.makedirs(LOG_DIR, exist_ok=True)
+os.makedirs(ARCHIVE_DIR, exist_ok=True)
+
 latest_data = {"timestamp": "", "data": {}}
 history = {"Elapsed [s]": []}  # For graphing
 for key in [
@@ -147,6 +154,10 @@ for key in [
 
 @app.route("/", methods=["GET"])
 def index():
+    return render_template("index.html")
+
+@app.route("/dashboard", methods=["GET"])
+def dashboard():
     return render_template("dashboard.html")
 
 
@@ -175,6 +186,25 @@ def get_data():
         "timestamp": latest_data["timestamp"],
         "history": history
     })
+
+@app.route('/download/latest')
+def download_latest():
+    files = sorted([f for f in os.listdir(LOG_DIR) if f.startswith("sensor_data_")], reverse=True)
+    if files:
+        return send_from_directory(LOG_DIR, files[0], as_attachment=True)
+    return "No log files found", 404
+
+@app.route('/download/list')
+def list_logs():
+    files = sorted([f for f in os.listdir(ARCHIVE_DIR) if f.endswith(".csv")])
+    return jsonify(files)
+
+@app.route('/download/archive/<filename>')
+def download_archive(filename):
+    path = os.path.join(ARCHIVE_DIR, filename)
+    if os.path.isfile(path):
+        return send_from_directory(ARCHIVE_DIR, filename, as_attachment=True)
+    return "File not found", 404
 
 def cleanup():
     try:

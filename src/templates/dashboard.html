@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>TRITON Live Data Dashboard</title>
+  <title>Mission Control TRITON</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     body {
@@ -107,11 +107,32 @@
       background-color: #1c1d22;
       color: #f0f0f0;
     }
+
+    .back-btn {
+      background-color: #38bdf8;
+      color: #000;
+      padding: 10px 20px;
+      text-decoration: none;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 0.9em;
+      transition: all 0.3s ease;
+    }
+
+    .back-btn:hover {
+      background-color: #0ea5e9;
+      transform: translateY(-1px);
+      box-shadow: 0 2px 10px rgba(56, 189, 248, 0.3);
+    }
   </style>
 </head>
 <body>
   <header>
-    <h1>TRITON Live Data Dashboard</h1>
+    <div style="display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto;">
+      <a href="/" class="back-btn">← Back to Homepage</a>
+      <h1 style="margin: 0;">Mission Control TRITON</h1>
+      <div style="width: 140px;"></div> <!-- Spacer for centering -->
+    </div>
   </header>
 
   <!-- BME280 Section -->

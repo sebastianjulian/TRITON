@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TRITON - Autonomous Submarine Navigation System</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #0f1115;
+      color: #f0f0f0;
+      font-family: "Segoe UI", sans-serif;
+      line-height: 1.6;
+    }
+
+    header {
+      background-color: #1e1f26;
+      padding: 40px 20px;
+      text-align: center;
+      border-bottom: 2px solid #2d2f36;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 3.5em;
+      color: #ffffff;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+    }
+
+    header .subtitle {
+      margin: 10px 0 0 0;
+      font-size: 1.3em;
+      color: #38bdf8;
+      font-weight: 300;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    section {
+      padding: 40px 0;
+    }
+
+    h2 {
+      color: #e2e2e2;
+      font-size: 2em;
+      margin-bottom: 25px;
+      border-left: 4px solid #38bdf8;
+      padding-left: 20px;
+    }
+
+    h3 {
+      color: #ffffff;
+      font-size: 1.4em;
+      margin-top: 30px;
+      margin-bottom: 15px;
+    }
+
+    p {
+      color: #d0d0d0;
+      font-size: 1.1em;
+      margin-bottom: 20px;
+      text-align: justify;
+    }
+
+    .hero-section {
+      background: linear-gradient(135deg, #1e1f26 0%, #2d2f36 100%);
+      padding: 60px 0;
+      text-align: center;
+    }
+
+    .hero-content {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .hero-description {
+      font-size: 1.4em;
+      color: #b8b8b8;
+      margin: 30px 0 40px 0;
+      line-height: 1.8;
+    }
+
+    .cta-button {
+      display: inline-block;
+      background-color: #38bdf8;
+      color: #000000;
+      padding: 18px 40px;
+      font-size: 1.3em;
+      font-weight: 600;
+      text-decoration: none;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      margin: 20px;
+      box-shadow: 0 4px 15px rgba(56, 189, 248, 0.3);
+    }
+
+    .cta-button:hover {
+      background-color: #0ea5e9;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(56, 189, 248, 0.4);
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 30px;
+      margin: 40px 0;
+    }
+
+    .feature-card {
+      background-color: #1c1d22;
+      padding: 30px;
+      border-radius: 12px;
+      border: 1px solid #2d2f36;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    .feature-card h4 {
+      color: #38bdf8;
+      font-size: 1.3em;
+      margin-bottom: 15px;
+    }
+
+    .feature-card p {
+      color: #c0c0c0;
+      margin-bottom: 0;
+      text-align: left;
+    }
+
+    .tech-specs {
+      background-color: #1a1b20;
+      padding: 40px;
+      border-radius: 12px;
+      margin: 40px 0;
+      border: 1px solid #2d2f36;
+    }
+
+    .specs-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+      margin-top: 20px;
+    }
+
+    .spec-item {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      padding: 15px;
+      background-color: #22232a;
+      border-radius: 8px;
+      border-left: 4px solid #38bdf8;
+      min-height: 60px;
+      gap: 15px;
+    }
+
+    .spec-label {
+      font-weight: 600;
+      color: #ffffff;
+      min-width: 120px;
+      flex-shrink: 0;
+      word-wrap: break-word;
+      line-height: 1.4;
+      padding-top: 2px;
+    }
+
+    .spec-value {
+      color: #38bdf8;
+      font-family: 'Courier New', monospace;
+      text-align: right;
+      flex: 1;
+      word-wrap: break-word;
+      word-break: break-word;
+      overflow-wrap: break-word;
+      hyphens: auto;
+      line-height: 1.4;
+      max-width: 60%;
+    }
+
+    .mission-overview {
+      text-align: center;
+      padding: 60px 0;
+      background: linear-gradient(135deg, #1a1b20 0%, #1e1f26 100%);
+    }
+
+    .data-flow {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 40px 0;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+
+    .flow-step {
+      background-color: #1c1d22;
+      padding: 25px;
+      border-radius: 10px;
+      text-align: center;
+      flex: 1;
+      min-width: 200px;
+      border: 1px solid #38bdf8;
+    }
+
+    .flow-arrow {
+      font-size: 2em;
+      color: #38bdf8;
+      margin: 0 10px;
+    }
+
+    .flow-step h4 {
+      color: #38bdf8;
+      margin: 0 0 10px 0;
+      font-size: 1.1em;
+    }
+
+    .flow-step p {
+      color: #d0d0d0;
+      margin: 0;
+      font-size: 0.9em;
+      text-align: center;
+    }
+
+    footer {
+      background-color: #1e1f26;
+      padding: 40px 0;
+      text-align: center;
+      border-top: 2px solid #2d2f36;
+      margin-top: 60px;
+    }
+
+    .footer-content {
+      color: #888;
+      font-size: 0.9em;
+    }
+
+    @media (max-width: 768px) {
+      header h1 {
+        font-size: 2.5em;
+      }
+
+      .hero-description {
+        font-size: 1.2em;
+      }
+
+      .cta-button {
+        padding: 15px 30px;
+        font-size: 1.1em;
+      }
+
+      .data-flow {
+        flex-direction: column;
+      }
+
+      .flow-arrow {
+        transform: rotate(90deg);
+      }
+
+      .specs-list {
+        grid-template-columns: 1fr;
+      }
+
+      .spec-item {
+        flex-direction: column;
+        align-items: flex-start;
+        min-height: auto;
+        padding: 20px;
+      }
+
+      .spec-label {
+        margin-bottom: 8px;
+        margin-right: 0;
+        min-width: auto;
+      }
+
+      .spec-value {
+        text-align: left;
+        font-size: 1.1em;
+      }
+    }
+
+    @media (max-width: 1200px) and (min-width: 769px) {
+      .specs-list {
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      }
+
+      .spec-label {
+        min-width: 140px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>TRITON</h1>
+    <div class="subtitle">Autonomous Submarine Navigation System</div>
+  </header>
+
+  <section class="hero-section">
+    <div class="container">
+      <div class="hero-content">
+        <p class="hero-description">
+          An advanced dual-platform submarine navigation system that evolved from our CanSat project. 
+          TRITON combines sophisticated sensor technology with real-time data transmission to provide 
+          comprehensive underwater monitoring and navigation capabilities for autonomous submarine operations.
+        </p>
+        <a href="/dashboard" class="cta-button">🚀 Access Mission Control</a>
+      </div>
+    </div>
+  </section>
+
+  <div class="container">
+    <section>
+      <h2>Project Overview</h2>
+      <p>
+        TRITON represents the evolution of our satellite simulation project into a sophisticated autonomous 
+        submarine navigation system. Designed for real-world underwater operations, TRITON integrates 
+        environmental monitoring with inertial navigation to provide comprehensive submarine guidance and 
+        mission-critical data collection capabilities.
+      </p>
+
+      <div class="features-grid">
+        <div class="feature-card">
+          <h4>🌊 Environmental Monitoring</h4>
+          <p>
+            Advanced BME280 sensor provides precise temperature, humidity, pressure, and altitude measurements. 
+            Pressure readings enable accurate depth calculation for underwater navigation, while environmental 
+            data supports mission planning and safety protocols.
+          </p>
+        </div>
+
+        <div class="feature-card">
+          <h4>🧭 Inertial Navigation</h4>
+          <p>
+            MPU6050 inertial measurement unit delivers 6-axis motion sensing with 3-axis accelerometer and 
+            3-axis gyroscope. This provides real-time orientation tracking, motion detection, and navigation 
+            support for autonomous submarine operations.
+          </p>
+        </div>
+
+        <div class="feature-card">
+          <h4>📡 Wireless Communication</h4>
+          <p>
+            LoRa long-range wireless technology enables reliable data transmission between submarine and 
+            surface operations. Real-time sensor data streaming supports remote monitoring and mission control 
+            from considerable distances.
+          </p>
+        </div>
+
+        <div class="feature-card">
+          <h4>📊 Real-time Dashboard</h4>
+          <p>
+            Web-based mission control interface provides live visualization of all sensor data, statistical 
+            analysis, and comprehensive logging. Chart.js integration delivers professional-grade data 
+            visualization for operational analysis.
+          </p>
+        </div>
+
+        <div class="feature-card">
+          <h4>💾 Data Logging</h4>
+          <p>
+            Comprehensive CSV logging with automatic archiving ensures mission data integrity. Threshold-based 
+            data transmission reduces network overhead while maintaining critical data resolution for post-mission analysis.
+          </p>
+        </div>
+
+        <div class="feature-card">
+          <h4>⚡ Autonomous Operation</h4>
+          <p>
+            Raspberry Pi-based sensor collection with intelligent error handling and graceful degradation. 
+            System continues operation even with partial sensor failures, ensuring mission continuity and data collection reliability.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="mission-overview">
+      <h2>System Architecture</h2>
+      <p>TRITON operates on a sophisticated dual-platform architecture designed for maximum reliability and real-time performance:</p>
+      
+      <div class="data-flow">
+        <div class="flow-step">
+          <h4>🔧 Raspberry Pi</h4>
+          <p>Sensor data collection<br>LoRa transmission<br>Autonomous operation</p>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">
+          <h4>📡 LoRa Network</h4>
+          <p>Long-range wireless<br>Reliable transmission<br>Low power consumption</p>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">
+          <h4>💻 PC Base Station</h4>
+          <p>Data reception & logging<br>Real-time analysis<br>Web dashboard hosting</p>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">
+          <h4>🌐 Mission Control</h4>
+          <p>Live visualization<br>Statistical analysis<br>Data download</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Technical Specifications</h2>
+      <div class="tech-specs">
+        <h3>Hardware Platform</h3>
+        <div class="specs-list">
+          <div class="spec-item">
+            <span class="spec-label">Controller:</span>
+            <span class="spec-value">Raspberry Pi Zero 2 W</span>
+          </div>
+          <div class="spec-item">
+            <span class="spec-label">Environment:</span>
+            <span class="spec-value">BME280 (I2C 0x76)</span>
+          </div>
+          <div class="spec-item">
+            <span class="spec-label">IMU:</span>
+            <span class="spec-value">MPU6050 (I2C 0x68)</span>
+          </div>
+          <div class="spec-item">
+            <span class="spec-label">Communication:</span>
+            <span class="spec-value">LoRa 9600 baud</span>
+          </div>
+        </div>
+
+        <h3>Sensor Capabilities</h3>
+        <div class="specs-list">
+          <div class="spec-item">
+            <span class="spec-label">Temperature:</span>
+            <span class="spec-value">±0.25°C resolution</span>
+          </div>
+          <div class="spec-item">
+            <span class="spec-label">Pressure:</span>
+            <span class="spec-value">±0.5 hPa threshold</span>
+          </div>
+          <div class="spec-item">
+            <span class="spec-label">Acceleration:</span>
+            <span class="spec-value">±16g range</span>
+          </div>
+          <div class="spec-item">
+            <span class="spec-label">Gyroscope:</span>
+            <span class="spec-value">±2000°/s range</span>
+          </div>
+        </div>
+
+        <h3>Data Management</h3>
+        <div class="specs-list">
+          <div class="spec-item">
+            <span class="spec-label">Logging:</span>
+            <span class="spec-value">CSV with MET timestamps</span>
+          </div>
+          <div class="spec-item">
+            <span class="spec-label">Update Rate:</span>
+            <span class="spec-value">~1 second intervals</span>
+          </div>
+          <div class="spec-item">
+            <span class="spec-label">History:</span>
+            <span class="spec-value">300 data points per metric</span>
+          </div>
+          <div class="spec-item">
+            <span class="spec-label">Web Interface:</span>
+            <span class="spec-value">Port 5000, network accessible</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Mission Capabilities</h2>
+      <p>
+        TRITON is engineered for comprehensive submarine operations with advanced monitoring and navigation 
+        capabilities. The system provides continuous environmental monitoring for depth calculation through 
+        pressure readings, inertial navigation support through accelerometer and gyroscope data, and 
+        real-time wireless data transmission for surface monitoring and control.
+      </p>
+      
+      <p>
+        The dual-platform architecture ensures operational redundancy and reliability. The Raspberry Pi 
+        handles autonomous sensor collection and LoRa transmission, while the PC base station manages data 
+        reception, logging, statistical analysis, and web-based mission control interface. This design 
+        enables real-time monitoring of submarine operations from considerable distances while maintaining 
+        comprehensive data logging for post-mission analysis.
+      </p>
+
+      <div style="text-align: center; margin: 40px 0;">
+        <a href="/dashboard" class="cta-button">🎯 Launch Mission Control Dashboard</a>
+      </div>
+    </section>
+  </div>
+
+  <footer>
+    <div class="container">
+      <div class="footer-content">
+        <p>TRITON Autonomous Submarine Navigation System</p>
+        <p>Advanced sensor integration • Real-time data transmission • Mission control interface</p>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>
