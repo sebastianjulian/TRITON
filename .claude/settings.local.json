@@ -5,7 +5,18 @@
       "Bash(git push:*)",
       "Bash(python:*)",
       "Bash(curl:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(grep:*)",
+      "Read(C:\\Users\\sebi\\OneDrive - Öffentliches Schottengymnasium der Benediktiner in Wien\\Pictures\\Screenshots/**)",
+      "Read(C:\\Users\\sebi\\OneDrive - Öffentliches Schottengymnasium der Benediktiner in Wien\\Pictures\\Screenshots/**)",
+      "Read(C:\\Users\\sebi\\OneDrive - Öffentliches Schottengymnasium der Benediktiner in Wien\\Pictures\\Screenshots/**)",
+      "Read(C:\\Users\\sebi\\OneDrive - Öffentliches Schottengymnasium der Benediktiner in Wien\\Pictures\\Screenshots/**)",
+      "Read(C:\\Users\\sebi\\OneDrive - Öffentliches Schottengymnasium der Benediktiner in Wien\\Pictures\\Screenshots/**)",
+      "Read(C:\\Users\\sebi\\OneDrive - Öffentliches Schottengymnasium der Benediktiner in Wien\\Pictures\\Screenshots/**)",
+      "Read(C:\\Users\\sebi\\OneDrive - Öffentliches Schottengymnasium der Benediktiner in Wien\\Pictures\\Screenshots/**)",
+      "Bash(dir logs)",
+      "Bash(dir logsprevious_data)",
+      "Bash(dir:*)"
     ],
     "deny": [],
     "ask": []
