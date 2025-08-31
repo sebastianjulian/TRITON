@@ -24,8 +24,8 @@ This document provides comprehensive troubleshooting methodologies for the TRITO
 
 **Root Cause**: CSS class selector mismatch in JavaScript event listeners
 - Homepage HTML: `<div class="theme-button" data-theme="...">` 
-- Homepage JS: `document.querySelectorAll('.theme-option')` ❌
-- Should be: `document.querySelectorAll('.theme-button')` ✅
+- Homepage JS: `document.querySelectorAll('.theme-option')` (incorrect)
+- Should be: `document.querySelectorAll('.theme-button')` (correct)
 
 ### Solution Implemented
 1. **Fixed Event Listeners**: Updated `setupEventListeners()` method to use `.theme-button`

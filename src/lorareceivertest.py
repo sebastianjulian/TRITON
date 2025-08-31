@@ -384,12 +384,12 @@ with open(logfile, "w") as f:
 
 try:
     ser = serial.Serial(COM_PORT, BAUD_RATE, timeout=1)
-    print(f"🔌 Connected to {COM_PORT} at {BAUD_RATE} baud.")
+    print(f"Connected to {COM_PORT} at {BAUD_RATE} baud.")
 except Exception as e:
-    print("❌ Serial error:", e)
+    print("Serial error:", e)
     exit(1)
 
-print("📱 Listening for LoRa data...")
+print("Listening for LoRa data...")
 
 min_data = [float('inf')] * len(LABELS)
 max_data = [float('-inf')] * len(LABELS)
@@ -402,10 +402,10 @@ try:
         if ser.in_waiting:
             line = ser.readline().decode(errors='ignore').strip()
             if not line or line.count(",") < MIN_COLUMNS - 1:
-                print("⚠️ Skipped incomplete line:", line)
+                print("Skipped incomplete line:", line)
                 continue
 
-            print("📥", line)
+            print("Received:", line)
             fields = line.split(",")
             timestamp_str = fields[0]
             values = fields[1:]
@@ -463,7 +463,7 @@ try:
                     print("[WARN] Could not send to dashboard:", e)
 
 except KeyboardInterrupt:
-    print("\n🛑 Gracefully stopped.")
+    print("\nGracefully stopped.")
     with open(logfile, "a") as f:
         f.write("\nMIN," + ",".join(str(round(x, d)) if isinstance(x, float) else "" for x, d in zip(min_data, DECIMALS)) + "\n")
         f.write("MAX," + ",".join(str(round(x, d)) if isinstance(x, float) else "" for x, d in zip(max_data, DECIMALS)) + "\n")

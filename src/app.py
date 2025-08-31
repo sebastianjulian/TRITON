@@ -331,5 +331,5 @@ if __name__ == "__main__":
     try:
         app.run(debug=False, host="0.0.0.0", use_reloader=False)
     except KeyboardInterrupt:
-        print("\n🛑 Caught Ctrl+C, shutting down...")
+        print("\nCaught Ctrl+C, shutting down...")
         cleanup()

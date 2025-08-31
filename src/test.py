@@ -1140,24 +1140,24 @@ i2c = busio.I2C(board.SCL, board.SDA)
 
 try:
     bme = adafruit_bme280.Adafruit_BME280_I2C(i2c, address=0x76)
-    print("✅ BME280 detected.")
+    print("BME280 detected.")
 except Exception as e:
-    print("⚠️ BME280 init failed:", e)
+    print("BME280 init failed:", e)
     bme = None
 
 try:
     mpu = mpu6050(0x68)
-    print("✅ MPU6050 detected.")
+    print("MPU6050 detected.")
 except Exception as e:
-    print("⚠️ MPU6050 init failed:", e)
+    print("MPU6050 init failed:", e)
     mpu = None
 
 # ───── INIT LORA SERIAL ─────
 try:
     lora_serial = serial.Serial(LORA_PORT, BAUD_RATE, timeout=1)
-    print("✅ LoRa module connected.")
+    print("LoRa module connected.")
 except Exception as e:
-    print("⚠️ LoRa module not connected:", e)
+    print("LoRa module not connected:", e)
     lora_serial = None
 
 # ───── INIT DATA CONTAINERS ─────
@@ -1246,7 +1246,7 @@ try:
                     lora_line = now_str + "," + ",".join(str(x) for x in data) + "\n"
                     lora_serial.write(lora_line.encode())
                     lora_serial.flush()  # Ensure it's fully written out
-                    print("📡 Sent via LoRa")
+                    print("Sent via LoRa")
                 except Exception as e:
                     print("[WARN] LoRa send failed:", e)
 
@@ -1254,7 +1254,7 @@ try:
         time.sleep(0.1)
 
 except KeyboardInterrupt:
-    print("\n🛑 Logging stopped.")
+    print("\nLogging stopped.")
     with open(logfile, "a") as f:
         f.write("\nMIN," + ",".join(str(round(x, d)) if isinstance(x, float) else "" for x, d in zip(min_data, DECIMALS)) + "\n")
         f.write("MAX," + ",".join(str(round(x, d)) if isinstance(x, float) else "" for x, d in zip(max_data, DECIMALS)) + "\n")

@@ -378,7 +378,7 @@
 <body>
   <!-- Theme Selector -->
   <div class="theme-selector">
-    <h4>🎨 Themes</h4>
+    <h4>Themes</h4>
     <div class="theme-options">
       <div class="theme-option active" data-theme="dark-ocean">Dark Ocean</div>
       <div class="theme-option" data-theme="night">Night</div>
@@ -398,7 +398,7 @@
   <section class="download-controls">
     <h2>Mission Control</h2>
     <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
-      <button id="startStopBtn" onclick="toggleDataGeneration()">▶️ Start Test Data</button>
+      <button id="startStopBtn" onclick="toggleDataGeneration()">Start Test Data</button>
       <select id="speedSelect" onchange="updateSpeed()" style="background-color: #1c1d22; color: #f0f0f0; border: 1px solid #333; padding: 8px 12px; border-radius: 6px;">
         <option value="0.5">0.5x Speed (4s)</option>
         <option value="1" selected>1x Speed (2s)</option>
@@ -406,7 +406,7 @@
         <option value="5">5x Speed (0.4s)</option>
         <option value="10">10x Speed (0.2s)</option>
       </select>
-      <button id="clearBtn" onclick="clearTestData()" style="background-color: #ef4444;">🗑️ Clear Data</button>
+      <button id="clearBtn" onclick="clearTestData()" style="background-color: #ef4444;">Clear Data</button>
     </div>
     <div style="margin-top: 10px;">
       <span id="generateStatus" style="color: #38bdf8;"></span>
@@ -459,11 +459,11 @@
   <section class="download-controls">
     <h2>Download Logs</h2>
     <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
-      <button onclick="downloadLatest()">⬇️ Download Latest Log</button>
+      <button onclick="downloadLatest()">Download Latest Log</button>
       <select id="logSelect" onchange="downloadSelected()">
         <option value="">-- Select archived log --</option>
       </select>
-      <button onclick="openLogsFolder()" style="background-color: #6366f1;">📁 Open Logs Folder</button>
+      <button onclick="openLogsFolder()" style="background-color: #6366f1;">Open Logs Folder</button>
     </div>
     <div style="margin-top: 10px;">
       <span id="folderStatus" style="color: #38bdf8;"></span>
@@ -592,7 +592,7 @@
       const folderStatus = document.getElementById("folderStatus");
       
       try {
-        folderStatus.textContent = "📁 Opening logs folder...";
+        folderStatus.textContent = "Opening logs folder...";
         folderStatus.style.color = "#fbbf24";
         
         const response = await fetch("/open_logs_folder", {
@@ -605,13 +605,13 @@
         const result = await response.json();
         
         if (result.status === "success") {
-          folderStatus.textContent = "✅ Logs folder opened successfully!";
+          folderStatus.textContent = "Logs folder opened successfully!";
           folderStatus.style.color = "#22c55e";
         } else {
           throw new Error(result.message || "Unknown error");
         }
       } catch (error) {
-        folderStatus.textContent = `❌ Error opening folder: ${error.message}`;
+        folderStatus.textContent = `Error opening folder: ${error.message}`;
         folderStatus.style.color = "#ef4444";
         console.error("Error opening logs folder:", error);
       }
@@ -719,7 +719,7 @@
       }
       
       clearBtn.disabled = true;
-      clearBtn.textContent = "🗑️ Clearing...";
+      clearBtn.textContent = "Clearing...";
       
       try {
         const response = await fetch("/clear_test_data", {
@@ -732,7 +732,7 @@
         const result = await response.json();
         
         if (result.status === "success") {
-          statusSpan.textContent = "✅ All test data cleared!";
+          statusSpan.textContent = "All test data cleared!";
           statusSpan.style.color = "#22c55e";
           // Clear status message after 3 seconds
           setTimeout(() => {
@@ -742,12 +742,12 @@
           throw new Error(result.message || "Unknown error");
         }
       } catch (error) {
-        statusSpan.textContent = "❌ Error clearing data";
+        statusSpan.textContent = "Error clearing data";
         statusSpan.style.color = "#ef4444";
         console.error("Error clearing test data:", error);
       } finally {
         clearBtn.disabled = false;
-        clearBtn.textContent = "🗑️ Clear Data";
+        clearBtn.textContent = "Clear Data";
       }
     }
 
