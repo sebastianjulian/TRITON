@@ -149,6 +149,31 @@ python src/web_server.py        # alternative web server
 - **Raspberry Pi Setup**: Requires I2C enabled via `raspi-config`
 - **File Organization**: Legacy code preserved in `src/legacy/` for reference
 
+## Web Interface Features
+
+### Theme Selector Implementation ✅ COMPLETED
+**Status**: Both homepage and dashboard have fully functional dropdown theme selectors
+
+**Implementation Details**:
+- **Location**: Theme dropdown is located inside `<nav class="main-nav">` on both pages
+- **Structure**: Uses `display: inline-block` positioning (NOT absolute positioning)
+- **Font Color**: Dropdown options use `color: #ffffff !important` for white text
+- **Themes Available**: Dark Ocean, Night, Light Ocean
+- **Functionality**: Click-to-toggle, click-outside-to-close, theme persistence via localStorage
+- **Mobile Responsive**: Proper mobile styles with adjusted widths and padding
+
+**Critical Implementation Notes**:
+- Theme selector MUST be inside navigation structure to be visible
+- Absolute positioning causes visibility issues with fixed navigation
+- Z-index conflicts resolved by using inline-block within nav
+- Both pages use identical CSS and JavaScript for consistency
+
+**Files Modified**:
+- `src/templates/index.html` (homepage)
+- `src/templates/dashboard.html` (dashboard)
+
+**Verification**: Theme dropdowns are visible in top navigation bar on both pages with white font text
+
 ## TRITON Mission Notes
 
 The TRITON system is designed for autonomous submarine operations with:

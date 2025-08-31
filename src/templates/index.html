@@ -936,17 +936,14 @@
     }
     /* Theme Selector Styles */
     .theme-selector {
-      position: fixed;
-      top: 70px;
-      right: 20px;
-      z-index: 9999;
+      display: inline-block;
       background: var(--gradient-card);
       border: 1px solid var(--color-border);
       border-radius: 8px;
       box-shadow: var(--glow-primary), 0 4px 15px rgba(0, 0, 0, 0.4);
       backdrop-filter: blur(10px);
       transition: all 0.3s ease;
-      width: 120px;
+      width: 140px;
     }
     
     .theme-selector:hover {
@@ -1017,7 +1014,7 @@
       padding: 8px 12px;
       border: none;
       background: transparent;
-      color: #ffffff;
+      color: #ffffff !important;
       cursor: pointer;
       transition: all 0.3s ease;
       font-size: 0.85em;
@@ -1037,7 +1034,7 @@
     
     .theme-button:hover {
       background: var(--bg-tertiary);
-      color: #ffffff;
+      color: #ffffff !important;
     }
     
     .theme-button.active {
@@ -1056,9 +1053,12 @@
       }
       
       .theme-selector {
-        top: 60px;
-        right: 10px;
-        width: 100px;
+        width: 120px;
+        padding: 8px;
+      }
+      
+      .theme-options {
+        min-width: 120px;
       }
       
       .theme-dropdown-btn {
@@ -1074,21 +1074,6 @@
   </style>
 </head>
 <body>
-  <!-- Theme Selector -->
-  <div class="theme-selector">
-    <div class="theme-dropdown">
-      <button class="theme-dropdown-btn">
-        <span class="theme-current">Dark Ocean</span>
-        <span class="theme-dropdown-arrow">▼</span>
-      </button>
-      <div class="theme-options">
-        <div class="theme-button active" data-theme="dark-ocean">Dark Ocean</div>
-        <div class="theme-button" data-theme="night">Night</div>
-        <div class="theme-button" data-theme="light-ocean">Light Ocean</div>
-      </div>
-    </div>
-  </div>
-  
   <header>
     <div class="header-nav">
       <nav class="main-nav">
@@ -1099,6 +1084,20 @@
         <a href="#hardware">Hardware</a>
         <a href="#faq">FAQ</a>
         <a href="https://github.com/sebastianjulian/TRITON" target="_blank" rel="noopener">GitHub</a>
+        <!-- Theme Selector -->
+        <div class="theme-selector">
+          <div class="theme-dropdown">
+            <button class="theme-dropdown-btn">
+              <span class="theme-current">Dark Ocean</span>
+              <span class="theme-dropdown-arrow">▼</span>
+            </button>
+            <div class="theme-options">
+              <div class="theme-button active" data-theme="dark-ocean">Dark Ocean</div>
+              <div class="theme-button" data-theme="night">Night</div>
+              <div class="theme-button" data-theme="light-ocean">Light Ocean</div>
+            </div>
+          </div>
+        </div>
       </nav>
     </div>
     <h1>TRITON</h1>
