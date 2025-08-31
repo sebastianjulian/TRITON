@@ -118,7 +118,7 @@
 
     header {
       background: var(--bg-header);
-      padding: 40px 20px;
+      padding: 70px 20px 40px 20px;
       text-align: center;
       border-bottom: 2px solid var(--color-border-accent);
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
@@ -127,33 +127,66 @@
     }
 
     .header-nav {
-      position: absolute;
-      top: 15px;
-      left: 50%;
-      transform: translateX(-50%);
+      position: fixed;
+      top: 0;
+      left: 0;
       width: 100%;
-      z-index: 10;
+      background: rgba(22, 37, 53, 0.95);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--color-border);
+      padding: 10px 0;
+      z-index: 10000;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+      display: block;
+      visibility: visible;
+    }
+
+    .header-nav.scrolled {
+      background: rgba(22, 37, 53, 0.98);
+      box-shadow: 0 2px 15px rgba(0, 0, 0, 0.5);
+    }
+
+    /* Theme-specific navigation backgrounds */
+    [data-theme="night"] .header-nav {
+      background: rgba(15, 23, 42, 0.95);
+    }
+
+    [data-theme="night"] .header-nav.scrolled {
+      background: rgba(15, 23, 42, 0.98);
+    }
+
+    [data-theme="light-ocean"] .header-nav {
+      background: rgba(122, 198, 235, 0.95);
+    }
+
+    [data-theme="light-ocean"] .header-nav.scrolled {
+      background: rgba(122, 198, 235, 0.98);
     }
 
     .main-nav {
       display: flex;
       justify-content: center;
       align-items: center;
-      gap: 30px;
+      gap: 20px;
       flex-wrap: wrap;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
     }
 
     .main-nav a {
       color: var(--color-text-secondary);
       text-decoration: none;
       font-weight: 500;
-      font-size: 0.95em;
-      padding: 10px 16px;
-      border-radius: 8px;
+      font-size: 0.9em;
+      padding: 8px 12px;
+      border-radius: 6px;
       transition: all 0.3s ease;
       background: rgba(255, 255, 255, 0.05);
       border: 1px solid transparent;
       backdrop-filter: blur(10px);
+      white-space: nowrap;
     }
 
     .main-nav a:hover {
@@ -872,7 +905,11 @@
 
       .main-nav a {
         font-size: 0.8em;
-        padding: 6px 10px;
+        padding: 6px 8px;
+      }
+      
+      .main-nav {
+        gap: 8px;
       }
 
       .ascii-diagram pre {
@@ -900,131 +937,138 @@
     /* Theme Selector Styles */
     .theme-selector {
       position: fixed;
-      top: 20px;
+      top: 70px;
       right: 20px;
-      z-index: 1000;
+      z-index: 9999;
       background: var(--gradient-card);
       border: 1px solid var(--color-border);
-      border-radius: 12px;
-      padding: 15px;
-      box-shadow: var(--glow-primary), 0 8px 25px rgba(0, 0, 0, 0.4);
+      border-radius: 8px;
+      box-shadow: var(--glow-primary), 0 4px 15px rgba(0, 0, 0, 0.4);
       backdrop-filter: blur(10px);
       transition: all 0.3s ease;
+      width: 120px;
     }
     
     .theme-selector:hover {
-      box-shadow: var(--glow-accent), 0 12px 35px rgba(0, 0, 0, 0.5);
+      box-shadow: var(--glow-accent), 0 6px 20px rgba(0, 0, 0, 0.5);
     }
     
-    .theme-selector h4 {
-      margin: 0 0 12px 0;
+    .theme-dropdown {
+      position: relative;
+    }
+    
+    .theme-dropdown-btn {
+      width: 100%;
+      padding: 10px 12px;
+      background: var(--bg-card);
       color: var(--color-text-primary);
-      font-size: 0.9em;
-      font-weight: 600;
-      text-align: center;
+      border: 1px solid var(--color-border);
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.85em;
+      font-weight: 500;
+      text-align: left;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: all 0.3s ease;
+    }
+    
+    .theme-dropdown-btn:hover {
+      border-color: var(--color-primary);
+      box-shadow: var(--glow-primary);
+    }
+    
+    .theme-dropdown-arrow {
+      font-size: 0.7em;
+      transition: transform 0.3s ease;
+      color: var(--color-primary);
+    }
+    
+    .theme-dropdown.open .theme-dropdown-arrow {
+      transform: rotate(180deg);
     }
     
     .theme-options {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      width: 180px;
-    }
-    
-    .theme-options::-webkit-scrollbar {
-      width: 4px;
-    }
-    
-    .theme-options::-webkit-scrollbar-track {
-      background: var(--bg-primary);
-    }
-    
-    .theme-options::-webkit-scrollbar-thumb {
-      background: var(--color-primary);
-      border-radius: 2px;
-    }
-    
-    .theme-option {
-      width: 50px;
-      height: 35px;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: var(--gradient-card);
+      border: 1px solid var(--color-border);
       border-radius: 8px;
-      border: 2px solid transparent;
-      cursor: pointer;
+      margin-top: 4px;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-10px);
       transition: all 0.3s ease;
-      position: relative;
-      overflow: hidden;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+      z-index: 1000;
     }
     
-    .theme-option:hover {
-      transform: scale(1.1);
-      border-color: rgba(255, 255, 255, 0.3);
-    }
-    
-    .theme-option.active {
-      border-color: var(--color-primary);
-      box-shadow: var(--glow-primary);
+    .theme-dropdown.open .theme-options {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
     }
     
     .theme-button {
-      padding: 12px 20px;
-      margin: 4px;
-      border: 2px solid var(--color-border);
-      border-radius: 8px;
-      background: var(--bg-card);
-      color: var(--color-text-primary);
+      width: 100%;
+      padding: 8px 12px;
+      border: none;
+      background: transparent;
+      color: #ffffff;
       cursor: pointer;
       transition: all 0.3s ease;
-      font-size: 0.9em;
-      font-weight: 600;
-      text-align: center;
-      min-width: 120px;
+      font-size: 0.85em;
+      font-weight: 500;
+      text-align: left;
+      border-radius: 6px;
+      margin: 2px 0;
+    }
+    
+    .theme-button:first-child {
+      border-radius: 8px 8px 6px 6px;
+    }
+    
+    .theme-button:last-child {
+      border-radius: 6px 6px 8px 8px;
     }
     
     .theme-button:hover {
-      border-color: var(--color-primary);
-      box-shadow: var(--glow-primary);
-      transform: translateY(-1px);
+      background: var(--bg-tertiary);
+      color: #ffffff;
     }
     
     .theme-button.active {
-      border-color: var(--color-primary);
       background: var(--color-primary);
-      color: var(--bg-primary);
-      box-shadow: var(--glow-primary);
-    }
-    
-    .theme-label {
-      position: absolute;
-      bottom: -20px;
-      left: 50%;
-      transform: translateX(-50%);
-      font-size: 0.7em;
-      color: var(--color-text-muted);
-      white-space: nowrap;
-      opacity: 0;
-      transition: opacity 0.3s ease;
-      pointer-events: none;
-    }
-    
-    .theme-option:hover .theme-label {
-      opacity: 1;
+      color: #000000;
+      font-weight: 600;
     }
     
     @media (max-width: 768px) {
+      header {
+        padding: 60px 20px 40px 20px;
+      }
+      
+      .header-nav {
+        padding: 8px 0;
+      }
+      
       .theme-selector {
-        top: 10px;
+        top: 60px;
         right: 10px;
-        padding: 12px;
+        width: 100px;
       }
       
-      .theme-options {
-        width: 160px;
-        gap: 6px;
+      .theme-dropdown-btn {
+        font-size: 0.8em;
+        padding: 8px 10px;
       }
       
-      .theme-option {
-        width: 45px;
-        height: 30px;
+      .theme-button {
+        font-size: 0.8em;
+        padding: 6px 10px;
       }
     }
   </style>
@@ -1032,11 +1076,16 @@
 <body>
   <!-- Theme Selector -->
   <div class="theme-selector">
-    <h4>Themes</h4>
-    <div class="theme-options">
-      <div class="theme-button active" data-theme="dark-ocean">Dark Ocean</div>
-      <div class="theme-button" data-theme="night">Night</div>
-      <div class="theme-button" data-theme="light-ocean">Light Ocean</div>
+    <div class="theme-dropdown">
+      <button class="theme-dropdown-btn">
+        <span class="theme-current">Dark Ocean</span>
+        <span class="theme-dropdown-arrow">▼</span>
+      </button>
+      <div class="theme-options">
+        <div class="theme-button active" data-theme="dark-ocean">Dark Ocean</div>
+        <div class="theme-button" data-theme="night">Night</div>
+        <div class="theme-button" data-theme="light-ocean">Light Ocean</div>
+      </div>
     </div>
   </div>
   
@@ -1808,10 +1857,17 @@ Depth Rating: 10 meters (1 ATM overpressure)
     class ThemeManager {
       constructor() {
         this.currentTheme = localStorage.getItem('triton-theme') || 'dark-ocean';
+        this.dropdown = null;
+        this.dropdownBtn = null;
+        this.currentSpan = null;
         this.init();
       }
       
       init() {
+        this.dropdown = document.querySelector('.theme-dropdown');
+        this.dropdownBtn = document.querySelector('.theme-dropdown-btn');
+        this.currentSpan = document.querySelector('.theme-current');
+        
         this.applyTheme(this.currentTheme);
         this.setupEventListeners();
         this.updateActiveButton();
@@ -1821,15 +1877,43 @@ Depth Rating: 10 meters (1 ATM overpressure)
         document.documentElement.setAttribute('data-theme', themeName);
         this.currentTheme = themeName;
         localStorage.setItem('triton-theme', themeName);
+        
+        // Update dropdown button text
+        if (this.currentSpan) {
+          const themeNames = {
+            'dark-ocean': 'Dark Ocean',
+            'night': 'Night',
+            'light-ocean': 'Light Ocean'
+          };
+          this.currentSpan.textContent = themeNames[themeName] || themeName;
+        }
       }
       
       setupEventListeners() {
+        // Dropdown toggle
+        if (this.dropdownBtn) {
+          this.dropdownBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.dropdown.classList.toggle('open');
+          });
+        }
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', () => {
+          if (this.dropdown) {
+            this.dropdown.classList.remove('open');
+          }
+        });
+        
+        // Theme option clicks
         const themeOptions = document.querySelectorAll('.theme-button');
         themeOptions.forEach(option => {
-          option.addEventListener('click', () => {
+          option.addEventListener('click', (e) => {
+            e.stopPropagation();
             const theme = option.getAttribute('data-theme');
             this.applyTheme(theme);
             this.updateActiveButton();
+            this.dropdown.classList.remove('open');
             
             // Add visual feedback
             option.style.transform = 'scale(0.95)';
@@ -1851,20 +1935,52 @@ Depth Rating: 10 meters (1 ATM overpressure)
       }
     }
     
-    // Initialize theme management when page loads
+    // Sticky Navigation Handler
+    class StickyNavHandler {
+      constructor() {
+        this.headerNav = document.querySelector('.header-nav');
+        this.init();
+      }
+      
+      init() {
+        if (this.headerNav) {
+          // Ensure nav is visible on page load
+          this.headerNav.style.display = 'block';
+          this.headerNav.style.visibility = 'visible';
+          
+          window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+              this.headerNav.classList.add('scrolled');
+            } else {
+              this.headerNav.classList.remove('scrolled');
+            }
+            // Debug: log scroll position
+            console.log('Scroll position:', window.scrollY, 'Nav visible:', this.headerNav.style.visibility);
+          });
+        } else {
+          console.error('Header navigation not found!');
+        }
+      }
+    }
+    
+    // Initialize theme management and sticky nav when page loads
     document.addEventListener('DOMContentLoaded', () => {
       new ThemeManager();
+      new StickyNavHandler();
     });
     
-    // Smooth scrolling for anchor links
+    // Smooth scrolling for anchor links with offset for fixed header
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
       anchor.addEventListener('click', function (e) {
         e.preventDefault();
         const target = document.querySelector(this.getAttribute('href'));
         if (target) {
-          target.scrollIntoView({
-            behavior: 'smooth',
-            block: 'start'
+          const headerHeight = 70; // Account for fixed header
+          const targetPosition = target.offsetTop - headerHeight;
+          
+          window.scrollTo({
+            top: targetPosition,
+            behavior: 'smooth'
           });
         }
       });

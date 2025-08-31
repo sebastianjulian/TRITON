@@ -21,6 +21,11 @@
       "Bash(powershell:*)",
       "Read(C:\\Users\\sebi\\OneDrive - Öffentliches Schottengymnasium der Benediktiner in Wien\\Pictures\\Screenshots/**)",
       "Read(C:\\Users\\sebi\\OneDrive - Öffentliches Schottengymnasium der Benediktiner in Wien\\Pictures\\Screenshots/**)",
+      "Read(C:\\Users\\sebi\\OneDrive - Öffentliches Schottengymnasium der Benediktiner in Wien\\Pictures\\Screenshots/**)",
+      "WebFetch(domain:localhost)",
+      "Read(C:\\Users\\sebi\\OneDrive - Öffentliches Schottengymnasium der Benediktiner in Wien\\Pictures\\Screenshots/**)",
+      "Read(C:\\Users\\sebi\\OneDrive - Öffentliches Schottengymnasium der Benediktiner in Wien\\Pictures\\Screenshots/**)",
+      "Read(C:\\Users\\sebi\\OneDrive - Öffentliches Schottengymnasium der Benediktiner in Wien\\Pictures\\Screenshots/**)",
       "Read(C:\\Users\\sebi\\OneDrive - Öffentliches Schottengymnasium der Benediktiner in Wien\\Pictures\\Screenshots/**)"
     ],
     "deny": [],
