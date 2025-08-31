@@ -136,7 +136,7 @@ def kill_port(port=5000):
 
 kill_port(5000)
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder='templates')
 
 # Directory setup for downloads
 LOG_DIR = "logs"
