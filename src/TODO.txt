@@ -3,3 +3,11 @@
 - open file folder button
 
 - run files while booting
+
+- layout
+- more futuristic design
+- send commands via lora?
+- inertial navigation via gyroscope (calculate distance from acceleration)
+- graphs colors (for high values red, low values blue, ...)
+- clock
+- map

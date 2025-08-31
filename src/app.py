@@ -268,6 +268,32 @@ def download_archive(filename):
         return send_from_directory(ARCHIVE_DIR, filename, as_attachment=True)
     return "File not found", 404
 
+@app.route('/open_logs_folder', methods=['POST'])
+def open_logs_folder():
+    try:
+        # Get absolute path to logs directory for security
+        logs_path = os.path.abspath(LOG_DIR)
+        
+        # Ensure logs directory exists
+        if not os.path.exists(logs_path):
+            return jsonify({"status": "error", "message": "Logs directory does not exist"}), 404
+        
+        # Open folder based on operating system
+        system = platform.system()
+        if system == "Windows":
+            os.startfile(logs_path)
+        elif system == "Darwin":  # macOS
+            subprocess.run(["open", logs_path], check=True)
+        elif system == "Linux":
+            subprocess.run(["xdg-open", logs_path], check=True)
+        else:
+            return jsonify({"status": "error", "message": f"Unsupported operating system: {system}"}), 400
+        
+        return jsonify({"status": "success", "message": "Logs folder opened successfully"})
+    
+    except Exception as e:
+        return jsonify({"status": "error", "message": f"Failed to open logs folder: {str(e)}"}), 500
+
 def cleanup():
     try:
         if platform.system() == "Windows":
