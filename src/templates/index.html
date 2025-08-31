@@ -125,6 +125,55 @@
       backdrop-filter: blur(10px);
       position: relative;
     }
+
+    .header-nav {
+      position: absolute;
+      top: 15px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      z-index: 10;
+    }
+
+    .main-nav {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 30px;
+      flex-wrap: wrap;
+    }
+
+    .main-nav a {
+      color: var(--color-text-secondary);
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 0.95em;
+      padding: 10px 16px;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid transparent;
+      backdrop-filter: blur(10px);
+    }
+
+    .main-nav a:hover {
+      color: var(--color-primary);
+      background: var(--bg-card);
+      border-color: var(--color-primary);
+      box-shadow: var(--glow-primary);
+      transform: translateY(-2px);
+    }
+
+    .main-nav a[target="_blank"] {
+      background: var(--color-primary);
+      color: var(--bg-primary);
+      font-weight: 600;
+    }
+
+    .main-nav a[target="_blank"]:hover {
+      background: var(--color-accent);
+      color: var(--bg-primary);
+    }
     
     header::after {
       content: '';
@@ -138,7 +187,7 @@
     }
 
     header h1 {
-      margin: 0;
+      margin: 60px 0 0 0;
       font-size: 3.5em;
       color: var(--color-text-primary);
       font-weight: 700;
@@ -418,6 +467,10 @@
       position: relative;
       overflow: hidden;
     }
+
+    .mission-overview .container {
+      margin-bottom: 40px;
+    }
     
     .mission-overview::before {
       content: '';
@@ -434,9 +487,11 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin: 40px 0;
+      margin: 40px auto;
       flex-wrap: wrap;
       gap: 20px;
+      max-width: 1200px;
+      padding: 0 20px;
     }
 
     .flow-step {
@@ -520,9 +575,31 @@
       font-size: 0.9em;
     }
 
+    .github-link {
+      display: inline-block;
+      background: var(--color-primary);
+      color: var(--bg-primary);
+      padding: 12px 24px;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 1em;
+      transition: all 0.3s ease;
+      box-shadow: var(--glow-primary);
+      border: 1px solid var(--color-primary);
+    }
+
+    .github-link:hover {
+      background: var(--color-accent);
+      color: var(--bg-primary);
+      transform: translateY(-2px);
+      box-shadow: var(--glow-accent);
+    }
+
     @media (max-width: 768px) {
       header h1 {
         font-size: 2.5em;
+        margin: 50px 0 0 0;
       }
 
       .hero-description {
@@ -572,6 +649,252 @@
 
       .spec-label {
         min-width: 140px;
+      }
+    }
+
+    /* Documentation Specific Styles */
+    .ascii-diagram {
+      background: var(--bg-tertiary);
+      border-radius: 8px;
+      margin: 15px 0;
+      overflow-x: auto;
+    }
+
+    .ascii-diagram pre {
+      margin: 0;
+      padding: 20px;
+      font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+      font-size: 0.85em;
+      line-height: 1.4;
+      color: var(--color-text-secondary);
+      white-space: pre;
+      overflow-x: auto;
+    }
+
+    .subsystem-docs ul {
+      margin: 15px 0;
+      padding-left: 20px;
+    }
+
+    .subsystem-docs li {
+      margin: 8px 0;
+      color: var(--color-text-secondary);
+      line-height: 1.6;
+    }
+
+    .subsystem-docs ul ul {
+      margin: 5px 0;
+      padding-left: 15px;
+    }
+
+    .subsystem-docs ul ul li {
+      margin: 4px 0;
+      font-size: 0.95em;
+      color: var(--color-text-muted);
+    }
+
+    .feature-updates h5, .hardware-history h5 {
+      color: var(--color-primary);
+      font-size: 1.1em;
+      margin: 20px 0 10px 0;
+      text-shadow: var(--glow-accent);
+      border-bottom: 1px solid var(--color-border);
+      padding-bottom: 5px;
+    }
+
+    .feature-updates ul, .hardware-history ul {
+      margin: 10px 0 20px 0;
+      padding-left: 20px;
+    }
+
+    .feature-updates li, .hardware-history li {
+      margin: 6px 0;
+      color: var(--color-text-secondary);
+      line-height: 1.5;
+    }
+
+    /* API Documentation Styles */
+    .api-endpoints {
+      display: flex;
+      flex-direction: column;
+      gap: 25px;
+      margin: 20px 0;
+    }
+
+    .api-endpoint {
+      background: var(--bg-card);
+      padding: 25px;
+      border-radius: 12px;
+      border-left: 4px solid var(--color-primary);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    .api-endpoint h4 {
+      margin: 0 0 10px 0;
+      color: var(--color-primary);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.2em;
+      text-shadow: var(--glow-accent);
+    }
+
+    .api-endpoint p {
+      margin: 10px 0;
+      color: var(--color-text-secondary);
+    }
+
+    .api-details {
+      margin-top: 15px;
+    }
+
+    .api-details h5 {
+      color: var(--color-text-primary);
+      font-size: 1em;
+      margin: 15px 0 8px 0;
+      font-weight: 600;
+    }
+
+    .api-details pre {
+      background: var(--bg-tertiary);
+      border: 1px solid var(--color-border);
+      border-radius: 8px;
+      padding: 15px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85em;
+      line-height: 1.4;
+      color: var(--color-text-secondary);
+      overflow-x: auto;
+      margin: 10px 0;
+    }
+
+    .api-details code {
+      background: var(--bg-tertiary);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.9em;
+      color: var(--color-primary);
+    }
+
+    .python-api {
+      margin-top: 30px;
+    }
+
+    .python-api h4 {
+      color: var(--color-primary);
+      font-size: 1.3em;
+      margin: 25px 0 15px 0;
+      border-bottom: 1px solid var(--color-border);
+      padding-bottom: 8px;
+      text-shadow: var(--glow-accent);
+    }
+
+    .python-api ul {
+      margin: 10px 0;
+      padding-left: 20px;
+    }
+
+    .python-api li {
+      margin: 8px 0;
+      color: var(--color-text-secondary);
+      line-height: 1.6;
+    }
+
+    /* Hardware Diagrams Styles */
+    .hardware-diagrams h3 {
+      color: var(--color-primary);
+      font-size: 1.4em;
+      margin: 30px 0 20px 0;
+      text-shadow: var(--glow-accent);
+      border-bottom: 2px solid var(--color-border);
+      padding-bottom: 10px;
+    }
+
+    .wiring-diagram h4, .power-diagram h4, .mechanical-diagram h4 {
+      color: var(--color-text-primary);
+      font-size: 1.1em;
+      margin: 25px 0 15px 0;
+      font-weight: 600;
+    }
+
+    /* FAQ Styles */
+    .faq-section {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      margin: 20px 0;
+    }
+
+    .faq-item {
+      background: var(--gradient-card);
+      padding: 25px;
+      border-radius: 12px;
+      border: 1px solid var(--color-border);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+      transition: all 0.3s ease;
+    }
+
+    .faq-item:hover {
+      border-color: var(--color-primary);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4), var(--glow-primary);
+      transform: translateY(-2px);
+    }
+
+    .faq-item h4 {
+      margin: 0 0 15px 0;
+      color: var(--color-primary);
+      font-size: 1.2em;
+      font-weight: 600;
+      text-shadow: var(--glow-accent);
+    }
+
+    .faq-item p {
+      margin: 0;
+      color: var(--color-text-secondary);
+      line-height: 1.7;
+    }
+
+    .faq-item code {
+      background: var(--bg-tertiary);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.9em;
+      color: var(--color-primary);
+    }
+
+    /* Mobile responsiveness for new sections */
+    @media (max-width: 768px) {
+      .main-nav {
+        gap: 12px;
+        padding: 0 10px;
+        flex-wrap: wrap;
+      }
+
+      .main-nav a {
+        font-size: 0.8em;
+        padding: 6px 10px;
+      }
+
+      .ascii-diagram pre {
+        font-size: 0.75em;
+        padding: 15px;
+      }
+
+      .api-endpoint {
+        padding: 20px;
+      }
+
+      .api-details pre {
+        font-size: 0.8em;
+        padding: 12px;
+      }
+
+      .faq-item {
+        padding: 20px;
+      }
+
+      .features-grid {
+        grid-template-columns: 1fr;
       }
     }
     /* Theme Selector Styles */
@@ -718,6 +1041,17 @@
   </div>
   
   <header>
+    <div class="header-nav">
+      <nav class="main-nav">
+        <a href="#overview">Overview</a>
+        <a href="#architecture">Architecture</a>
+        <a href="#documentation">Documentation</a>
+        <a href="#api">API</a>
+        <a href="#hardware">Hardware</a>
+        <a href="#faq">FAQ</a>
+        <a href="https://github.com/sebastianjulian/TRITON" target="_blank" rel="noopener">GitHub</a>
+      </nav>
+    </div>
     <h1>TRITON</h1>
     <div class="subtitle">Autonomous Submarine Navigation System</div>
   </header>
@@ -736,7 +1070,7 @@
   </section>
 
   <div class="container">
-    <section>
+    <section id="overview">
       <h2>Project Overview</h2>
       <p>
         TRITON represents the evolution of our satellite simulation project into a sophisticated autonomous 
@@ -800,11 +1134,12 @@
       </div>
     </section>
 
-    <section class="mission-overview">
-      <h2>System Architecture</h2>
-      <p>TRITON operates on a sophisticated dual-platform architecture designed for maximum reliability and real-time performance:</p>
-      
-      <div class="data-flow">
+    <section id="architecture" class="mission-overview">
+      <div class="container">
+        <h2>System Architecture</h2>
+        <p>TRITON operates on a sophisticated dual-platform architecture designed for maximum reliability and real-time performance:</p>
+        
+        <div class="data-flow">
         <div class="flow-step">
           <h4>Raspberry Pi</h4>
           <p>Sensor data collection<br>LoRa transmission<br>Autonomous operation</p>
@@ -823,6 +1158,7 @@
         <div class="flow-step">
           <h4>Mission Control</h4>
           <p>Live visualization<br>Statistical analysis<br>Data download</p>
+        </div>
         </div>
       </div>
     </section>
@@ -892,25 +1228,563 @@
       </div>
     </section>
 
-    <section>
-      <h2>Mission Capabilities</h2>
+    <section id="documentation">
+      <h2>Documentation</h2>
       <p>
-        TRITON is engineered for comprehensive submarine operations with advanced monitoring and navigation 
-        capabilities. The system provides continuous environmental monitoring for depth calculation through 
-        pressure readings, inertial navigation support through accelerometer and gyroscope data, and 
-        real-time wireless data transmission for surface monitoring and control.
-      </p>
-      
-      <p>
-        The dual-platform architecture ensures operational redundancy and reliability. The Raspberry Pi 
-        handles autonomous sensor collection and LoRa transmission, while the PC base station manages data 
-        reception, logging, statistical analysis, and web-based mission control interface. This design 
-        enables real-time monitoring of submarine operations from considerable distances while maintaining 
-        comprehensive data logging for post-mission analysis.
+        Comprehensive documentation and resources for TRITON development, deployment, and operation.
       </p>
 
-      <div style="text-align: center; margin: 40px 0;">
-        <a href="/dashboard" class="cta-button">Launch Mission Control Dashboard</a>
+      <div class="features-grid">
+        <div class="feature-card">
+          <h4>System Architecture Diagrams</h4>
+          <div class="diagram-section">
+            <h5>Dual-Platform Architecture</h5>
+            <div class="ascii-diagram">
+              <pre>
+┌─────────────────┐    LoRa     ┌─────────────────┐
+│  Raspberry Pi   │◄─────────►  │   PC Station    │
+│                 │  9600 baud  │                 │
+├─────────────────┤             ├─────────────────┤
+│ BME280 Sensor   │             │ Data Reception  │
+│ • Temperature   │             │ • CSV Logging   │
+│ • Humidity      │             │ • Statistics    │
+│ • Pressure      │             │ • Web Dashboard │
+│ • Altitude      │             │                 │
+├─────────────────┤             ├─────────────────┤
+│ MPU6050 IMU     │             │ Mission Control │
+│ • Accelerometer │             │ • Real-time     │
+│ • Gyroscope     │             │   Visualization │
+│ • Temperature   │             │ • Data Export   │
+└─────────────────┘             └─────────────────┘
+              </pre>
+            </div>
+            <h5>Data Flow Architecture</h5>
+            <div class="ascii-diagram">
+              <pre>
+Sensor Data → Threshold Check → LoRa Transmission
+     ↓              ↓                    ↓
+Local Cache → Data Validation → PC Reception
+     ↓              ↓                    ↓
+Error Handle → Retry Logic → CSV Logging → Web Dashboard
+              </pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="feature-card">
+          <h4>Subsystem Documentation</h4>
+          <div class="subsystem-docs">
+            <h5>Sensor Subsystem</h5>
+            <ul>
+              <li><strong>BME280 Environmental Sensor</strong>
+                <ul>
+                  <li>I2C Address: 0x76</li>
+                  <li>Sea level pressure calibration: 993.9 hPa</li>
+                  <li>Temperature range: -40°C to +85°C</li>
+                  <li>Pressure range: 300-1100 hPa</li>
+                  <li>Humidity range: 0-100% RH</li>
+                </ul>
+              </li>
+              <li><strong>MPU6050 Inertial Measurement Unit</strong>
+                <ul>
+                  <li>I2C Address: 0x68</li>
+                  <li>Gyroscope range: ±2000°/s</li>
+                  <li>Accelerometer range: ±16g</li>
+                  <li>Built-in temperature sensor</li>
+                  <li>Digital Motion Processor (DMP)</li>
+                </ul>
+              </li>
+            </ul>
+
+            <h5>Communication Subsystem</h5>
+            <ul>
+              <li><strong>LoRa Wireless</strong>
+                <ul>
+                  <li>Frequency: 915MHz (US) / 868MHz (EU)</li>
+                  <li>Baud rate: 9600</li>
+                  <li>Range: Up to 15km line of sight</li>
+                  <li>Power consumption: <100mA</li>
+                  <li>Serial interface: /dev/ttyUSB0 (Pi), COM8 (PC)</li>
+                </ul>
+              </li>
+            </ul>
+
+            <h5>Data Management Subsystem</h5>
+            <ul>
+              <li><strong>Logging System</strong>
+                <ul>
+                  <li>Format: CSV with MET timestamps</li>
+                  <li>Directory: logs/sensor_data_YYYYMMDD_HHMMSS.csv</li>
+                  <li>Archive: logs/previous_data/</li>
+                  <li>Auto-rotation and cleanup</li>
+                </ul>
+              </li>
+              <li><strong>Web Interface</strong>
+                <ul>
+                  <li>Flask server on port 5000</li>
+                  <li>Chart.js visualization</li>
+                  <li>Real-time updates via AJAX</li>
+                  <li>CSV download functionality</li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="feature-card">
+          <h4>Software Feature Updates</h4>
+          <div class="feature-updates">
+            <h5>Version 2.1 - Current</h5>
+            <ul>
+              <li>Enhanced web dashboard with multi-theme support</li>
+              <li>Real-time test data generation system</li>
+              <li>Improved chart visualization with Chart.js</li>
+              <li>Automatic folder opening for log management</li>
+              <li>Theme persistence across sessions</li>
+            </ul>
+
+            <h5>Version 2.0 - Mission Control Update</h5>
+            <ul>
+              <li>Dual-platform architecture implementation</li>
+              <li>LoRa communication integration</li>
+              <li>Comprehensive error handling and graceful degradation</li>
+              <li>Statistical analysis and threshold-based transmission</li>
+              <li>CSV logging with automatic archiving</li>
+            </ul>
+
+            <h5>Version 1.x - CanSat Legacy</h5>
+            <ul>
+              <li>Initial sensor data collection</li>
+              <li>Basic BME280 and MPU6050 integration</li>
+              <li>Simple data logging capabilities</li>
+              <li>Performance monitoring and optimization</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="feature-card">
+          <h4>Hardware Upgrade History</h4>
+          <div class="hardware-history">
+            <h5>Generation 3 - Current TRITON</h5>
+            <ul>
+              <li><strong>Controller:</strong> Raspberry Pi Zero 2 W (upgrade from Pi Zero)</li>
+              <li><strong>Wireless:</strong> LoRa modules with external antennas</li>
+              <li><strong>Power:</strong> Optimized power management system</li>
+              <li><strong>Enclosure:</strong> Waterproof submarine housing</li>
+              <li><strong>Sensors:</strong> Calibrated BME280 and MPU6050</li>
+            </ul>
+
+            <h5>Generation 2 - Enhanced CanSat</h5>
+            <ul>
+              <li><strong>Controller:</strong> Raspberry Pi Zero W</li>
+              <li><strong>Sensors:</strong> BME280 environmental sensor added</li>
+              <li><strong>Storage:</strong> MicroSD card data logging</li>
+              <li><strong>Communication:</strong> WiFi-based data transmission</li>
+            </ul>
+
+            <h5>Generation 1 - Original CanSat</h5>
+            <ul>
+              <li><strong>Controller:</strong> Arduino-based system</li>
+              <li><strong>Sensors:</strong> Basic temperature and pressure sensors</li>
+              <li><strong>Storage:</strong> EEPROM-based data storage</li>
+              <li><strong>Communication:</strong> Radio frequency transmission</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="api">
+      <h2>Software API References</h2>
+      <div class="api-documentation">
+        <h3>REST API Endpoints</h3>
+        <div class="api-endpoints">
+          <div class="api-endpoint">
+            <h4>GET /data</h4>
+            <p><strong>Description:</strong> Retrieve current sensor data and historical measurements</p>
+            <div class="api-details">
+              <h5>Response Format:</h5>
+              <pre><code>{
+  "timestamp": "2025-08-31 18:30:45",
+  "history": {
+    "Elapsed [s]": [0.0, 1.2, 2.5, ...],
+    "Temp_BME280 [°C]": [22.5, 22.7, 22.6, ...],
+    "Hum [%]": [65.2, 65.0, 64.8, ...],
+    "Press [hPa]": [1013.2, 1013.1, 1013.0, ...],
+    "Alt [m]": [150.2, 150.5, 150.8, ...],
+    "Acc x [m/s²]": [0.02, -0.01, 0.03, ...],
+    "Acc y [m/s²]": [0.01, 0.02, -0.01, ...],
+    "Acc z [m/s²]": [9.81, 9.82, 9.80, ...],
+    "Gyro x [°/s]": [0.1, -0.2, 0.3, ...],
+    "Gyro y [°/s]": [0.0, 0.1, -0.1, ...],
+    "Gyro z [°/s]": [0.2, 0.0, 0.1, ...],
+    "Temp_MPU [°C]": [23.1, 23.2, 23.0, ...]
+  }
+}</code></pre>
+            </div>
+          </div>
+
+          <div class="api-endpoint">
+            <h4>POST /update</h4>
+            <p><strong>Description:</strong> Submit new sensor data from Raspberry Pi</p>
+            <div class="api-details">
+              <h5>Request Format:</h5>
+              <pre><code>{
+  "timestamp": "2025-08-31 18:30:45",
+  "data": {
+    "Elapsed [s]": 45.2,
+    "Temp_BME280 [°C]": 22.5,
+    "Hum [%]": 65.2,
+    "Press [hPa]": 1013.2,
+    "Alt [m]": 150.2,
+    "Acc x [m/s²]": 0.02,
+    "Acc y [m/s²]": 0.01,
+    "Acc z [m/s²]": 9.81,
+    "Gyro x [°/s]": 0.1,
+    "Gyro y [°/s]": 0.0,
+    "Gyro z [°/s]": 0.2,
+    "Temp_MPU [°C]": 23.1
+  }
+}</code></pre>
+              <h5>Response:</h5>
+              <pre><code>{"status": "ok"}</code></pre>
+            </div>
+          </div>
+
+          <div class="api-endpoint">
+            <h4>GET /download/latest</h4>
+            <p><strong>Description:</strong> Download the most recent CSV log file</p>
+            <p><strong>Response:</strong> Binary CSV file download</p>
+          </div>
+
+          <div class="api-endpoint">
+            <h4>GET /download/list</h4>
+            <p><strong>Description:</strong> Get list of archived log files</p>
+            <div class="api-details">
+              <h5>Response:</h5>
+              <pre><code>["sensor_data_20250831_183045.csv", "sensor_data_20250830_142030.csv", ...]</code></pre>
+            </div>
+          </div>
+
+          <div class="api-endpoint">
+            <h4>POST /generate_random_data</h4>
+            <p><strong>Description:</strong> Generate test data for dashboard testing</p>
+            <div class="api-details">
+              <h5>Response:</h5>
+              <pre><code>{"status": "success", "message": "Random data generated"}</code></pre>
+            </div>
+          </div>
+
+          <div class="api-endpoint">
+            <h4>POST /clear_test_data</h4>
+            <p><strong>Description:</strong> Clear all test data from system</p>
+            <div class="api-details">
+              <h5>Response:</h5>
+              <pre><code>{"status": "success", "message": "Test data cleared"}</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <h3>Python API Reference</h3>
+        <div class="python-api">
+          <h4>Sensor Collection Module (test.py)</h4>
+          <div class="api-details">
+            <h5>Key Functions:</h5>
+            <ul>
+              <li><code>read_bme280()</code> - Read environmental sensor data</li>
+              <li><code>read_mpu6050()</code> - Read inertial measurement data</li>
+              <li><code>send_lora_data(data)</code> - Transmit data via LoRa</li>
+              <li><code>update_web_dashboard(data)</code> - Send data to web server</li>
+              <li><code>should_transmit(current, previous)</code> - Check transmission thresholds</li>
+            </ul>
+            <h5>Data Thresholds:</h5>
+            <ul>
+              <li>Temperature BME280: 0.25°C</li>
+              <li>Humidity: 1.0%</li>
+              <li>Pressure: 0.5 hPa</li>
+              <li>Altitude: 0.5m</li>
+              <li>Acceleration (all axes): 0.25 m/s²</li>
+              <li>Gyroscope (all axes): 5.0°/s</li>
+              <li>Temperature MPU: 0.25°C</li>
+            </ul>
+          </div>
+
+          <h4>Data Reception Module (lorareceivertest.py)</h4>
+          <div class="api-details">
+            <h5>Key Functions:</h5>
+            <ul>
+              <li><code>receive_lora_data()</code> - Receive LoRa transmissions</li>
+              <li><code>parse_sensor_data(raw_data)</code> - Parse received data</li>
+              <li><code>log_to_csv(data)</code> - Write data to CSV file</li>
+              <li><code>calculate_statistics(data_history)</code> - Compute min/max/avg</li>
+              <li><code>archive_old_logs()</code> - Manage log file rotation</li>
+            </ul>
+          </div>
+
+          <h4>Web Server Module (app.py)</h4>
+          <div class="api-details">
+            <h5>Key Functions:</h5>
+            <ul>
+              <li><code>update_data_history(new_data)</code> - Add data to history buffer</li>
+              <li><code>generate_chart_data()</code> - Format data for Chart.js</li>
+              <li><code>serve_log_files()</code> - Handle file downloads</li>
+              <li><code>cleanup_port(port)</code> - Port management utility</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="hardware">
+      <h2>Hardware Schematics and Wiring Diagrams</h2>
+      <div class="hardware-diagrams">
+        <h3>Raspberry Pi Wiring Diagram</h3>
+        <div class="wiring-diagram">
+          <h4>BME280 Connections (I2C)</h4>
+          <div class="ascii-diagram">
+            <pre>
+Raspberry Pi Zero 2 W          BME280 Sensor
+┌─────────────────┐            ┌─────────────┐
+│ Pin 1  (3.3V)   │─────────── │ VCC         │
+│ Pin 3  (SDA)    │─────────── │ SDA         │
+│ Pin 5  (SCL)    │─────────── │ SCL         │
+│ Pin 9  (GND)    │─────────── │ GND         │
+└─────────────────┘            └─────────────┘
+
+I2C Address: 0x76
+Pull-up resistors: 4.7kΩ (built-in on Pi)
+            </pre>
+          </div>
+
+          <h4>MPU6050 Connections (I2C)</h4>
+          <div class="ascii-diagram">
+            <pre>
+Raspberry Pi Zero 2 W          MPU6050 IMU
+┌─────────────────┐            ┌─────────────┐
+│ Pin 1  (3.3V)   │─────────── │ VCC         │
+│ Pin 3  (SDA)    │─────────── │ SDA         │
+│ Pin 5  (SCL)    │─────────── │ SCL         │
+│ Pin 9  (GND)    │─────────── │ GND         │
+│ Pin 11 (GPIO17) │─────────── │ INT         │
+└─────────────────┘            └─────────────┘
+
+I2C Address: 0x68
+Interrupt pin: GPIO17 (optional)
+            </pre>
+          </div>
+
+          <h4>LoRa Module Connections (UART)</h4>
+          <div class="ascii-diagram">
+            <pre>
+Raspberry Pi Zero 2 W          LoRa Module
+┌─────────────────┐            ┌─────────────┐
+│ Pin 2  (5V)     │─────────── │ VCC         │
+│ Pin 6  (GND)    │─────────── │ GND         │
+│ Pin 8  (TXD)    │─────────── │ RXD         │
+│ Pin 10 (RXD)    │─────────── │ TXD         │
+└─────────────────┘            └─────────────┘
+
+UART: /dev/ttyUSB0 (via USB adapter)
+Baud Rate: 9600
+Flow Control: None
+            </pre>
+          </div>
+        </div>
+
+        <h3>PC Station Wiring</h3>
+        <div class="wiring-diagram">
+          <h4>LoRa Receiver Setup</h4>
+          <div class="ascii-diagram">
+            <pre>
+PC (Windows/Linux)             LoRa Module
+┌─────────────────┐            ┌─────────────┐
+│ USB Port        │──USB───────│ USB-Serial  │
+│                 │  Cable     │ Adapter     │
+└─────────────────┘            └─────────────┘
+                                       │
+                               ┌─────────────┐
+                               │ LoRa Module │
+                               │ (Receiver)  │
+                               └─────────────┘
+
+Connection: COM8 (Windows) / /dev/ttyUSB0 (Linux)
+USB-Serial Chip: FTDI FT232RL or CP2102
+            </pre>
+          </div>
+        </div>
+
+        <h3>Power System Diagram</h3>
+        <div class="power-diagram">
+          <h4>Submarine Power Distribution</h4>
+          <div class="ascii-diagram">
+            <pre>
+┌─────────────────┐
+│ Battery Pack    │ 7.4V Li-Po
+│ (2S 2200mAh)    │
+└─────────┬───────┘
+          │
+┌─────────▼───────┐
+│ Buck Converter  │ 7.4V → 5V
+│ (Efficiency 95%) │
+└─────────┬───────┘
+          │
+    ┌─────▼─────┬─────────┬─────────┐
+    │           │         │         │
+┌───▼────┐ ┌───▼────┐ ┌──▼────┐ ┌──▼─────┐
+│ RPi    │ │ BME280 │ │MPU6050│ │ LoRa   │
+│ 5V     │ │ 3.3V   │ │ 3.3V  │ │ 3.3V   │
+│ 500mA  │ │ 3mA    │ │ 4mA   │ │ 45mA   │
+└────────┘ └────────┘ └───────┘ └────────┘
+
+Total Current: ~550mA @ 5V
+Battery Life: ~4 hours continuous operation
+            </pre>
+          </div>
+        </div>
+
+        <h3>Mechanical Assembly</h3>
+        <div class="mechanical-diagram">
+          <h4>Submarine Enclosure Layout</h4>
+          <div class="ascii-diagram">
+            <pre>
+Side View:
+┌─────────────────────────────────────────┐
+│                                         │ ← Waterproof Seal
+│  ┌─────┐  ┌─────┐  ┌─────┐  ┌─────┐   │
+│  │ RPi │  │BME  │  │MPU  │  │LoRa │   │ ← Components
+│  │     │  │280  │  │6050 │  │     │   │
+│  └─────┘  └─────┘  └─────┘  └─────┘   │
+│                                         │
+│  ┌─────────────────────────────────┐   │
+│  │ Battery Pack (7.4V Li-Po)      │   │ ← Power System
+│  └─────────────────────────────────┘   │
+└─────────────────────────────────────────┘
+
+Dimensions: 200mm x 100mm x 60mm
+Material: ABS Plastic with O-ring seals
+Depth Rating: 10 meters (1 ATM overpressure)
+            </pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="faq">
+      <h2>Frequently Asked Questions</h2>
+      <div class="faq-section">
+        <div class="faq-item">
+          <h4>How do I set up the Raspberry Pi for TRITON?</h4>
+          <p>
+            Install Raspberry Pi OS Lite, enable I2C via <code>raspi-config</code>, install Python dependencies: 
+            <code>pip install adafruit-circuitpython-bme280 mpu6050-raspberrypi pyserial requests</code>. 
+            Connect sensors according to the wiring diagrams and run <code>python src/test.py</code>.
+          </p>
+        </div>
+
+        <div class="faq-item">
+          <h4>What is the maximum transmission range?</h4>
+          <p>
+            LoRa modules can achieve up to 15km line-of-sight transmission range in optimal conditions. 
+            Underwater operations will significantly reduce this range to approximately 50-100 meters depending 
+            on water conditions, depth, and antenna positioning.
+          </p>
+        </div>
+
+        <div class="faq-item">
+          <h4>How long does the battery last?</h4>
+          <p>
+            With a 2200mAh 7.4V Li-Po battery, TRITON operates for approximately 4 hours of continuous data 
+            collection and transmission. Power consumption can be optimized by adjusting transmission intervals 
+            and sensor reading frequency.
+          </p>
+        </div>
+
+        <div class="faq-item">
+          <h4>Can I modify the sensor thresholds?</h4>
+          <p>
+            Yes, transmission thresholds are configurable in <code>src/test.py</code>. Modify the threshold 
+            values in the <code>should_transmit()</code> function. Lower thresholds increase data frequency 
+            but consume more power and bandwidth.
+          </p>
+        </div>
+
+        <div class="faq-item">
+          <h4>How do I calibrate the sensors?</h4>
+          <p>
+            BME280: Adjust sea level pressure in the code (currently 993.9 hPa) based on your location. 
+            MPU6050: Run calibration routine by placing the device on a level surface and recording offset 
+            values for accelerometer and gyroscope.
+          </p>
+        </div>
+
+        <div class="faq-item">
+          <h4>What happens if sensors fail?</h4>
+          <p>
+            TRITON includes comprehensive error handling. If a sensor fails, the system continues operating 
+            with remaining sensors and logs error messages. The web dashboard displays "Sensor Error" for 
+            failed components while maintaining data collection from functional sensors.
+          </p>
+        </div>
+
+        <div class="faq-item">
+          <h4>How do I access the web dashboard remotely?</h4>
+          <p>
+            The Flask server runs on <code>0.0.0.0:5000</code> and is accessible from any device on the same 
+            network. Use the PC's IP address: <code>http://[PC_IP]:5000</code>. For internet access, configure 
+            port forwarding on your router or use VPN.
+          </p>
+        </div>
+
+        <div class="faq-item">
+          <h4>Can TRITON work without LoRa communication?</h4>
+          <p>
+            Yes, TRITON can operate in standalone mode. Data is logged locally on the Raspberry Pi's SD card. 
+            The web dashboard can still function using test data generation, and logs can be retrieved manually 
+            after the mission.
+          </p>
+        </div>
+
+        <div class="faq-item">
+          <h4>How do I troubleshoot I2C sensor issues?</h4>
+          <p>
+            Use <code>i2cdetect -y 1</code> to scan for connected devices. BME280 should appear at 0x76 and 
+            MPU6050 at 0x68. Check wiring connections, ensure 3.3V power supply, and verify pull-up resistors 
+            on SDA/SCL lines. Enable I2C in <code>raspi-config</code> if not already enabled.
+          </p>
+        </div>
+
+        <div class="faq-item">
+          <h4>What file formats are supported for data export?</h4>
+          <p>
+            Currently, TRITON exports data in CSV format with MET timestamps. Files include sensor readings, 
+            elapsed time, and statistical summaries. CSV files can be opened in Excel, MATLAB, Python pandas, 
+            or any data analysis software for further processing.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="container">
+        <h2>Mission Capabilities</h2>
+        <p>
+          TRITON is engineered for comprehensive submarine operations with advanced monitoring and navigation 
+          capabilities. The system provides continuous environmental monitoring for depth calculation through 
+          pressure readings, inertial navigation support through accelerometer and gyroscope data, and 
+          real-time wireless data transmission for surface monitoring and control.
+        </p>
+        
+        <p>
+          The dual-platform architecture ensures operational redundancy and reliability. The Raspberry Pi 
+          handles autonomous sensor collection and LoRa transmission, while the PC base station manages data 
+          reception, logging, statistical analysis, and web-based mission control interface. This design 
+          enables real-time monitoring of submarine operations from considerable distances while maintaining 
+          comprehensive data logging for post-mission analysis.
+        </p>
+
+        <div style="text-align: center; margin: 40px 0;">
+          <a href="/dashboard" class="cta-button">Launch Mission Control Dashboard</a>
+        </div>
       </div>
     </section>
   </div>
@@ -920,6 +1794,11 @@
       <div class="footer-content">
         <p>TRITON Autonomous Submarine Navigation System</p>
         <p>Advanced sensor integration • Real-time data transmission • Mission control interface</p>
+        <div style="margin-top: 20px;">
+          <a href="https://github.com/sebastianjulian/TRITON" target="_blank" rel="noopener" class="github-link">
+            View on GitHub
+          </a>
+        </div>
       </div>
     </div>
   </footer>

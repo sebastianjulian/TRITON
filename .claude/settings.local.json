@@ -17,7 +17,11 @@
       "Bash(dir logs)",
       "Bash(dir logsprevious_data)",
       "Bash(dir:*)",
-      "Bash(taskkill:*)"
+      "Bash(taskkill:*)",
+      "Bash(powershell:*)",
+      "Read(C:\\Users\\sebi\\OneDrive - Öffentliches Schottengymnasium der Benediktiner in Wien\\Pictures\\Screenshots/**)",
+      "Read(C:\\Users\\sebi\\OneDrive - Öffentliches Schottengymnasium der Benediktiner in Wien\\Pictures\\Screenshots/**)",
+      "Read(C:\\Users\\sebi\\OneDrive - Öffentliches Schottengymnasium der Benediktiner in Wien\\Pictures\\Screenshots/**)"
     ],
     "deny": [],
     "ask": []
