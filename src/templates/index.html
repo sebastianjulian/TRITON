@@ -31,23 +31,23 @@
     
     
     [data-theme="night"] {
-      --bg-primary: #1a1d23;
-      --bg-secondary: #2d3039;
-      --bg-tertiary: #25282f;
-      --bg-card: #343a46;
-      --bg-header: #2d3039;
-      --color-primary: #6c7fdb;
-      --color-secondary: #5a6fd8;
-      --color-accent: #4e63d2;
-      --color-text-primary: #ffffff;
-      --color-text-secondary: #e9ecef;
-      --color-text-muted: #adb5bd;
-      --color-border: #495057;
-      --color-border-accent: #6c7fdb;
-      --glow-primary: 0 0 20px rgba(108, 127, 219, 0.3);
-      --glow-accent: 0 0 15px rgba(78, 99, 210, 0.2);
-      --gradient-bg: linear-gradient(135deg, #1a1d23 0%, #2d3039 100%);
-      --gradient-card: linear-gradient(145deg, #343a46 0%, #495057 100%);
+      --bg-primary: #0f172a;
+      --bg-secondary: #1e293b;
+      --bg-tertiary: #334155;
+      --bg-card: #1e293b;
+      --bg-header: #0f172a;
+      --color-primary: #f59e0b;
+      --color-secondary: #d97706;
+      --color-accent: #f59e0b;
+      --color-text-primary: #f8fafc;
+      --color-text-secondary: #e2e8f0;
+      --color-text-muted: #94a3b8;
+      --color-border: #475569;
+      --color-border-accent: #f59e0b;
+      --glow-primary: 0 0 20px rgba(245, 158, 11, 0.3);
+      --glow-accent: 0 0 15px rgba(217, 119, 6, 0.2);
+      --gradient-bg: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      --gradient-card: linear-gradient(145deg, #1e293b 0%, #334155 100%);
     }
     
     [data-theme="light-ocean"] {
@@ -945,7 +945,7 @@
       }
       
       setupEventListeners() {
-        const themeOptions = document.querySelectorAll('.theme-option');
+        const themeOptions = document.querySelectorAll('.theme-button');
         themeOptions.forEach(option => {
           option.addEventListener('click', () => {
             const theme = option.getAttribute('data-theme');
@@ -962,7 +962,7 @@
       }
       
       updateActiveButton() {
-        const themeOptions = document.querySelectorAll('.theme-option');
+        const themeOptions = document.querySelectorAll('.theme-button');
         themeOptions.forEach(option => {
           option.classList.remove('active');
           if (option.getAttribute('data-theme') === this.currentTheme) {
