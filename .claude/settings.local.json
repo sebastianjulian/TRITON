@@ -16,7 +16,8 @@
       "Read(C:\\Users\\sebi\\OneDrive - Öffentliches Schottengymnasium der Benediktiner in Wien\\Pictures\\Screenshots/**)",
       "Bash(dir logs)",
       "Bash(dir logsprevious_data)",
-      "Bash(dir:*)"
+      "Bash(dir:*)",
+      "Bash(taskkill:*)"
     ],
     "deny": [],
     "ask": []

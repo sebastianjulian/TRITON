@@ -139,7 +139,7 @@ kill_port(5000)
 app = Flask(__name__, template_folder='templates')
 
 # Directory setup for downloads
-LOG_DIR = "logs"
+LOG_DIR = os.path.abspath("logs")
 ARCHIVE_DIR = os.path.join(LOG_DIR, "previous_data")
 os.makedirs(LOG_DIR, exist_ok=True)
 os.makedirs(ARCHIVE_DIR, exist_ok=True)

@@ -401,10 +401,10 @@
       <button id="startStopBtn" onclick="toggleDataGeneration()">Start Test Data</button>
       <select id="speedSelect" onchange="updateSpeed()" style="background-color: #1c1d22; color: #f0f0f0; border: 1px solid #333; padding: 8px 12px; border-radius: 6px;">
         <option value="0.5">0.5x Speed (4s)</option>
-        <option value="1" selected>1x Speed (2s)</option>
+        <option value="1">1x Speed (2s)</option>
         <option value="2">2x Speed (1s)</option>
         <option value="5">5x Speed (0.4s)</option>
-        <option value="10">10x Speed (0.2s)</option>
+        <option value="10" selected>10x Speed (0.2s)</option>
       </select>
       <button id="clearBtn" onclick="clearTestData()" style="background-color: #ef4444;">Clear Data</button>
     </div>
@@ -624,7 +624,7 @@
 
     let dataGenerationInterval = null;
     let isGenerating = false;
-    let currentSpeed = 1; // Default 1x speed
+    let currentSpeed = 10; // Default 10x speed
     const baseInterval = 2000; // Base interval in milliseconds (2 seconds)
 
     async function generateSingleDataPoint() {
@@ -679,7 +679,7 @@
         dataGenerationInterval = null;
       }
       
-      startStopBtn.textContent = "▶️ Start Test Data";
+      startStopBtn.textContent = "Start Test Data";
       startStopBtn.style.backgroundColor = "#38bdf8";
       statusSpan.textContent = "⏸️ Test data generation stopped";
       statusSpan.style.color = "#fbbf24";
