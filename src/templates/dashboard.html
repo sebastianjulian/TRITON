@@ -3,27 +3,135 @@
 <head>
   <meta charset="UTF-8" />
   <title>Mission Control TRITON</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
+    :root {
+      /* Dark Ocean (Default) */
+      --bg-primary: #0a1520;
+      --bg-secondary: #1a2a3a;
+      --bg-tertiary: #0f1f2f;
+      --bg-card: #1f3545;
+      --bg-header: #14242f;
+      --color-primary: #00aaff;
+      --color-secondary: #0088cc;
+      --color-accent: #0066aa;
+      --color-text-primary: #ffffff;
+      --color-text-secondary: #e0f0ff;
+      --color-text-muted: #b0c5dd;
+      --color-border: #2a4050;
+      --color-border-accent: #00aaff;
+      --glow-primary: 0 0 20px rgba(0, 170, 255, 0.3);
+      --glow-accent: 0 0 15px rgba(0, 102, 170, 0.2);
+      --gradient-bg: linear-gradient(135deg, #0a1520 0%, #1a2a3a 100%);
+      --gradient-card: linear-gradient(145deg, #1f3545 0%, #2a4050 100%);
+    }
+    
+    
+    [data-theme="night"] {
+      --bg-primary: #0f172a;
+      --bg-secondary: #1e293b;
+      --bg-tertiary: #334155;
+      --bg-card: #1e293b;
+      --bg-header: #0f172a;
+      --color-primary: #f59e0b;
+      --color-secondary: #d97706;
+      --color-accent: #f59e0b;
+      --color-text-primary: #f8fafc;
+      --color-text-secondary: #e2e8f0;
+      --color-text-muted: #94a3b8;
+      --color-border: #475569;
+      --color-border-accent: #f59e0b;
+      --glow-primary: 0 0 20px rgba(245, 158, 11, 0.3);
+      --glow-accent: 0 0 15px rgba(217, 119, 6, 0.2);
+      --gradient-bg: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      --gradient-card: linear-gradient(145deg, #1e293b 0%, #334155 100%);
+    }
+    
+    [data-theme="light-ocean"] {
+      --bg-primary: #a5d6f3;
+      --bg-secondary: #7cc7e8;
+      --bg-tertiary: #5bb8dd;
+      --bg-card: #9dd1f1;
+      --bg-header: #85c9ea;
+      --color-primary: #0ea5e9;
+      --color-secondary: #0284c7;
+      --color-accent: #0369a1;
+      --color-text-primary: #0a3a52;
+      --color-text-secondary: #0f4a66;
+      --color-text-muted: #1e5a7a;
+      --color-border: #6bb8df;
+      --color-border-accent: #0ea5e9;
+      --glow-primary: 0 0 15px rgba(14, 165, 233, 0.3);
+      --glow-accent: 0 0 12px rgba(3, 105, 161, 0.2);
+      --gradient-bg: linear-gradient(135deg, #a5d6f3 0%, #7cc7e8 100%);
+      --gradient-card: linear-gradient(145deg, #9dd1f1 0%, #6bb8df 100%);
+    }
+    
+    * {
+      transition: color 0.4s ease, background-color 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease, background 0.4s ease;
+    }
+
+    /* Theme transition animations */
+    :root {
+      transition: all 0.4s ease;
+    }
+    
+    body, header, section, .chart-box {
+      transition: background 0.4s ease, color 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease;
+    }
+
     body {
       margin: 0;
       padding: 0;
-      background-color: #0f1115;
-      color: #f0f0f0;
-      font-family: "Segoe UI", sans-serif;
+      background: var(--gradient-bg);
+      color: var(--color-text-primary);
+      font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      min-height: 100vh;
+      position: relative;
+    }
+    
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle at 25% 25%, var(--color-primary)10, transparent 50%),
+                  radial-gradient(circle at 75% 75%, var(--color-accent)08, transparent 50%);
+      pointer-events: none;
+      z-index: -1;
     }
 
     header {
-      background-color: #1e1f26;
+      background: var(--bg-header);
       padding: 20px;
       text-align: center;
-      border-bottom: 2px solid #2d2f36;
+      border-bottom: 2px solid var(--color-border-accent);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(10px);
+      position: relative;
+    }
+    
+    header::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--color-primary), transparent);
+      box-shadow: var(--glow-primary);
     }
 
     header h1 {
       margin: 0;
       font-size: 1.8em;
-      color: #ffffff;
+      color: var(--color-text-primary);
+      text-shadow: var(--glow-primary);
     }
 
     section {
@@ -31,11 +139,24 @@
     }
 
     h2 {
-      color: #e2e2e2;
+      color: var(--color-text-primary);
       margin-top: 40px;
       font-size: 1.4em;
-      border-left: 4px solid #0061a8;
+      border-left: 4px solid var(--color-primary);
       padding-left: 12px;
+      text-shadow: var(--glow-accent);
+      position: relative;
+    }
+    
+    h2::before {
+      content: '';
+      position: absolute;
+      left: -4px;
+      top: 0;
+      width: 4px;
+      height: 100%;
+      background: var(--color-primary);
+      box-shadow: var(--glow-primary);
     }
 
     .grid-2col {
@@ -46,19 +167,43 @@
     }
 
     .chart-box {
-      background-color: #1c1d22;
-      padding: 16px;
-      border-radius: 12px;
-      box-shadow: 0 0 10px #00000044;
+      background: var(--gradient-card);
+      padding: 20px;
+      border-radius: 16px;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
       display: flex;
       flex-direction: column;
+      border: 1px solid var(--color-border);
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .chart-box::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: radial-gradient(circle at top left, var(--color-primary)05, transparent 50%);
+      pointer-events: none;
+    }
+    
+    .chart-box:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.5), var(--glow-primary);
+      border-color: var(--color-primary);
     }
 
     .chart-box h3 {
-      margin: 0 0 10px;
+      margin: 0 0 15px;
       text-align: center;
       font-size: 1.1em;
-      color: #ddd;
+      color: var(--color-text-primary);
+      font-weight: 600;
+      text-shadow: var(--glow-accent);
     }
 
     canvas {
@@ -73,15 +218,18 @@
     }
 
     th, td {
-      border: 1px solid #333;
-      padding: 8px 12px;
+      border: 1px solid var(--color-border);
+      padding: 10px 15px;
       text-align: center;
-      color: #ccc;
+      color: var(--color-text-secondary);
+      font-family: 'JetBrains Mono', monospace;
     }
 
     th {
-      background-color: #222;
-      color: #fff;
+      background: var(--gradient-card);
+      color: var(--color-text-primary);
+      font-weight: 600;
+      text-shadow: var(--glow-accent);
     }
 
     .download-controls {
@@ -98,35 +246,146 @@
     }
 
     .download-controls button {
-      background-color: #38bdf8;
-      color: #000;
+      background: var(--color-primary);
+      color: var(--bg-primary);
       cursor: pointer;
+      box-shadow: var(--glow-primary);
+      border: 1px solid var(--color-primary);
+      transition: all 0.3s ease;
+      font-weight: 600;
+    }
+    
+    .download-controls button:hover {
+      background: var(--color-accent);
+      box-shadow: var(--glow-accent);
+      transform: translateY(-1px);
     }
 
     .download-controls select {
-      background-color: #1c1d22;
-      color: #f0f0f0;
+      background: var(--bg-card);
+      color: var(--color-text-primary);
+      border: 1px solid var(--color-border);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
     }
 
     .back-btn {
-      background-color: #38bdf8;
-      color: #000;
+      background: var(--color-primary);
+      color: var(--bg-primary);
       padding: 10px 20px;
       text-decoration: none;
-      border-radius: 6px;
+      border-radius: 8px;
       font-weight: 600;
       font-size: 0.9em;
       transition: all 0.3s ease;
+      box-shadow: var(--glow-primary);
+      border: 1px solid var(--color-primary);
     }
 
     .back-btn:hover {
-      background-color: #0ea5e9;
+      background: var(--color-accent);
+      transform: translateY(-2px);
+      box-shadow: var(--glow-accent);
+    }
+    
+    /* Theme Selector Styles */
+    .theme-selector {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 1000;
+      background: var(--gradient-card);
+      border: 1px solid var(--color-border);
+      border-radius: 12px;
+      padding: 12px;
+      box-shadow: var(--glow-primary), 0 8px 25px rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(10px);
+      transition: all 0.3s ease;
+    }
+    
+    .theme-selector:hover {
+      box-shadow: var(--glow-accent), 0 12px 35px rgba(0, 0, 0, 0.5);
+    }
+    
+    .theme-selector h4 {
+      margin: 0 0 8px 0;
+      color: var(--color-text-primary);
+      font-size: 0.8em;
+      font-weight: 600;
+      text-align: center;
+    }
+    
+    .theme-options {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      min-width: 140px;
+    }
+    
+    .theme-options::-webkit-scrollbar {
+      width: 3px;
+    }
+    
+    .theme-options::-webkit-scrollbar-track {
+      background: var(--bg-primary);
+    }
+    
+    .theme-options::-webkit-scrollbar-thumb {
+      background: var(--color-primary);
+      border-radius: 2px;
+    }
+    
+    .theme-option {
+      padding: 8px 12px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--color-border);
+      border-radius: 6px;
+      color: var(--color-text-secondary);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 0.85em;
+      font-weight: 500;
+      text-align: center;
+    }
+    
+    .theme-option:hover {
+      background: var(--color-primary);
+      color: var(--bg-primary);
       transform: translateY(-1px);
-      box-shadow: 0 2px 10px rgba(56, 189, 248, 0.3);
+      box-shadow: var(--glow-primary);
+    }
+    
+    .theme-option.active {
+      background: var(--color-primary);
+      color: var(--bg-primary);
+      border-color: var(--color-primary);
+      box-shadow: var(--glow-primary);
+    }
+    
+    
+    @media (max-width: 768px) {
+      .theme-selector {
+        top: 10px;
+        right: 10px;
+        padding: 8px;
+      }
+      
+      .theme-options {
+        min-width: 120px;
+      }
     }
   </style>
 </head>
 <body>
+  <!-- Theme Selector -->
+  <div class="theme-selector">
+    <h4>🎨 Themes</h4>
+    <div class="theme-options">
+      <div class="theme-option active" data-theme="dark-ocean">Dark Ocean</div>
+      <div class="theme-option" data-theme="night">Night</div>
+      <div class="theme-option" data-theme="light-ocean">Light Ocean</div>
+    </div>
+  </div>
+  
   <header>
     <div style="display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto;">
       <a href="/" class="back-btn">← Back to Homepage</a>
@@ -230,6 +489,11 @@
 
     function createChart(id, label) {
       const ctx = document.getElementById(id).getContext("2d");
+      // Get current theme colors
+      const computedStyle = getComputedStyle(document.documentElement);
+      const primaryColor = computedStyle.getPropertyValue('--color-primary').trim();
+      const backgroundColor = primaryColor + '20'; // Add transparency
+      
       return new Chart(ctx, {
         type: "line",
         data: {
@@ -237,8 +501,8 @@
           datasets: [{
             label: label,
             data: [],
-            borderColor: "#38bdf8",
-            backgroundColor: "rgba(56,189,248,0.1)",
+            borderColor: primaryColor,
+            backgroundColor: backgroundColor,
             borderWidth: 2,
             pointRadius: 0,
             tension: 0.3
@@ -251,18 +515,18 @@
           scales: {
             x: {
               type: "linear",
-              title: { display: true, text: "Elapsed [s]", color: "#aaa" },
-              ticks: { color: "#ccc" },
-              grid: { color: "#333" }
+              title: { display: true, text: "Elapsed [s]", color: computedStyle.getPropertyValue('--color-text-muted').trim() },
+              ticks: { color: computedStyle.getPropertyValue('--color-text-secondary').trim() },
+              grid: { color: computedStyle.getPropertyValue('--color-border').trim() }
             },
             y: {
-              title: { display: true, text: label, color: "#aaa" },
-              ticks: { color: "#ccc" },
-              grid: { color: "#333" }
+              title: { display: true, text: label, color: computedStyle.getPropertyValue('--color-text-muted').trim() },
+              ticks: { color: computedStyle.getPropertyValue('--color-text-secondary').trim() },
+              grid: { color: computedStyle.getPropertyValue('--color-border').trim() }
             }
           },
           plugins: {
-            legend: { labels: { color: "#eee" } }
+            legend: { labels: { color: computedStyle.getPropertyValue('--color-text-primary').trim() } }
           }
         }
       });
@@ -487,7 +751,75 @@
       }
     }
 
+    // Theme Management System
+    class ThemeManager {
+      constructor() {
+        this.currentTheme = localStorage.getItem('triton-theme') || 'dark-ocean';
+        this.init();
+      }
+      
+      init() {
+        this.applyTheme(this.currentTheme);
+        this.setupEventListeners();
+        this.updateActiveButton();
+        this.updateChartColors();
+      }
+      
+      applyTheme(themeName) {
+        document.documentElement.setAttribute('data-theme', themeName);
+        this.currentTheme = themeName;
+        localStorage.setItem('triton-theme', themeName);
+        // Update chart colors when theme changes
+        setTimeout(() => this.updateChartColors(), 100);
+      }
+      
+      updateChartColors() {
+        // Get current theme colors
+        const computedStyle = getComputedStyle(document.documentElement);
+        const primaryColor = computedStyle.getPropertyValue('--color-primary').trim();
+        const accentColor = computedStyle.getPropertyValue('--color-accent').trim();
+        
+        // Update all existing charts
+        Object.values(chartRefs).forEach(chart => {
+          if (chart && chart.data && chart.data.datasets && chart.data.datasets[0]) {
+            chart.data.datasets[0].borderColor = primaryColor;
+            chart.data.datasets[0].backgroundColor = primaryColor + '20';
+            chart.update('none');
+          }
+        });
+      }
+      
+      setupEventListeners() {
+        const themeOptions = document.querySelectorAll('.theme-option');
+        themeOptions.forEach(option => {
+          option.addEventListener('click', () => {
+            const theme = option.getAttribute('data-theme');
+            this.applyTheme(theme);
+            this.updateActiveButton();
+            
+            // Add visual feedback
+            option.style.transform = 'scale(0.95)';
+            setTimeout(() => {
+              option.style.transform = '';
+            }, 150);
+          });
+        });
+      }
+      
+      updateActiveButton() {
+        const themeOptions = document.querySelectorAll('.theme-option');
+        themeOptions.forEach(option => {
+          option.classList.remove('active');
+          if (option.getAttribute('data-theme') === this.currentTheme) {
+            option.classList.add('active');
+          }
+        });
+      }
+    }
+
     window.onload = () => {
+      // Initialize theme management
+      new ThemeManager();
       loadArchivedLogs();
       setInterval(fetchData, 1000);
     };
