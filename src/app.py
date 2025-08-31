@@ -98,6 +98,8 @@ import signal
 import subprocess
 import atexit
 import platform
+import random
+import time
 
 from flask import Flask, request, jsonify, render_template, send_from_directory
 from datetime import datetime
@@ -186,6 +188,66 @@ def get_data():
         "timestamp": latest_data["timestamp"],
         "history": history
     })
+
+@app.route("/generate_random_data", methods=["POST"])
+def generate_random_data():
+    global latest_data, history
+    
+    # Get current elapsed time or start from 0
+    current_elapsed = history["Elapsed [s]"][-1] if history["Elapsed [s]"] else 0
+    new_elapsed = current_elapsed + random.uniform(1.0, 3.0)  # 1-3 second increment
+    
+    # Generate realistic sensor data
+    random_data = {
+        "Elapsed [s]": round(new_elapsed, 2),
+        "Temp_BME280 [°C]": round(random.uniform(15.0, 35.0) + random.gauss(0, 0.5), 2),
+        "Hum [%]": round(random.uniform(30.0, 80.0) + random.gauss(0, 2.0), 1),
+        "Press [hPa]": round(random.uniform(980.0, 1020.0) + random.gauss(0, 1.0), 1),
+        "Alt [m]": round(random.uniform(-50.0, 200.0) + random.gauss(0, 5.0), 1),
+        "Acc x [m/s²]": round(random.gauss(0, 0.3), 3),
+        "Acc y [m/s²]": round(random.gauss(0, 0.3), 3),
+        "Acc z [m/s²]": round(random.uniform(9.5, 10.2) + random.gauss(0, 0.2), 3),  # Gravity + noise
+        "Gyro x [°/s]": round(random.gauss(0, 10.0), 2),
+        "Gyro y [°/s]": round(random.gauss(0, 10.0), 2),
+        "Gyro z [°/s]": round(random.gauss(0, 10.0), 2),
+        "Temp_MPU [°C]": round(random.uniform(20.0, 40.0) + random.gauss(0, 0.5), 2)
+    }
+    
+    # Create properly formatted data structure
+    generated_payload = {
+        "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "data": random_data
+    }
+    
+    # Update global data structures (same as /update endpoint)
+    latest_data = generated_payload
+    history["Elapsed [s]"].append(new_elapsed)
+    
+    for key in history:
+        if key != "Elapsed [s]":
+            try:
+                history[key].append(float(random_data[key]))
+            except:
+                history[key].append(None)
+    
+    return jsonify({"status": "success", "message": "Random data generated"})
+
+@app.route("/clear_test_data", methods=["POST"])
+def clear_test_data():
+    global latest_data, history
+    
+    # Clear all data
+    latest_data = {"timestamp": "", "data": {}}
+    history = {"Elapsed [s]": []}  # Reset to empty arrays
+    for key in [
+        "Temp_BME280 [°C]", "Hum [%]", "Press [hPa]", "Alt [m]",
+        "Acc x [m/s²]", "Acc y [m/s²]", "Acc z [m/s²]",
+        "Gyro x [°/s]", "Gyro y [°/s]", "Gyro z [°/s]",
+        "Temp_MPU [°C]"
+    ]:
+        history[key] = []
+    
+    return jsonify({"status": "success", "message": "Test data cleared"})
 
 @app.route('/download/latest')
 def download_latest():

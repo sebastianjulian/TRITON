@@ -176,6 +176,14 @@
     </table>
   </section>
 
+  <!-- Test Data Generation Section -->
+  <section class="download-controls">
+    <h2>Mission Control</h2>
+    <button id="startStopBtn" onclick="toggleDataGeneration()">▶️ Start Test Data</button>
+    <button id="clearBtn" onclick="clearTestData()" style="background-color: #ef4444; margin-left: 10px;">🗑️ Clear Data</button>
+    <span id="generateStatus" style="margin-left: 15px; color: #38bdf8;"></span>
+  </section>
+
   <!-- Download Section -->
   <section class="download-controls">
     <h2>Download Logs</h2>
@@ -296,6 +304,121 @@
     function downloadSelected() {
       const file = document.getElementById("logSelect").value;
       if (file) window.location.href = `/download/archive/${encodeURIComponent(file)}`;
+    }
+
+    let dataGenerationInterval = null;
+    let isGenerating = false;
+
+    async function generateSingleDataPoint() {
+      try {
+        const response = await fetch("/generate_random_data", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          }
+        });
+        
+        const result = await response.json();
+        if (result.status !== "success") {
+          throw new Error(result.message || "Unknown error");
+        }
+      } catch (error) {
+        console.error("Error generating random data:", error);
+        // Stop generation on error
+        stopDataGeneration();
+      }
+    }
+
+    function startDataGeneration() {
+      if (isGenerating) return;
+      
+      isGenerating = true;
+      const startStopBtn = document.getElementById("startStopBtn");
+      const statusSpan = document.getElementById("generateStatus");
+      
+      startStopBtn.textContent = "⏸️ Stop Test Data";
+      startStopBtn.style.backgroundColor = "#ef4444";
+      statusSpan.textContent = "🟢 Generating test data...";
+      statusSpan.style.color = "#22c55e";
+      
+      // Generate data every 2 seconds (similar to real sensor frequency)
+      dataGenerationInterval = setInterval(generateSingleDataPoint, 2000);
+      
+      // Generate first data point immediately
+      generateSingleDataPoint();
+    }
+
+    function stopDataGeneration() {
+      if (!isGenerating) return;
+      
+      isGenerating = false;
+      const startStopBtn = document.getElementById("startStopBtn");
+      const statusSpan = document.getElementById("generateStatus");
+      
+      if (dataGenerationInterval) {
+        clearInterval(dataGenerationInterval);
+        dataGenerationInterval = null;
+      }
+      
+      startStopBtn.textContent = "▶️ Start Test Data";
+      startStopBtn.style.backgroundColor = "#38bdf8";
+      statusSpan.textContent = "⏸️ Test data generation stopped";
+      statusSpan.style.color = "#fbbf24";
+      
+      // Clear status message after 3 seconds
+      setTimeout(() => {
+        if (!isGenerating) statusSpan.textContent = "";
+      }, 3000);
+    }
+
+    function toggleDataGeneration() {
+      if (isGenerating) {
+        stopDataGeneration();
+      } else {
+        startDataGeneration();
+      }
+    }
+
+    async function clearTestData() {
+      const clearBtn = document.getElementById("clearBtn");
+      const statusSpan = document.getElementById("generateStatus");
+      
+      // Stop data generation first
+      if (isGenerating) {
+        stopDataGeneration();
+      }
+      
+      clearBtn.disabled = true;
+      clearBtn.textContent = "🗑️ Clearing...";
+      
+      try {
+        const response = await fetch("/clear_test_data", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          }
+        });
+        
+        const result = await response.json();
+        
+        if (result.status === "success") {
+          statusSpan.textContent = "✅ All test data cleared!";
+          statusSpan.style.color = "#22c55e";
+          // Clear status message after 3 seconds
+          setTimeout(() => {
+            statusSpan.textContent = "";
+          }, 3000);
+        } else {
+          throw new Error(result.message || "Unknown error");
+        }
+      } catch (error) {
+        statusSpan.textContent = "❌ Error clearing data";
+        statusSpan.style.color = "#ef4444";
+        console.error("Error clearing test data:", error);
+      } finally {
+        clearBtn.disabled = false;
+        clearBtn.textContent = "🗑️ Clear Data";
+      }
     }
 
     window.onload = () => {
