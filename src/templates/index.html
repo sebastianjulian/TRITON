@@ -1083,7 +1083,6 @@
         <a href="#api">API</a>
         <a href="#hardware">Hardware</a>
         <a href="#faq">FAQ</a>
-        <a href="https://github.com/sebastianjulian/TRITON" target="_blank" rel="noopener">GitHub</a>
         <!-- Theme Selector -->
         <div class="theme-selector">
           <div class="theme-dropdown">
@@ -1108,9 +1107,9 @@
     <div class="container">
       <div class="hero-content">
         <p class="hero-description">
-          An advanced dual-platform submarine navigation system that evolved from our CanSat project. 
-          TRITON combines sophisticated sensor technology with real-time data transmission to provide 
-          comprehensive underwater monitoring and navigation capabilities for autonomous submarine operations.
+          A submarine navigation system that evolved from our CanSat project. 
+          TRITON uses sensors and wireless data transmission to provide 
+          underwater monitoring and navigation for autonomous submarine operations.
         </p>
         <a href="/dashboard" class="cta-button">Access Mission Control</a>
       </div>
@@ -1121,54 +1120,54 @@
     <section id="overview">
       <h2>Project Overview</h2>
       <p>
-        TRITON represents the evolution of our satellite simulation project into a sophisticated autonomous 
-        submarine navigation system. Designed for real-world underwater operations, TRITON integrates 
-        environmental monitoring with inertial navigation to provide comprehensive submarine guidance and 
-        mission-critical data collection capabilities.
+        TRITON evolved from our satellite simulation project into an autonomous 
+        submarine navigation system. Built for real underwater operations, TRITON combines 
+        environmental monitoring with motion sensors to provide submarine guidance and 
+        data collection.
       </p>
 
       <div class="features-grid">
         <div class="feature-card">
           <h4>Environmental Monitoring</h4>
           <p>
-            Advanced BME280 sensor provides precise temperature, humidity, pressure, and altitude measurements. 
-            Pressure readings enable accurate depth calculation for underwater navigation, while environmental 
-            data supports mission planning and safety protocols.
+            BME280 sensor reads temperature, humidity, pressure, and altitude. 
+            Pressure readings calculate depth for underwater navigation, while environmental 
+            data helps with mission planning and safety.
           </p>
         </div>
 
         <div class="feature-card">
           <h4>Inertial Navigation</h4>
           <p>
-            MPU6050 inertial measurement unit delivers 6-axis motion sensing with 3-axis accelerometer and 
-            3-axis gyroscope. This provides real-time orientation tracking, motion detection, and navigation 
-            support for autonomous submarine operations.
+            MPU6050 motion sensor provides 6-axis sensing with accelerometer and 
+            gyroscope. This gives real-time orientation tracking, motion detection, and navigation 
+            support for submarine operations.
           </p>
         </div>
 
         <div class="feature-card">
           <h4>Wireless Communication</h4>
           <p>
-            LoRa long-range wireless technology enables reliable data transmission between submarine and 
-            surface operations. Real-time sensor data streaming supports remote monitoring and mission control 
-            from considerable distances.
+            LoRa wireless modules enable data transmission between submarine and 
+            surface station. Real-time sensor data streaming allows remote monitoring and mission control 
+            from long distances.
           </p>
         </div>
 
         <div class="feature-card">
           <h4>Real-time Dashboard</h4>
           <p>
-            Web-based mission control interface provides live visualization of all sensor data, statistical 
-            analysis, and comprehensive logging. Chart.js integration delivers professional-grade data 
-            visualization for operational analysis.
+            Web-based mission control shows live sensor data, statistics, 
+            and logging. Chart.js provides data 
+            visualization for analysis.
           </p>
         </div>
 
         <div class="feature-card">
           <h4>Data Logging</h4>
           <p>
-            Comprehensive CSV logging with automatic archiving ensures mission data integrity. Threshold-based 
-            data transmission reduces network overhead while maintaining critical data resolution for post-mission analysis.
+            CSV logging with automatic archiving saves mission data. Threshold-based 
+            transmission reduces network traffic while keeping important data for later analysis.
           </p>
         </div>
 
@@ -1185,7 +1184,7 @@
     <section id="architecture" class="mission-overview">
       <div class="container">
         <h2>System Architecture</h2>
-        <p>TRITON operates on a sophisticated dual-platform architecture designed for maximum reliability and real-time performance:</p>
+        <p>TRITON uses a two-part system designed for reliability and real-time performance:</p>
         
         <div class="data-flow">
         <div class="flow-step">
@@ -1279,14 +1278,14 @@
     <section id="documentation">
       <h2>Documentation</h2>
       <p>
-        Comprehensive documentation and resources for TRITON development, deployment, and operation.
+        Documentation and resources for TRITON development, setup, and operation.
       </p>
 
       <div class="features-grid">
         <div class="feature-card">
           <h4>System Architecture Diagrams</h4>
           <div class="diagram-section">
-            <h5>Dual-Platform Architecture</h5>
+            <h5>Two-Part System Architecture</h5>
             <div class="ascii-diagram">
               <pre>
 ┌─────────────────┐    LoRa     ┌─────────────────┐
@@ -1721,92 +1720,91 @@ Depth Rating: 10 meters (1 ATM overpressure)
       <h2>Frequently Asked Questions</h2>
       <div class="faq-section">
         <div class="faq-item">
-          <h4>How do I set up the Raspberry Pi for TRITON?</h4>
+          <h4>What sensors does TRITON use?</h4>
           <p>
-            Install Raspberry Pi OS Lite, enable I2C via <code>raspi-config</code>, install Python dependencies: 
-            <code>pip install adafruit-circuitpython-bme280 mpu6050-raspberrypi pyserial requests</code>. 
-            Connect sensors according to the wiring diagrams and run <code>python src/test.py</code>.
+            TRITON uses a BME280 environmental sensor for temperature, humidity, pressure, and altitude readings, 
+            plus an MPU6050 motion sensor for acceleration and rotation data. Both connect via I2C to the Raspberry Pi.
           </p>
         </div>
 
         <div class="faq-item">
-          <h4>What is the maximum transmission range?</h4>
+          <h4>How far can the submarine communicate?</h4>
           <p>
-            LoRa modules can achieve up to 15km line-of-sight transmission range in optimal conditions. 
-            Underwater operations will significantly reduce this range to approximately 50-100 meters depending 
-            on water conditions, depth, and antenna positioning.
+            LoRa has a range of up to 15km in open air. Underwater, the range drops significantly to maybe 50-100 meters 
+            depending on water clarity, depth, and antenna setup. For deeper operations, you'd need a tethered buoy or 
+            surface float for the transmitter.
           </p>
         </div>
 
         <div class="faq-item">
-          <h4>How long does the battery last?</h4>
+          <h4>How long will the battery last?</h4>
           <p>
-            With a 2200mAh 7.4V Li-Po battery, TRITON operates for approximately 4 hours of continuous data 
-            collection and transmission. Power consumption can be optimized by adjusting transmission intervals 
-            and sensor reading frequency.
+            About 4 hours with a 2200mAh 7.4V battery running continuously. You can extend this by reducing 
+            how often it transmits data or by using a bigger battery pack. The Pi and sensors don't use much power, 
+            but the LoRa transmission eats up most of the battery.
           </p>
         </div>
 
         <div class="faq-item">
-          <h4>Can I modify the sensor thresholds?</h4>
+          <h4>Can I change when it sends data?</h4>
           <p>
-            Yes, transmission thresholds are configurable in <code>src/test.py</code>. Modify the threshold 
-            values in the <code>should_transmit()</code> function. Lower thresholds increase data frequency 
-            but consume more power and bandwidth.
+            Yes, you can edit the thresholds in <code>src/test.py</code> in the <code>should_transmit()</code> function. 
+            Lower thresholds mean it sends data more often (uses more battery), higher thresholds mean less frequent 
+            updates but longer battery life.
           </p>
         </div>
 
         <div class="faq-item">
-          <h4>How do I calibrate the sensors?</h4>
+          <h4>Do I need to calibrate anything?</h4>
           <p>
-            BME280: Adjust sea level pressure in the code (currently 993.9 hPa) based on your location. 
-            MPU6050: Run calibration routine by placing the device on a level surface and recording offset 
-            values for accelerometer and gyroscope.
+            For the pressure sensor, you'll want to update the sea level pressure value in the code to match your location 
+            (check a weather site). The motion sensor works pretty well out of the box, but you can calibrate it by 
+            placing it flat and still to get baseline readings.
           </p>
         </div>
 
         <div class="faq-item">
-          <h4>What happens if sensors fail?</h4>
+          <h4>What if a sensor stops working?</h4>
           <p>
-            TRITON includes comprehensive error handling. If a sensor fails, the system continues operating 
-            with remaining sensors and logs error messages. The web dashboard displays "Sensor Error" for 
-            failed components while maintaining data collection from functional sensors.
+            The system keeps running with whatever sensors still work. If the pressure sensor fails, you lose depth info 
+            but still get motion data. If everything fails, it'll keep trying and log error messages. 
+            The dashboard will show "Sensor Error" for broken parts.
           </p>
         </div>
 
         <div class="faq-item">
-          <h4>How do I access the web dashboard remotely?</h4>
+          <h4>How do I check the data from another computer?</h4>
           <p>
-            The Flask server runs on <code>0.0.0.0:5000</code> and is accessible from any device on the same 
-            network. Use the PC's IP address: <code>http://[PC_IP]:5000</code>. For internet access, configure 
-            port forwarding on your router or use VPN.
+            Find the IP address of the computer running the dashboard (use <code>ipconfig</code> on Windows), then 
+            go to <code>http://[that-IP]:5000</code> on any browser on the same wifi network. To access from outside 
+            your network, you'd need to set up port forwarding on your router.
           </p>
         </div>
 
         <div class="faq-item">
-          <h4>Can TRITON work without LoRa communication?</h4>
+          <h4>Can it work without wireless?</h4>
           <p>
-            Yes, TRITON can operate in standalone mode. Data is logged locally on the Raspberry Pi's SD card. 
-            The web dashboard can still function using test data generation, and logs can be retrieved manually 
-            after the mission.
+            Yes, it'll still collect and save data to the SD card even if the LoRa isn't working. 
+            You just won't see live updates on the dashboard. After the mission, you can pull the SD card 
+            and grab the CSV files with all the sensor data.
           </p>
         </div>
 
         <div class="faq-item">
-          <h4>How do I troubleshoot I2C sensor issues?</h4>
+          <h4>The sensors aren't working, what should I check?</h4>
           <p>
-            Use <code>i2cdetect -y 1</code> to scan for connected devices. BME280 should appear at 0x76 and 
-            MPU6050 at 0x68. Check wiring connections, ensure 3.3V power supply, and verify pull-up resistors 
-            on SDA/SCL lines. Enable I2C in <code>raspi-config</code> if not already enabled.
+            First, make sure I2C is enabled on the Pi (<code>sudo raspi-config</code> > Interface Options > I2C). 
+            Check your wiring - sensors need 3.3V power and ground, plus SDA/SCL data lines. Run <code>i2cdetect -y 1</code> 
+            to see if the Pi can find the sensors (should show 0x68 and 0x76).
           </p>
         </div>
 
         <div class="faq-item">
-          <h4>What file formats are supported for data export?</h4>
+          <h4>How waterproof is this thing?</h4>
           <p>
-            Currently, TRITON exports data in CSV format with MET timestamps. Files include sensor readings, 
-            elapsed time, and statistical summaries. CSV files can be opened in Excel, MATLAB, Python pandas, 
-            or any data analysis software for further processing.
+            The sensors themselves are pretty fragile and not waterproof at all. You'd need to build a proper 
+            waterproof enclosure with sealed cable penetrations. The pressure sensor can handle some moisture 
+            but the electronics definitely can't. Most people test this in pools or shallow water first.
           </p>
         </div>
       </div>
@@ -1816,18 +1814,18 @@ Depth Rating: 10 meters (1 ATM overpressure)
       <div class="container">
         <h2>Mission Capabilities</h2>
         <p>
-          TRITON is engineered for comprehensive submarine operations with advanced monitoring and navigation 
-          capabilities. The system provides continuous environmental monitoring for depth calculation through 
-          pressure readings, inertial navigation support through accelerometer and gyroscope data, and 
-          real-time wireless data transmission for surface monitoring and control.
+          TRITON is built for submarine operations with monitoring and navigation 
+          features. The system continuously monitors the environment for depth calculation through 
+          pressure readings, provides navigation data through accelerometer and gyroscope sensors, and 
+          transmits data wirelessly to the surface for monitoring and control.
         </p>
         
         <p>
-          The dual-platform architecture ensures operational redundancy and reliability. The Raspberry Pi 
-          handles autonomous sensor collection and LoRa transmission, while the PC base station manages data 
-          reception, logging, statistical analysis, and web-based mission control interface. This design 
-          enables real-time monitoring of submarine operations from considerable distances while maintaining 
-          comprehensive data logging for post-mission analysis.
+          The two-part system ensures reliability. The Raspberry Pi 
+          handles sensor data collection and LoRa transmission, while the PC base station receives data, 
+          logs it, runs statistics, and hosts the web interface. This setup 
+          allows real-time monitoring of submarine operations from long distances while keeping 
+          detailed data logs for later analysis.
         </p>
 
         <div style="text-align: center; margin: 40px 0;">
@@ -1842,11 +1840,6 @@ Depth Rating: 10 meters (1 ATM overpressure)
       <div class="footer-content">
         <p>TRITON Autonomous Submarine Navigation System</p>
         <p>Advanced sensor integration • Real-time data transmission • Mission control interface</p>
-        <div style="margin-top: 20px;">
-          <a href="https://github.com/sebastianjulian/TRITON" target="_blank" rel="noopener" class="github-link">
-            View on GitHub
-          </a>
-        </div>
       </div>
     </div>
   </footer>

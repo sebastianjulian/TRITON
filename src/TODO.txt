@@ -1,13 +1,63 @@
+TODO
+
+Questions:
+    - If you want the data to be transmitted to the website, you will either have to stay nearby or provide the submarine with internet access
+
+Documentation:
+    - system architecture diagrams
+    - subsystem Documentation
+    - software api references
+    - hardware schematics and wiring diagrams
+    - FAQs
+    - Github link
+    - software feature update
+    - hardware upgrade history
+
+Dashboard:
+    * Data Values
+        - depth
+        - orientation (with 3d-model)
+        - GPS
+        - power consumption
+        - battery level
+        - clock
+
+    * Map
+        - map with live location (appropriate zoom level)
+        - geotagged sensor readings (where (geographically) are the min/max values)
+
+    * Graphs
+        - graphs colors (for high values red, low values blue, ...)
+        - graph values prediction
+        - data correlation (allows user to create graphs and to select which to values (e.g. temp vs depth) should be correlated (chosen for the axes))
+ 
+
+
+Features:
+    *Remote Control and Security: 
+        - control via lora/view mode (no inputs = default) (needs a login so that not everyone can control it)
+        - command logs (who issued what command when)
+        - advance warning (recognise patterns which could lead to failure or future problems)
+        - secure login with role based acces
+        - two factor authentication for mission control
+        - encrypted communication
+        - ???VPN/TOR for remote access???
+
+
+    * Emergency Situations
+        - emergency surfacing
+        - problem detection (leaks, low battery, geofence breach) with auto emergency surfacing
+
+    * Navigation
+        - inertial navigation via gyroscope (calculate distance from acceleration)
+    
+    * Miscellaneous
+        - run files while booting
+        - object recognition from images/video
+    
+
+   
+  
+Old:
 - axes scales
 - stop/resume/pause/new file buttons
-- open file folder button
-
-- run files while booting
-
-- layout
-- more futuristic design
-- send commands via lora?
-- inertial navigation via gyroscope (calculate distance from acceleration)
-- graphs colors (for high values red, low values blue, ...)
-- clock
-- map
