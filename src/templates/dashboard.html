@@ -457,6 +457,216 @@
       transform: translateY(-2px);
       box-shadow: var(--glow-accent);
     }
+
+    /* Time Range Filter Styles */
+    .time-filter-section {
+      background: var(--gradient-card);
+      padding: 20px;
+      border-radius: 16px;
+      margin-top: 20px;
+      border: 1px solid var(--color-border);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+    }
+
+    .time-filter-section h3 {
+      margin: 0 0 15px 0;
+      color: var(--color-text-primary);
+      font-size: 1.1em;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .time-filter-section h3::before {
+      content: '';
+      width: 4px;
+      height: 20px;
+      background: var(--color-primary);
+      border-radius: 2px;
+      box-shadow: var(--glow-primary);
+    }
+
+    .time-filter-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .time-preset-btn {
+      padding: 8px 16px;
+      background: var(--bg-tertiary);
+      color: var(--color-text-secondary);
+      border: 1px solid var(--color-border);
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.85em;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+
+    .time-preset-btn:hover {
+      background: var(--bg-card);
+      border-color: var(--color-primary);
+      color: var(--color-text-primary);
+      box-shadow: var(--glow-accent);
+    }
+
+    .time-preset-btn.active {
+      background: var(--color-primary);
+      color: var(--bg-primary);
+      border-color: var(--color-primary);
+      box-shadow: var(--glow-primary);
+      font-weight: 600;
+    }
+
+    .time-filter-divider {
+      width: 1px;
+      height: 30px;
+      background: var(--color-border);
+      margin: 0 5px;
+    }
+
+    .custom-range-container {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      background: var(--bg-tertiary);
+      border-radius: 8px;
+      border: 1px solid var(--color-border);
+    }
+
+    .custom-range-container.active {
+      border-color: var(--color-primary);
+      box-shadow: var(--glow-accent);
+    }
+
+    .custom-range-label {
+      font-size: 0.8em;
+      color: var(--color-text-muted);
+      font-weight: 500;
+    }
+
+    .custom-range-input {
+      width: 70px;
+      padding: 6px 10px;
+      background: var(--bg-secondary);
+      color: var(--color-text-primary);
+      border: 1px solid var(--color-border);
+      border-radius: 4px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85em;
+      text-align: center;
+    }
+
+    .custom-range-input:focus {
+      outline: none;
+      border-color: var(--color-primary);
+      box-shadow: var(--glow-accent);
+    }
+
+    .custom-range-input::placeholder {
+      color: var(--color-text-muted);
+      opacity: 0.6;
+    }
+
+    .apply-custom-btn {
+      padding: 6px 12px;
+      background: var(--color-secondary);
+      color: var(--bg-primary);
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.8em;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .apply-custom-btn:hover {
+      background: var(--color-primary);
+      box-shadow: var(--glow-primary);
+    }
+
+    .time-filter-info {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid var(--color-border);
+      font-size: 0.85em;
+      color: var(--color-text-muted);
+    }
+
+    .time-filter-info span {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .time-filter-info .info-value {
+      color: var(--color-text-primary);
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 500;
+    }
+
+    .export-filtered-btn {
+      margin-left: auto;
+      padding: 8px 16px;
+      background: var(--color-accent);
+      color: var(--color-text-primary);
+      border: 1px solid var(--color-primary);
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.85em;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .export-filtered-btn:hover {
+      background: var(--color-primary);
+      color: var(--bg-primary);
+      box-shadow: var(--glow-primary);
+    }
+
+    .export-filtered-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    @media (max-width: 768px) {
+      .time-filter-controls {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .time-filter-divider {
+        width: 100%;
+        height: 1px;
+        margin: 5px 0;
+      }
+
+      .custom-range-container {
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+
+      .time-filter-info {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+      }
+
+      .export-filtered-btn {
+        margin-left: 0;
+        width: 100%;
+        justify-content: center;
+      }
+    }
     
     /* Theme Selector Styles */
     .theme-selector {
@@ -624,6 +834,33 @@
     </div>
     <div style="margin-top: 10px;">
       <span id="generateStatus" style="color: #38bdf8;"></span>
+    </div>
+
+    <!-- Time Range Filter -->
+    <div class="time-filter-section">
+      <h3>Time Range Filter</h3>
+      <div class="time-filter-controls">
+        <button class="time-preset-btn active" data-preset="all" onclick="setTimeFilter('all')">All Data</button>
+        <button class="time-preset-btn" data-preset="30" onclick="setTimeFilter(30)">Last 30s</button>
+        <button class="time-preset-btn" data-preset="60" onclick="setTimeFilter(60)">Last 1min</button>
+        <button class="time-preset-btn" data-preset="300" onclick="setTimeFilter(300)">Last 5min</button>
+
+        <div class="time-filter-divider"></div>
+
+        <div class="custom-range-container" id="customRangeContainer">
+          <span class="custom-range-label">Custom:</span>
+          <input type="number" class="custom-range-input" id="customFromTime" placeholder="From (s)" min="0" step="0.1">
+          <span class="custom-range-label">to</span>
+          <input type="number" class="custom-range-input" id="customToTime" placeholder="To (s)" min="0" step="0.1">
+          <button class="apply-custom-btn" onclick="applyCustomRange()">Apply</button>
+        </div>
+      </div>
+
+      <div class="time-filter-info">
+        <span>Total points: <span class="info-value" id="totalPointsCount">0</span></span>
+        <span>Filtered points: <span class="info-value" id="filteredPointsCount">0</span></span>
+        <span>Time range: <span class="info-value" id="currentTimeRange">All</span></span>
+      </div>
     </div>
   </section>
 
@@ -889,11 +1126,53 @@
     <div style="margin-top: 10px;">
       <span id="folderStatus" style="color: #38bdf8;"></span>
     </div>
+
+    <!-- Export Filtered Data -->
+    <div class="time-filter-section" style="margin-top: 30px;">
+      <h3>Export Filtered Data</h3>
+      <div class="time-filter-controls">
+        <button class="time-preset-btn active" data-export-preset="all" onclick="setExportFilter('all')">All Data</button>
+        <button class="time-preset-btn" data-export-preset="30" onclick="setExportFilter(30)">Last 30s</button>
+        <button class="time-preset-btn" data-export-preset="60" onclick="setExportFilter(60)">Last 1min</button>
+        <button class="time-preset-btn" data-export-preset="300" onclick="setExportFilter(300)">Last 5min</button>
+
+        <div class="time-filter-divider"></div>
+
+        <div class="custom-range-container" id="exportCustomRangeContainer">
+          <span class="custom-range-label">Custom:</span>
+          <input type="number" class="custom-range-input" id="exportFromTime" placeholder="From (s)" min="0" step="0.1">
+          <span class="custom-range-label">to</span>
+          <input type="number" class="custom-range-input" id="exportToTime" placeholder="To (s)" min="0" step="0.1">
+          <button class="apply-custom-btn" onclick="applyExportCustomRange()">Apply</button>
+        </div>
+      </div>
+
+      <div class="time-filter-info">
+        <span>Points to export: <span class="info-value" id="exportPointsCount">0</span></span>
+        <span>Export range: <span class="info-value" id="exportTimeRange">All</span></span>
+        <button class="export-filtered-btn" onclick="exportFilteredData()" id="exportFilteredBtn">
+          <span>Export Filtered CSV</span>
+        </button>
+      </div>
+    </div>
   </section>
 
   <!-- Chart and Data Script -->
   <script>
     const chartRefs = {};
+    // Full history storage (all data from server)
+    let fullHistory = {};
+    // Current time filter settings (for display)
+    let currentTimeFilter = {
+      type: 'all',  // 'all', 'preset', 'custom'
+      value: null,  // seconds for preset, or {from, to} for custom
+    };
+    // Export time filter settings (separate from display filter)
+    let exportTimeFilter = {
+      type: 'all',
+      value: null,
+    };
+
     const fields = {
       "Temp_BME280 [°C]": "bme",
       "Hum [%]": "bme",
@@ -1071,20 +1350,146 @@
       return [min.toFixed(2), max.toFixed(2), (sum / values.length).toFixed(2)];
     }
 
-    async function fetchData() {
-      const res = await fetch("/data");
-      const json = await res.json();
-      const elapsed = json.history["Elapsed [s]"];
+    // Time Range Filter Functions
+    function filterDataByTimeRange(history, filter) {
+      const elapsed = history["Elapsed [s]"] || [];
+      if (!elapsed.length) return history;
+
+      let startIdx = 0;
+      let endIdx = elapsed.length - 1;
+
+      if (filter.type === 'all') {
+        // Return all data
+        return history;
+      } else if (filter.type === 'preset') {
+        // Filter to last N seconds
+        const maxTime = elapsed[elapsed.length - 1];
+        const minTime = maxTime - filter.value;
+        startIdx = elapsed.findIndex(t => t >= minTime);
+        if (startIdx === -1) startIdx = 0;
+      } else if (filter.type === 'custom') {
+        // Filter to custom range
+        const { from, to } = filter.value;
+        startIdx = elapsed.findIndex(t => t >= from);
+        if (startIdx === -1) startIdx = 0;
+        endIdx = elapsed.findIndex(t => t > to);
+        if (endIdx === -1) endIdx = elapsed.length;
+        else endIdx = endIdx - 1;
+      }
+
+      // Create filtered history
+      const filteredHistory = {};
+      for (const key in history) {
+        if (Array.isArray(history[key])) {
+          filteredHistory[key] = history[key].slice(startIdx, endIdx + 1);
+        } else {
+          filteredHistory[key] = history[key];
+        }
+      }
+
+      return filteredHistory;
+    }
+
+    function setTimeFilter(preset) {
+      // Update active button
+      document.querySelectorAll('.time-preset-btn').forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.dataset.preset === String(preset)) {
+          btn.classList.add('active');
+        }
+      });
+
+      // Update custom range container
+      const customContainer = document.getElementById('customRangeContainer');
+      customContainer.classList.remove('active');
+
+      // Clear custom inputs
+      document.getElementById('customFromTime').value = '';
+      document.getElementById('customToTime').value = '';
+
+      // Set filter
+      if (preset === 'all') {
+        currentTimeFilter = { type: 'all', value: null };
+        updateTimeRangeDisplay('All');
+      } else {
+        currentTimeFilter = { type: 'preset', value: preset };
+        updateTimeRangeDisplay(`Last ${formatDuration(preset)}`);
+      }
+
+      // Refresh display with new filter
+      updateFilteredDisplay();
+    }
+
+    function applyCustomRange() {
+      const fromInput = document.getElementById('customFromTime');
+      const toInput = document.getElementById('customToTime');
+
+      const from = parseFloat(fromInput.value);
+      const to = parseFloat(toInput.value);
+
+      // Validation
+      if (isNaN(from) && isNaN(to)) {
+        // If both empty, show all
+        setTimeFilter('all');
+        return;
+      }
+
+      const elapsed = fullHistory["Elapsed [s]"] || [];
+      const maxTime = elapsed.length ? elapsed[elapsed.length - 1] : 0;
+      const minTime = elapsed.length ? elapsed[0] : 0;
+
+      // Default values if only one is provided
+      const validFrom = isNaN(from) ? minTime : Math.max(from, minTime);
+      const validTo = isNaN(to) ? maxTime : Math.min(to, maxTime);
+
+      if (validFrom > validTo) {
+        alert('Invalid range: "From" must be less than "To"');
+        return;
+      }
+
+      // Update UI
+      document.querySelectorAll('.time-preset-btn').forEach(btn => btn.classList.remove('active'));
+      document.getElementById('customRangeContainer').classList.add('active');
+
+      // Set filter
+      currentTimeFilter = {
+        type: 'custom',
+        value: { from: validFrom, to: validTo }
+      };
+
+      updateTimeRangeDisplay(`${validFrom.toFixed(1)}s - ${validTo.toFixed(1)}s`);
+      updateFilteredDisplay();
+    }
+
+    function formatDuration(seconds) {
+      if (seconds < 60) return `${seconds}s`;
+      if (seconds < 3600) return `${Math.floor(seconds / 60)}min`;
+      return `${Math.floor(seconds / 3600)}h`;
+    }
+
+    function updateTimeRangeDisplay(text) {
+      document.getElementById('currentTimeRange').textContent = text;
+    }
+
+    function updateFilterInfo(totalPoints, filteredPoints) {
+      document.getElementById('totalPointsCount').textContent = totalPoints;
+      document.getElementById('filteredPointsCount').textContent = filteredPoints;
+    }
+
+    function updateFilteredDisplay() {
+      // Apply filter to full history
+      const filteredHistory = filterDataByTimeRange(fullHistory, currentTimeFilter);
+      const elapsed = filteredHistory["Elapsed [s]"] || [];
       const bmeRows = [], mpuRows = [];
 
+      // Update charts and statistics with filtered data
       for (const [id, group] of Object.entries(fields)) {
-        const values = json.history[id] || [];
-        if (!chartRefs[id]) {
-          chartRefs[id] = createChart(id, id);
+        const values = filteredHistory[id] || [];
+        if (chartRefs[id]) {
+          chartRefs[id].data.labels = elapsed;
+          chartRefs[id].data.datasets[0].data = values;
+          chartRefs[id].update('none');
         }
-        chartRefs[id].data.labels = elapsed;
-        chartRefs[id].data.datasets[0].data = values;
-        chartRefs[id].update('none'); // Preserve zoom state during updates
 
         const [min, max, avg] = computeStats(values);
         const row = `<tr><td>${id}</td><td>${min}</td><td>${max}</td><td>${avg}</td></tr>`;
@@ -1093,6 +1498,162 @@
 
       document.getElementById("bmeSummary").innerHTML = bmeRows.join("");
       document.getElementById("mpuSummary").innerHTML = mpuRows.join("");
+
+      // Update filter info
+      const totalPoints = (fullHistory["Elapsed [s]"] || []).length;
+      const filteredPoints = elapsed.length;
+      updateFilterInfo(totalPoints, filteredPoints);
+    }
+
+    // Export Filter Functions (separate from display filter)
+    function setExportFilter(preset) {
+      // Update active button (only export preset buttons)
+      document.querySelectorAll('[data-export-preset]').forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.dataset.exportPreset === String(preset)) {
+          btn.classList.add('active');
+        }
+      });
+
+      // Update custom range container
+      const customContainer = document.getElementById('exportCustomRangeContainer');
+      customContainer.classList.remove('active');
+
+      // Clear custom inputs
+      document.getElementById('exportFromTime').value = '';
+      document.getElementById('exportToTime').value = '';
+
+      // Set filter
+      if (preset === 'all') {
+        exportTimeFilter = { type: 'all', value: null };
+        updateExportRangeDisplay('All');
+      } else {
+        exportTimeFilter = { type: 'preset', value: preset };
+        updateExportRangeDisplay(`Last ${formatDuration(preset)}`);
+      }
+
+      // Update export info
+      updateExportFilterInfo();
+    }
+
+    function applyExportCustomRange() {
+      const fromInput = document.getElementById('exportFromTime');
+      const toInput = document.getElementById('exportToTime');
+
+      const from = parseFloat(fromInput.value);
+      const to = parseFloat(toInput.value);
+
+      // Validation
+      if (isNaN(from) && isNaN(to)) {
+        setExportFilter('all');
+        return;
+      }
+
+      const elapsed = fullHistory["Elapsed [s]"] || [];
+      const maxTime = elapsed.length ? elapsed[elapsed.length - 1] : 0;
+      const minTime = elapsed.length ? elapsed[0] : 0;
+
+      const validFrom = isNaN(from) ? minTime : Math.max(from, minTime);
+      const validTo = isNaN(to) ? maxTime : Math.min(to, maxTime);
+
+      if (validFrom > validTo) {
+        alert('Invalid range: "From" must be less than "To"');
+        return;
+      }
+
+      // Update UI
+      document.querySelectorAll('[data-export-preset]').forEach(btn => btn.classList.remove('active'));
+      document.getElementById('exportCustomRangeContainer').classList.add('active');
+
+      // Set filter
+      exportTimeFilter = {
+        type: 'custom',
+        value: { from: validFrom, to: validTo }
+      };
+
+      updateExportRangeDisplay(`${validFrom.toFixed(1)}s - ${validTo.toFixed(1)}s`);
+      updateExportFilterInfo();
+    }
+
+    function updateExportRangeDisplay(text) {
+      document.getElementById('exportTimeRange').textContent = text;
+    }
+
+    function updateExportFilterInfo() {
+      const filteredHistory = filterDataByTimeRange(fullHistory, exportTimeFilter);
+      const exportPoints = (filteredHistory["Elapsed [s]"] || []).length;
+      document.getElementById('exportPointsCount').textContent = exportPoints;
+
+      // Disable export button if no data
+      const exportBtn = document.getElementById('exportFilteredBtn');
+      exportBtn.disabled = exportPoints === 0;
+    }
+
+    function exportFilteredData() {
+      const filteredHistory = filterDataByTimeRange(fullHistory, exportTimeFilter);
+      const elapsed = filteredHistory["Elapsed [s]"] || [];
+
+      if (elapsed.length === 0) {
+        alert('No data to export');
+        return;
+      }
+
+      // Build CSV content
+      const headers = ["Elapsed [s]", ...Object.keys(fields)];
+      let csv = headers.join(",") + "\n";
+
+      for (let i = 0; i < elapsed.length; i++) {
+        const row = [elapsed[i].toFixed(3)];
+        for (const field of Object.keys(fields)) {
+          const values = filteredHistory[field] || [];
+          row.push(values[i] !== undefined ? values[i].toFixed(3) : '');
+        }
+        csv += row.join(",") + "\n";
+      }
+
+      // Create download
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+
+      // Generate filename with filter info
+      let filename = 'triton_filtered_';
+      if (exportTimeFilter.type === 'all') {
+        filename += 'all';
+      } else if (exportTimeFilter.type === 'preset') {
+        filename += `last_${exportTimeFilter.value}s`;
+      } else {
+        filename += `${exportTimeFilter.value.from.toFixed(0)}-${exportTimeFilter.value.to.toFixed(0)}s`;
+      }
+      filename += `_${new Date().toISOString().slice(0, 19).replace(/[:-]/g, '')}.csv`;
+
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    async function fetchData() {
+      const res = await fetch("/data");
+      const json = await res.json();
+
+      // Store full history
+      fullHistory = json.history;
+
+      // Initialize charts if not already created
+      for (const [id, group] of Object.entries(fields)) {
+        if (!chartRefs[id]) {
+          chartRefs[id] = createChart(id, id);
+        }
+      }
+
+      // Apply time filter and update display
+      updateFilteredDisplay();
+
+      // Update export filter info as well
+      updateExportFilterInfo();
     }
 
     async function loadArchivedLogs() {

@@ -24,7 +24,7 @@
 |-------|-----------|------|------------|--------|
 | 1 | 2 | Chart Interactivity | Low | ✅ Completed |
 | 2 | 6 | Extended Statistics | Low | ⬜ Not Started |
-| 3 | 7 | Time Range Filtering | Medium | ⬜ Not Started |
+| 3 | 7 | Time Range Filtering | Medium | ✅ Completed |
 | 4 | 8 | Multi-Metric Correlation | Medium | ⬜ Not Started |
 | 5 | 16 | Mission Comparison | Medium | ⬜ Not Started |
 | 6 | 17 | Mission Replay | Medium | ⬜ Not Started |
@@ -294,7 +294,7 @@ Update this section as features are completed:
 ```
 [x] Feature 2: Chart Interactivity (Completed Dec 2024)
 [ ] Feature 6: Extended Statistics
-[ ] Feature 7: Time Range Filtering
+[x] Feature 7: Time Range Filtering (Completed Dec 2024)
 [ ] Feature 8: Multi-Metric Correlation
 [ ] Feature 10: Configuration UI
 [ ] Feature 12: Export Formats
