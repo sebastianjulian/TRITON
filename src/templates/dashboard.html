@@ -311,6 +311,64 @@
       border-color: var(--color-primary);
     }
 
+    .zoom-controls {
+      display: flex;
+      gap: 4px;
+      align-items: center;
+    }
+
+    .zoom-btn, .pan-btn {
+      background: var(--bg-tertiary);
+      color: var(--color-text-secondary);
+      border: 1px solid var(--color-border);
+      border-radius: 4px;
+      width: 26px;
+      height: 26px;
+      font-size: 0.85em;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      opacity: 0.7;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+    }
+
+    .zoom-btn:hover, .pan-btn:hover {
+      background: var(--color-primary);
+      color: var(--bg-primary);
+      opacity: 1;
+      box-shadow: var(--glow-primary);
+      border-color: var(--color-primary);
+    }
+
+    .chart-controls {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 8px;
+      flex-wrap: wrap;
+    }
+
+    .control-group {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      background: var(--bg-tertiary);
+      border-radius: 6px;
+      padding: 3px;
+      border: 1px solid var(--color-border);
+    }
+
+    .control-label {
+      font-size: 0.65em;
+      color: var(--color-text-muted);
+      padding: 0 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
     .chart-controls-hint {
       font-size: 0.7em;
       color: var(--color-text-muted);
@@ -572,39 +630,83 @@
   <!-- BME280 Section -->
   <section id="bme280">
     <h2>BME280 Sensor</h2>
-    <p class="chart-controls-hint">🖱️ Scroll to zoom • Drag to select zoom area • Ctrl+Drag to pan • Click legend to toggle</p>
+    <p class="chart-controls-hint">Use controls below each chart to zoom and pan • Drag to select zoom area • Click legend to toggle</p>
     <div class="grid-2col">
       <div class="chart-box">
-        <div class="chart-header">
-          <button class="reset-zoom-btn" onclick="resetChartZoom('Temp_BME280 [°C]')">Reset</button>
-          <h3>Temperature [°C]</h3>
-          <div style="width: 50px;"></div>
-        </div>
+        <h3>Temperature [°C]</h3>
         <canvas id="Temp_BME280 [°C]"></canvas>
+        <div class="chart-controls">
+          <div class="control-group">
+            <span class="control-label">Zoom</span>
+            <button class="zoom-btn" onclick="zoomChart('Temp_BME280 [°C]', 'out')">−</button>
+            <button class="zoom-btn" onclick="zoomChart('Temp_BME280 [°C]', 'in')">+</button>
+          </div>
+          <div class="control-group">
+            <span class="control-label">Pan</span>
+            <button class="pan-btn" onclick="panChart('Temp_BME280 [°C]', 'left')">←</button>
+            <button class="pan-btn" onclick="panChart('Temp_BME280 [°C]', 'right')">→</button>
+            <button class="pan-btn" onclick="panChart('Temp_BME280 [°C]', 'up')">↑</button>
+            <button class="pan-btn" onclick="panChart('Temp_BME280 [°C]', 'down')">↓</button>
+          </div>
+          <button class="reset-zoom-btn" onclick="resetChartZoom('Temp_BME280 [°C]')">Reset</button>
+        </div>
       </div>
       <div class="chart-box">
-        <div class="chart-header">
-          <button class="reset-zoom-btn" onclick="resetChartZoom('Hum [%]')">Reset</button>
-          <h3>Humidity [%]</h3>
-          <div style="width: 50px;"></div>
-        </div>
+        <h3>Humidity [%]</h3>
         <canvas id="Hum [%]"></canvas>
+        <div class="chart-controls">
+          <div class="control-group">
+            <span class="control-label">Zoom</span>
+            <button class="zoom-btn" onclick="zoomChart('Hum [%]', 'out')">−</button>
+            <button class="zoom-btn" onclick="zoomChart('Hum [%]', 'in')">+</button>
+          </div>
+          <div class="control-group">
+            <span class="control-label">Pan</span>
+            <button class="pan-btn" onclick="panChart('Hum [%]', 'left')">←</button>
+            <button class="pan-btn" onclick="panChart('Hum [%]', 'right')">→</button>
+            <button class="pan-btn" onclick="panChart('Hum [%]', 'up')">↑</button>
+            <button class="pan-btn" onclick="panChart('Hum [%]', 'down')">↓</button>
+          </div>
+          <button class="reset-zoom-btn" onclick="resetChartZoom('Hum [%]')">Reset</button>
+        </div>
       </div>
       <div class="chart-box">
-        <div class="chart-header">
-          <button class="reset-zoom-btn" onclick="resetChartZoom('Press [hPa]')">Reset</button>
-          <h3>Pressure [hPa]</h3>
-          <div style="width: 50px;"></div>
-        </div>
+        <h3>Pressure [hPa]</h3>
         <canvas id="Press [hPa]"></canvas>
+        <div class="chart-controls">
+          <div class="control-group">
+            <span class="control-label">Zoom</span>
+            <button class="zoom-btn" onclick="zoomChart('Press [hPa]', 'out')">−</button>
+            <button class="zoom-btn" onclick="zoomChart('Press [hPa]', 'in')">+</button>
+          </div>
+          <div class="control-group">
+            <span class="control-label">Pan</span>
+            <button class="pan-btn" onclick="panChart('Press [hPa]', 'left')">←</button>
+            <button class="pan-btn" onclick="panChart('Press [hPa]', 'right')">→</button>
+            <button class="pan-btn" onclick="panChart('Press [hPa]', 'up')">↑</button>
+            <button class="pan-btn" onclick="panChart('Press [hPa]', 'down')">↓</button>
+          </div>
+          <button class="reset-zoom-btn" onclick="resetChartZoom('Press [hPa]')">Reset</button>
+        </div>
       </div>
       <div class="chart-box">
-        <div class="chart-header">
-          <button class="reset-zoom-btn" onclick="resetChartZoom('Alt [m]')">Reset</button>
-          <h3>Altitude [m]</h3>
-          <div style="width: 50px;"></div>
-        </div>
+        <h3>Altitude [m]</h3>
         <canvas id="Alt [m]"></canvas>
+        <div class="chart-controls">
+          <div class="control-group">
+            <span class="control-label">Zoom</span>
+            <button class="zoom-btn" onclick="zoomChart('Alt [m]', 'out')">−</button>
+            <button class="zoom-btn" onclick="zoomChart('Alt [m]', 'in')">+</button>
+          </div>
+          <div class="control-group">
+            <span class="control-label">Pan</span>
+            <button class="pan-btn" onclick="panChart('Alt [m]', 'left')">←</button>
+            <button class="pan-btn" onclick="panChart('Alt [m]', 'right')">→</button>
+            <button class="pan-btn" onclick="panChart('Alt [m]', 'up')">↑</button>
+            <button class="pan-btn" onclick="panChart('Alt [m]', 'down')">↓</button>
+          </div>
+          <button class="reset-zoom-btn" onclick="resetChartZoom('Alt [m]')">Reset</button>
+        </div>
       </div>
     </div>
   </section>
@@ -612,71 +714,146 @@
   <!-- MPU6050 Section -->
   <section id="mpu6050">
     <h2>MPU6050 Sensor</h2>
-    <p class="chart-controls-hint">🖱️ Scroll to zoom • Drag to select zoom area • Ctrl+Drag to pan • Click legend to toggle</p>
+    <p class="chart-controls-hint">Use controls below each chart to zoom and pan • Drag to select zoom area • Click legend to toggle</p>
     <div class="grid-2col">
       <div class="chart-box">
-        <div class="chart-header">
-          <button class="reset-zoom-btn" onclick="resetChartZoom('Acc x [m/s²]')">Reset</button>
-          <h3>Acc X [m/s²]</h3>
-          <div style="width: 50px;"></div>
-        </div>
+        <h3>Acc X [m/s²]</h3>
         <canvas id="Acc x [m/s²]"></canvas>
+        <div class="chart-controls">
+          <div class="control-group">
+            <span class="control-label">Zoom</span>
+            <button class="zoom-btn" onclick="zoomChart('Acc x [m/s²]', 'out')">−</button>
+            <button class="zoom-btn" onclick="zoomChart('Acc x [m/s²]', 'in')">+</button>
+          </div>
+          <div class="control-group">
+            <span class="control-label">Pan</span>
+            <button class="pan-btn" onclick="panChart('Acc x [m/s²]', 'left')">←</button>
+            <button class="pan-btn" onclick="panChart('Acc x [m/s²]', 'right')">→</button>
+            <button class="pan-btn" onclick="panChart('Acc x [m/s²]', 'up')">↑</button>
+            <button class="pan-btn" onclick="panChart('Acc x [m/s²]', 'down')">↓</button>
+          </div>
+          <button class="reset-zoom-btn" onclick="resetChartZoom('Acc x [m/s²]')">Reset</button>
+        </div>
       </div>
       <div class="chart-box">
-        <div class="chart-header">
-          <button class="reset-zoom-btn" onclick="resetChartZoom('Gyro x [°/s]')">Reset</button>
-          <h3>Gyro X [°/s]</h3>
-          <div style="width: 50px;"></div>
-        </div>
+        <h3>Gyro X [°/s]</h3>
         <canvas id="Gyro x [°/s]"></canvas>
+        <div class="chart-controls">
+          <div class="control-group">
+            <span class="control-label">Zoom</span>
+            <button class="zoom-btn" onclick="zoomChart('Gyro x [°/s]', 'out')">−</button>
+            <button class="zoom-btn" onclick="zoomChart('Gyro x [°/s]', 'in')">+</button>
+          </div>
+          <div class="control-group">
+            <span class="control-label">Pan</span>
+            <button class="pan-btn" onclick="panChart('Gyro x [°/s]', 'left')">←</button>
+            <button class="pan-btn" onclick="panChart('Gyro x [°/s]', 'right')">→</button>
+            <button class="pan-btn" onclick="panChart('Gyro x [°/s]', 'up')">↑</button>
+            <button class="pan-btn" onclick="panChart('Gyro x [°/s]', 'down')">↓</button>
+          </div>
+          <button class="reset-zoom-btn" onclick="resetChartZoom('Gyro x [°/s]')">Reset</button>
+        </div>
       </div>
       <div class="chart-box">
-        <div class="chart-header">
-          <button class="reset-zoom-btn" onclick="resetChartZoom('Acc y [m/s²]')">Reset</button>
-          <h3>Acc Y [m/s²]</h3>
-          <div style="width: 50px;"></div>
-        </div>
+        <h3>Acc Y [m/s²]</h3>
         <canvas id="Acc y [m/s²]"></canvas>
+        <div class="chart-controls">
+          <div class="control-group">
+            <span class="control-label">Zoom</span>
+            <button class="zoom-btn" onclick="zoomChart('Acc y [m/s²]', 'out')">−</button>
+            <button class="zoom-btn" onclick="zoomChart('Acc y [m/s²]', 'in')">+</button>
+          </div>
+          <div class="control-group">
+            <span class="control-label">Pan</span>
+            <button class="pan-btn" onclick="panChart('Acc y [m/s²]', 'left')">←</button>
+            <button class="pan-btn" onclick="panChart('Acc y [m/s²]', 'right')">→</button>
+            <button class="pan-btn" onclick="panChart('Acc y [m/s²]', 'up')">↑</button>
+            <button class="pan-btn" onclick="panChart('Acc y [m/s²]', 'down')">↓</button>
+          </div>
+          <button class="reset-zoom-btn" onclick="resetChartZoom('Acc y [m/s²]')">Reset</button>
+        </div>
       </div>
       <div class="chart-box">
-        <div class="chart-header">
-          <button class="reset-zoom-btn" onclick="resetChartZoom('Gyro y [°/s]')">Reset</button>
-          <h3>Gyro Y [°/s]</h3>
-          <div style="width: 50px;"></div>
-        </div>
+        <h3>Gyro Y [°/s]</h3>
         <canvas id="Gyro y [°/s]"></canvas>
+        <div class="chart-controls">
+          <div class="control-group">
+            <span class="control-label">Zoom</span>
+            <button class="zoom-btn" onclick="zoomChart('Gyro y [°/s]', 'out')">−</button>
+            <button class="zoom-btn" onclick="zoomChart('Gyro y [°/s]', 'in')">+</button>
+          </div>
+          <div class="control-group">
+            <span class="control-label">Pan</span>
+            <button class="pan-btn" onclick="panChart('Gyro y [°/s]', 'left')">←</button>
+            <button class="pan-btn" onclick="panChart('Gyro y [°/s]', 'right')">→</button>
+            <button class="pan-btn" onclick="panChart('Gyro y [°/s]', 'up')">↑</button>
+            <button class="pan-btn" onclick="panChart('Gyro y [°/s]', 'down')">↓</button>
+          </div>
+          <button class="reset-zoom-btn" onclick="resetChartZoom('Gyro y [°/s]')">Reset</button>
+        </div>
       </div>
       <div class="chart-box">
-        <div class="chart-header">
-          <button class="reset-zoom-btn" onclick="resetChartZoom('Acc z [m/s²]')">Reset</button>
-          <h3>Acc Z [m/s²]</h3>
-          <div style="width: 50px;"></div>
-        </div>
+        <h3>Acc Z [m/s²]</h3>
         <canvas id="Acc z [m/s²]"></canvas>
+        <div class="chart-controls">
+          <div class="control-group">
+            <span class="control-label">Zoom</span>
+            <button class="zoom-btn" onclick="zoomChart('Acc z [m/s²]', 'out')">−</button>
+            <button class="zoom-btn" onclick="zoomChart('Acc z [m/s²]', 'in')">+</button>
+          </div>
+          <div class="control-group">
+            <span class="control-label">Pan</span>
+            <button class="pan-btn" onclick="panChart('Acc z [m/s²]', 'left')">←</button>
+            <button class="pan-btn" onclick="panChart('Acc z [m/s²]', 'right')">→</button>
+            <button class="pan-btn" onclick="panChart('Acc z [m/s²]', 'up')">↑</button>
+            <button class="pan-btn" onclick="panChart('Acc z [m/s²]', 'down')">↓</button>
+          </div>
+          <button class="reset-zoom-btn" onclick="resetChartZoom('Acc z [m/s²]')">Reset</button>
+        </div>
       </div>
       <div class="chart-box">
-        <div class="chart-header">
-          <button class="reset-zoom-btn" onclick="resetChartZoom('Gyro z [°/s]')">Reset</button>
-          <h3>Gyro Z [°/s]</h3>
-          <div style="width: 50px;"></div>
-        </div>
+        <h3>Gyro Z [°/s]</h3>
         <canvas id="Gyro z [°/s]"></canvas>
+        <div class="chart-controls">
+          <div class="control-group">
+            <span class="control-label">Zoom</span>
+            <button class="zoom-btn" onclick="zoomChart('Gyro z [°/s]', 'out')">−</button>
+            <button class="zoom-btn" onclick="zoomChart('Gyro z [°/s]', 'in')">+</button>
+          </div>
+          <div class="control-group">
+            <span class="control-label">Pan</span>
+            <button class="pan-btn" onclick="panChart('Gyro z [°/s]', 'left')">←</button>
+            <button class="pan-btn" onclick="panChart('Gyro z [°/s]', 'right')">→</button>
+            <button class="pan-btn" onclick="panChart('Gyro z [°/s]', 'up')">↑</button>
+            <button class="pan-btn" onclick="panChart('Gyro z [°/s]', 'down')">↓</button>
+          </div>
+          <button class="reset-zoom-btn" onclick="resetChartZoom('Gyro z [°/s]')">Reset</button>
+        </div>
       </div>
       <div class="chart-box">
-        <div class="chart-header">
-          <button class="reset-zoom-btn" onclick="resetChartZoom('Temp_MPU [°C]')">Reset</button>
-          <h3>Temperature [°C]</h3>
-          <div style="width: 50px;"></div>
-        </div>
+        <h3>Temperature [°C]</h3>
         <canvas id="Temp_MPU [°C]"></canvas>
+        <div class="chart-controls">
+          <div class="control-group">
+            <span class="control-label">Zoom</span>
+            <button class="zoom-btn" onclick="zoomChart('Temp_MPU [°C]', 'out')">−</button>
+            <button class="zoom-btn" onclick="zoomChart('Temp_MPU [°C]', 'in')">+</button>
+          </div>
+          <div class="control-group">
+            <span class="control-label">Pan</span>
+            <button class="pan-btn" onclick="panChart('Temp_MPU [°C]', 'left')">←</button>
+            <button class="pan-btn" onclick="panChart('Temp_MPU [°C]', 'right')">→</button>
+            <button class="pan-btn" onclick="panChart('Temp_MPU [°C]', 'up')">↑</button>
+            <button class="pan-btn" onclick="panChart('Temp_MPU [°C]', 'down')">↓</button>
+          </div>
+          <button class="reset-zoom-btn" onclick="resetChartZoom('Temp_MPU [°C]')">Reset</button>
+        </div>
       </div>
       <div class="chart-box">
-        <div class="chart-header">
-          <h3 style="opacity: 0.5;">Reset All Charts</h3>
-        </div>
+        <h3 style="opacity: 0.5;">Reset All Charts</h3>
         <div style="display: flex; justify-content: center; align-items: center; height: 100%; min-height: 150px;">
           <button onclick="resetAllZoom()" style="padding: 15px 30px; font-size: 1em; background: var(--color-primary); color: var(--bg-primary); border: none; border-radius: 8px; cursor: pointer; font-weight: 600; box-shadow: var(--glow-primary); transition: all 0.3s ease;">
-            🔄 Reset All Zoom
+            Reset All Zoom
           </button>
         </div>
       </div>
@@ -817,7 +994,7 @@
               },
               zoom: {
                 wheel: {
-                  enabled: true,
+                  enabled: false,
                 },
                 pinch: {
                   enabled: true,
@@ -856,6 +1033,33 @@
       });
     }
 
+    // Zoom in or out on a specific chart
+    function zoomChart(chartId, direction) {
+      const chart = chartRefs[chartId];
+      if (!chart) return;
+
+      const zoomFactor = direction === 'in' ? 1.2 : 0.8;
+      chart.zoom(zoomFactor);
+    }
+
+    // Pan chart in a direction
+    function panChart(chartId, direction) {
+      const chart = chartRefs[chartId];
+      if (!chart) return;
+
+      const panAmount = 50; // pixels to pan
+      let deltaX = 0, deltaY = 0;
+
+      switch(direction) {
+        case 'left':  deltaX = panAmount; break;
+        case 'right': deltaX = -panAmount; break;
+        case 'up':    deltaY = panAmount; break;
+        case 'down':  deltaY = -panAmount; break;
+      }
+
+      chart.pan({x: deltaX, y: deltaY}, undefined, 'default');
+    }
+
     function computeStats(values) {
       if (!values.length) return ["-", "-", "-"];
       let min = values[0], max = values[0], sum = 0;
@@ -880,7 +1084,7 @@
         }
         chartRefs[id].data.labels = elapsed;
         chartRefs[id].data.datasets[0].data = values;
-        chartRefs[id].update();
+        chartRefs[id].update('none'); // Preserve zoom state during updates
 
         const [min, max, avg] = computeStats(values);
         const row = `<tr><td>${id}</td><td>${min}</td><td>${max}</td><td>${avg}</td></tr>`;
