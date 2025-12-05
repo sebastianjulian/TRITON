@@ -7,6 +7,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1"></script>
   <style>
     :root {
       /* Dark Ocean (Default) */
@@ -275,6 +277,48 @@
       text-shadow: var(--glow-accent);
     }
 
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .chart-header h3 {
+      margin: 0;
+      flex: 1;
+      text-align: center;
+    }
+
+    .reset-zoom-btn {
+      background: var(--bg-tertiary);
+      color: var(--color-text-secondary);
+      border: 1px solid var(--color-border);
+      border-radius: 4px;
+      padding: 4px 10px;
+      font-size: 0.75em;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      opacity: 0.7;
+      font-weight: 500;
+    }
+
+    .reset-zoom-btn:hover {
+      background: var(--color-primary);
+      color: var(--bg-primary);
+      opacity: 1;
+      box-shadow: var(--glow-primary);
+      border-color: var(--color-primary);
+    }
+
+    .chart-controls-hint {
+      font-size: 0.7em;
+      color: var(--color-text-muted);
+      text-align: center;
+      margin-top: 8px;
+      opacity: 0.7;
+    }
+
     canvas {
       width: 100% !important;
       aspect-ratio: 1.6;
@@ -528,26 +572,114 @@
   <!-- BME280 Section -->
   <section id="bme280">
     <h2>BME280 Sensor</h2>
+    <p class="chart-controls-hint">🖱️ Scroll to zoom • Drag to select zoom area • Ctrl+Drag to pan • Click legend to toggle</p>
     <div class="grid-2col">
-      <div class="chart-box"><h3>Temperature [°C]</h3><canvas id="Temp_BME280 [°C]"></canvas></div>
-      <div class="chart-box"><h3>Humidity [%]</h3><canvas id="Hum [%]"></canvas></div>
-      <div class="chart-box"><h3>Pressure [hPa]</h3><canvas id="Press [hPa]"></canvas></div>
-      <div class="chart-box"><h3>Altitude [m]</h3><canvas id="Alt [m]"></canvas></div>
+      <div class="chart-box">
+        <div class="chart-header">
+          <button class="reset-zoom-btn" onclick="resetChartZoom('Temp_BME280 [°C]')">Reset</button>
+          <h3>Temperature [°C]</h3>
+          <div style="width: 50px;"></div>
+        </div>
+        <canvas id="Temp_BME280 [°C]"></canvas>
+      </div>
+      <div class="chart-box">
+        <div class="chart-header">
+          <button class="reset-zoom-btn" onclick="resetChartZoom('Hum [%]')">Reset</button>
+          <h3>Humidity [%]</h3>
+          <div style="width: 50px;"></div>
+        </div>
+        <canvas id="Hum [%]"></canvas>
+      </div>
+      <div class="chart-box">
+        <div class="chart-header">
+          <button class="reset-zoom-btn" onclick="resetChartZoom('Press [hPa]')">Reset</button>
+          <h3>Pressure [hPa]</h3>
+          <div style="width: 50px;"></div>
+        </div>
+        <canvas id="Press [hPa]"></canvas>
+      </div>
+      <div class="chart-box">
+        <div class="chart-header">
+          <button class="reset-zoom-btn" onclick="resetChartZoom('Alt [m]')">Reset</button>
+          <h3>Altitude [m]</h3>
+          <div style="width: 50px;"></div>
+        </div>
+        <canvas id="Alt [m]"></canvas>
+      </div>
     </div>
   </section>
 
   <!-- MPU6050 Section -->
   <section id="mpu6050">
     <h2>MPU6050 Sensor</h2>
+    <p class="chart-controls-hint">🖱️ Scroll to zoom • Drag to select zoom area • Ctrl+Drag to pan • Click legend to toggle</p>
     <div class="grid-2col">
-      <div class="chart-box"><h3>Acc X [m/s²]</h3><canvas id="Acc x [m/s²]"></canvas></div>
-      <div class="chart-box"><h3>Gyro X [°/s]</h3><canvas id="Gyro x [°/s]"></canvas></div>
-      <div class="chart-box"><h3>Acc Y [m/s²]</h3><canvas id="Acc y [m/s²]"></canvas></div>
-      <div class="chart-box"><h3>Gyro Y [°/s]</h3><canvas id="Gyro y [°/s]"></canvas></div>
-      <div class="chart-box"><h3>Acc Z [m/s²]</h3><canvas id="Acc z [m/s²]"></canvas></div>
-      <div class="chart-box"><h3>Gyro Z [°/s]</h3><canvas id="Gyro z [°/s]"></canvas></div>
-      <div class="chart-box"><h3>Temperature [°C]</h3><canvas id="Temp_MPU [°C]"></canvas></div>
-      <div class="chart-box"><h3></h3></div> <!-- Empty to keep 2-column symmetry -->
+      <div class="chart-box">
+        <div class="chart-header">
+          <button class="reset-zoom-btn" onclick="resetChartZoom('Acc x [m/s²]')">Reset</button>
+          <h3>Acc X [m/s²]</h3>
+          <div style="width: 50px;"></div>
+        </div>
+        <canvas id="Acc x [m/s²]"></canvas>
+      </div>
+      <div class="chart-box">
+        <div class="chart-header">
+          <button class="reset-zoom-btn" onclick="resetChartZoom('Gyro x [°/s]')">Reset</button>
+          <h3>Gyro X [°/s]</h3>
+          <div style="width: 50px;"></div>
+        </div>
+        <canvas id="Gyro x [°/s]"></canvas>
+      </div>
+      <div class="chart-box">
+        <div class="chart-header">
+          <button class="reset-zoom-btn" onclick="resetChartZoom('Acc y [m/s²]')">Reset</button>
+          <h3>Acc Y [m/s²]</h3>
+          <div style="width: 50px;"></div>
+        </div>
+        <canvas id="Acc y [m/s²]"></canvas>
+      </div>
+      <div class="chart-box">
+        <div class="chart-header">
+          <button class="reset-zoom-btn" onclick="resetChartZoom('Gyro y [°/s]')">Reset</button>
+          <h3>Gyro Y [°/s]</h3>
+          <div style="width: 50px;"></div>
+        </div>
+        <canvas id="Gyro y [°/s]"></canvas>
+      </div>
+      <div class="chart-box">
+        <div class="chart-header">
+          <button class="reset-zoom-btn" onclick="resetChartZoom('Acc z [m/s²]')">Reset</button>
+          <h3>Acc Z [m/s²]</h3>
+          <div style="width: 50px;"></div>
+        </div>
+        <canvas id="Acc z [m/s²]"></canvas>
+      </div>
+      <div class="chart-box">
+        <div class="chart-header">
+          <button class="reset-zoom-btn" onclick="resetChartZoom('Gyro z [°/s]')">Reset</button>
+          <h3>Gyro Z [°/s]</h3>
+          <div style="width: 50px;"></div>
+        </div>
+        <canvas id="Gyro z [°/s]"></canvas>
+      </div>
+      <div class="chart-box">
+        <div class="chart-header">
+          <button class="reset-zoom-btn" onclick="resetChartZoom('Temp_MPU [°C]')">Reset</button>
+          <h3>Temperature [°C]</h3>
+          <div style="width: 50px;"></div>
+        </div>
+        <canvas id="Temp_MPU [°C]"></canvas>
+      </div>
+      <div class="chart-box">
+        <div class="chart-header">
+          <h3 style="opacity: 0.5;">Reset All Charts</h3>
+        </div>
+        <div style="display: flex; justify-content: center; align-items: center; height: 100%; min-height: 150px;">
+          <button onclick="resetAllZoom()" style="padding: 15px 30px; font-size: 1em; background: var(--color-primary); color: var(--bg-primary); border: none; border-radius: 8px; cursor: pointer; font-weight: 600; box-shadow: var(--glow-primary); transition: all 0.3s ease;">
+            🔄 Reset All Zoom
+          </button>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -605,7 +737,7 @@
       const computedStyle = getComputedStyle(document.documentElement);
       const primaryColor = computedStyle.getPropertyValue('--color-primary').trim();
       const backgroundColor = primaryColor + '20'; // Add transparency
-      
+
       return new Chart(ctx, {
         type: "line",
         data: {
@@ -617,6 +749,10 @@
             backgroundColor: backgroundColor,
             borderWidth: 2,
             pointRadius: 0,
+            pointHoverRadius: 6,
+            pointHoverBackgroundColor: primaryColor,
+            pointHoverBorderColor: '#fff',
+            pointHoverBorderWidth: 2,
             tension: 0.3
           }]
         },
@@ -624,6 +760,10 @@
           animation: false,
           responsive: true,
           maintainAspectRatio: true,
+          interaction: {
+            mode: 'index',
+            intersect: false,
+          },
           scales: {
             x: {
               type: "linear",
@@ -638,8 +778,80 @@
             }
           },
           plugins: {
-            legend: { labels: { color: computedStyle.getPropertyValue('--color-text-primary').trim() } }
+            legend: {
+              labels: { color: computedStyle.getPropertyValue('--color-text-primary').trim() },
+              onClick: (e, legendItem, legend) => {
+                const index = legendItem.datasetIndex;
+                const chart = legend.chart;
+                const meta = chart.getDatasetMeta(index);
+                meta.hidden = meta.hidden === null ? !chart.data.datasets[index].hidden : null;
+                chart.update();
+              }
+            },
+            tooltip: {
+              enabled: true,
+              backgroundColor: 'rgba(0, 0, 0, 0.85)',
+              titleColor: '#fff',
+              bodyColor: '#fff',
+              borderColor: primaryColor,
+              borderWidth: 1,
+              cornerRadius: 8,
+              padding: 12,
+              displayColors: true,
+              callbacks: {
+                title: function(context) {
+                  const value = context[0].label;
+                  return `Time: ${parseFloat(value).toFixed(2)}s`;
+                },
+                label: function(context) {
+                  const value = context.raw;
+                  return ` ${context.dataset.label}: ${parseFloat(value).toFixed(3)}`;
+                }
+              }
+            },
+            zoom: {
+              pan: {
+                enabled: true,
+                mode: 'xy',
+                modifierKey: 'ctrl',
+              },
+              zoom: {
+                wheel: {
+                  enabled: true,
+                },
+                pinch: {
+                  enabled: true,
+                },
+                drag: {
+                  enabled: true,
+                  backgroundColor: 'rgba(0, 170, 255, 0.15)',
+                  borderColor: 'rgba(0, 170, 255, 0.8)',
+                  borderWidth: 1,
+                },
+                mode: 'xy',
+              },
+              limits: {
+                x: {min: 'original', max: 'original'},
+                y: {min: 'original', max: 'original'},
+              },
+            }
           }
+        }
+      });
+    }
+
+    // Reset zoom for a specific chart
+    function resetChartZoom(chartId) {
+      if (chartRefs[chartId] && chartRefs[chartId].resetZoom) {
+        chartRefs[chartId].resetZoom();
+      }
+    }
+
+    // Reset zoom for all charts
+    function resetAllZoom() {
+      Object.values(chartRefs).forEach(chart => {
+        if (chart && chart.resetZoom) {
+          chart.resetZoom();
         }
       });
     }
