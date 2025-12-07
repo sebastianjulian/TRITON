@@ -928,6 +928,274 @@
         font-size: 0.8em;
       }
     }
+
+    /* Multi-Metric Correlation Styles */
+    .correlation-controls {
+      background: var(--gradient-card);
+      padding: 20px;
+      border-radius: 16px;
+      margin: 20px 0;
+      border: 1px solid var(--color-border);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+    }
+
+    .correlation-selector {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      align-items: flex-end;
+    }
+
+    .selector-group {
+      flex: 1;
+      min-width: 200px;
+    }
+
+    .selector-label {
+      display: block;
+      font-size: 0.85em;
+      color: var(--color-text-muted);
+      margin-bottom: 8px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .multi-select-container {
+      position: relative;
+    }
+
+    .multi-select-btn {
+      width: 100%;
+      padding: 12px 15px;
+      background: var(--bg-tertiary);
+      color: var(--color-text-primary);
+      border: 1px solid var(--color-border);
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.9em;
+      text-align: left;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: all 0.3s ease;
+    }
+
+    .multi-select-btn:hover {
+      border-color: var(--color-primary);
+      box-shadow: var(--glow-accent);
+    }
+
+    .multi-select-btn .dropdown-arrow {
+      font-size: 0.7em;
+      color: var(--color-primary);
+      transition: transform 0.3s ease;
+    }
+
+    .multi-select-container.open .dropdown-arrow {
+      transform: rotate(180deg);
+    }
+
+    .multi-select-dropdown {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: var(--bg-card);
+      border: 1px solid var(--color-border);
+      border-radius: 8px;
+      margin-top: 4px;
+      max-height: 250px;
+      overflow-y: auto;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-10px);
+      transition: all 0.3s ease;
+      z-index: 100;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+    }
+
+    .multi-select-container.open .multi-select-dropdown {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+
+    .multi-select-option {
+      padding: 10px 15px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: all 0.2s ease;
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .multi-select-option:last-child {
+      border-bottom: none;
+    }
+
+    .multi-select-option:hover {
+      background: var(--bg-tertiary);
+    }
+
+    .multi-select-option.selected {
+      background: rgba(0, 170, 255, 0.1);
+    }
+
+    .multi-select-checkbox {
+      width: 18px;
+      height: 18px;
+      border: 2px solid var(--color-border);
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+      flex-shrink: 0;
+    }
+
+    .multi-select-option.selected .multi-select-checkbox {
+      background: var(--color-primary);
+      border-color: var(--color-primary);
+    }
+
+    .multi-select-checkbox::after {
+      content: '✓';
+      color: var(--bg-primary);
+      font-size: 0.8em;
+      font-weight: bold;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+
+    .multi-select-option.selected .multi-select-checkbox::after {
+      opacity: 1;
+    }
+
+    .multi-select-option-label {
+      flex: 1;
+      font-size: 0.85em;
+      color: var(--color-text-secondary);
+    }
+
+    .multi-select-option-color {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .correlation-update-btn {
+      padding: 12px 24px;
+      background: var(--color-primary);
+      color: var(--bg-primary);
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.9em;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      box-shadow: var(--glow-primary);
+    }
+
+    .correlation-update-btn:hover {
+      background: var(--color-secondary);
+      transform: translateY(-2px);
+    }
+
+    .correlation-clear-btn {
+      padding: 12px 20px;
+      background: var(--bg-tertiary);
+      color: var(--color-text-secondary);
+      border: 1px solid var(--color-border);
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.9em;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+
+    .correlation-clear-btn:hover {
+      background: #ef4444;
+      color: white;
+      border-color: #ef4444;
+    }
+
+    .correlation-chart-box {
+      min-height: 400px;
+    }
+
+    .correlation-chart-box canvas {
+      aspect-ratio: 2.5;
+    }
+
+    .correlation-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      justify-content: center;
+      margin-top: 15px;
+      padding-top: 15px;
+      border-top: 1px solid var(--color-border);
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.8em;
+      color: var(--color-text-secondary);
+      padding: 5px 10px;
+      background: var(--bg-tertiary);
+      border-radius: 6px;
+      border: 1px solid var(--color-border);
+    }
+
+    .legend-line {
+      width: 25px;
+      height: 3px;
+      border-radius: 2px;
+    }
+
+    .legend-line.dashed {
+      background: repeating-linear-gradient(
+        90deg,
+        currentColor 0px,
+        currentColor 5px,
+        transparent 5px,
+        transparent 10px
+      );
+      height: 3px;
+    }
+
+    .legend-axis-label {
+      font-size: 0.7em;
+      color: var(--color-text-muted);
+      text-transform: uppercase;
+      padding: 2px 6px;
+      background: var(--bg-secondary);
+      border-radius: 3px;
+    }
+
+    @media (max-width: 768px) {
+      .correlation-selector {
+        flex-direction: column;
+      }
+
+      .selector-group {
+        width: 100%;
+      }
+
+      .correlation-update-btn,
+      .correlation-clear-btn {
+        width: 100%;
+      }
+
+      .correlation-chart-box canvas {
+        aspect-ratio: 1.5;
+      }
+    }
   </style>
 </head>
 <body>
@@ -938,6 +1206,7 @@
         <a href="#mission-control">Mission Control</a>
         <a href="#bme280">BME280 Data</a>
         <a href="#mpu6050">MPU6050 Data</a>
+        <a href="#correlation">Correlation</a>
         <a href="#statistics">Statistics</a>
         <a href="#downloads">Downloads</a>
         <!-- Theme Selector -->
@@ -1234,6 +1503,68 @@
             Reset All Zoom
           </button>
         </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Multi-Metric Correlation Section -->
+  <section id="correlation">
+    <h2>Multi-Metric Correlation</h2>
+    <p class="chart-controls-hint">Compare multiple metrics on dual Y-axes • Left axis = solid lines • Right axis = dashed lines</p>
+
+    <div class="correlation-controls">
+      <div class="correlation-selector">
+        <div class="selector-group">
+          <label class="selector-label">Left Y-Axis (Solid Lines)</label>
+          <div class="multi-select-container" id="leftAxisContainer">
+            <button class="multi-select-btn" onclick="toggleMultiSelect('left')">
+              <span class="selected-count" id="leftSelectedCount">Select metrics...</span>
+              <span class="dropdown-arrow">▼</span>
+            </button>
+            <div class="multi-select-dropdown" id="leftAxisDropdown">
+              <!-- Options populated by JavaScript -->
+            </div>
+          </div>
+        </div>
+
+        <div class="selector-group">
+          <label class="selector-label">Right Y-Axis (Dashed Lines)</label>
+          <div class="multi-select-container" id="rightAxisContainer">
+            <button class="multi-select-btn" onclick="toggleMultiSelect('right')">
+              <span class="selected-count" id="rightSelectedCount">Select metrics...</span>
+              <span class="dropdown-arrow">▼</span>
+            </button>
+            <div class="multi-select-dropdown" id="rightAxisDropdown">
+              <!-- Options populated by JavaScript -->
+            </div>
+          </div>
+        </div>
+
+        <button class="correlation-update-btn" onclick="updateCorrelationChart()">Update Chart</button>
+        <button class="correlation-clear-btn" onclick="clearCorrelationSelections()">Clear All</button>
+      </div>
+    </div>
+
+    <div class="chart-box correlation-chart-box">
+      <div class="chart-header">
+        <h3>Metric Correlation View</h3>
+        <button class="reset-zoom-btn" onclick="resetCorrelationZoom()">Reset Zoom</button>
+      </div>
+      <canvas id="correlationChart"></canvas>
+      <div class="chart-controls">
+        <div class="control-group">
+          <span class="control-label">Zoom</span>
+          <button class="zoom-btn" onclick="zoomCorrelationChart('out')">−</button>
+          <button class="zoom-btn" onclick="zoomCorrelationChart('in')">+</button>
+        </div>
+        <div class="control-group">
+          <span class="control-label">Pan</span>
+          <button class="pan-btn" onclick="panCorrelationChart('left')">←</button>
+          <button class="pan-btn" onclick="panCorrelationChart('right')">→</button>
+        </div>
+      </div>
+      <div class="correlation-legend" id="correlationLegend">
+        <!-- Legend populated by JavaScript -->
       </div>
     </div>
   </section>
@@ -1683,6 +2014,381 @@
       // Update last update time
       lastUpdateTime = new Date();
       document.getElementById('statsLastUpdate').textContent = lastUpdateTime.toLocaleTimeString();
+    }
+
+    // ==========================================
+    // Multi-Metric Correlation Chart
+    // ==========================================
+
+    // Color palette for correlation chart
+    const correlationColors = [
+      '#00aaff', // cyan
+      '#ff6b6b', // red
+      '#4ecdc4', // teal
+      '#ffe66d', // yellow
+      '#95e1d3', // mint
+      '#f38181', // coral
+      '#aa96da', // purple
+      '#fcbad3', // pink
+      '#a8d8ea', // light blue
+      '#ff9a8b', // peach
+      '#88d8b0', // green
+    ];
+
+    // Correlation state
+    let correlationChart = null;
+    let leftAxisSelections = [];
+    let rightAxisSelections = [];
+
+    // Initialize correlation dropdowns
+    function initCorrelationDropdowns() {
+      const leftDropdown = document.getElementById('leftAxisDropdown');
+      const rightDropdown = document.getElementById('rightAxisDropdown');
+
+      const metricList = Object.keys(fields);
+
+      // Populate left dropdown
+      leftDropdown.innerHTML = metricList.map((metric, idx) => `
+        <div class="multi-select-option" data-metric="${metric}" onclick="toggleMetricSelection('left', '${metric}')">
+          <div class="multi-select-checkbox"></div>
+          <span class="multi-select-option-label">${metric}</span>
+          <div class="multi-select-option-color" style="background: ${correlationColors[idx % correlationColors.length]}"></div>
+        </div>
+      `).join('');
+
+      // Populate right dropdown
+      rightDropdown.innerHTML = metricList.map((metric, idx) => `
+        <div class="multi-select-option" data-metric="${metric}" onclick="toggleMetricSelection('right', '${metric}')">
+          <div class="multi-select-checkbox"></div>
+          <span class="multi-select-option-label">${metric}</span>
+          <div class="multi-select-option-color" style="background: ${correlationColors[idx % correlationColors.length]}"></div>
+        </div>
+      `).join('');
+    }
+
+    // Toggle multi-select dropdown
+    function toggleMultiSelect(side) {
+      const container = document.getElementById(`${side}AxisContainer`);
+      const otherSide = side === 'left' ? 'right' : 'left';
+      const otherContainer = document.getElementById(`${otherSide}AxisContainer`);
+
+      // Close the other dropdown
+      otherContainer.classList.remove('open');
+
+      // Toggle this dropdown
+      container.classList.toggle('open');
+    }
+
+    // Close dropdowns when clicking outside
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.multi-select-container')) {
+        document.querySelectorAll('.multi-select-container').forEach(c => c.classList.remove('open'));
+      }
+    });
+
+    // Toggle metric selection
+    function toggleMetricSelection(side, metric) {
+      const selections = side === 'left' ? leftAxisSelections : rightAxisSelections;
+      const otherSelections = side === 'left' ? rightAxisSelections : leftAxisSelections;
+
+      // Remove from other side if selected there
+      const otherIdx = otherSelections.indexOf(metric);
+      if (otherIdx > -1) {
+        otherSelections.splice(otherIdx, 1);
+        updateDropdownUI(side === 'left' ? 'right' : 'left');
+      }
+
+      // Toggle in current side
+      const idx = selections.indexOf(metric);
+      if (idx > -1) {
+        selections.splice(idx, 1);
+      } else {
+        selections.push(metric);
+      }
+
+      updateDropdownUI(side);
+      updateSelectionCount(side);
+    }
+
+    // Update dropdown UI to reflect selections
+    function updateDropdownUI(side) {
+      const dropdown = document.getElementById(`${side}AxisDropdown`);
+      const selections = side === 'left' ? leftAxisSelections : rightAxisSelections;
+
+      dropdown.querySelectorAll('.multi-select-option').forEach(option => {
+        const metric = option.dataset.metric;
+        if (selections.includes(metric)) {
+          option.classList.add('selected');
+        } else {
+          option.classList.remove('selected');
+        }
+      });
+    }
+
+    // Update selection count display
+    function updateSelectionCount(side) {
+      const countSpan = document.getElementById(`${side}SelectedCount`);
+      const selections = side === 'left' ? leftAxisSelections : rightAxisSelections;
+
+      if (selections.length === 0) {
+        countSpan.textContent = 'Select metrics...';
+      } else if (selections.length === 1) {
+        countSpan.textContent = selections[0];
+      } else {
+        countSpan.textContent = `${selections.length} metrics selected`;
+      }
+    }
+
+    // Clear all selections
+    function clearCorrelationSelections() {
+      leftAxisSelections = [];
+      rightAxisSelections = [];
+      updateDropdownUI('left');
+      updateDropdownUI('right');
+      updateSelectionCount('left');
+      updateSelectionCount('right');
+
+      // Clear chart
+      if (correlationChart) {
+        correlationChart.data.datasets = [];
+        correlationChart.update();
+      }
+
+      // Clear legend
+      document.getElementById('correlationLegend').innerHTML = '';
+    }
+
+    // Create or update correlation chart
+    function updateCorrelationChart() {
+      const filteredHistory = filterDataByTimeRange(fullHistory, currentTimeFilter);
+      const elapsed = filteredHistory["Elapsed [s]"] || [];
+
+      if (elapsed.length === 0) {
+        alert('No data available. Please generate some test data first.');
+        return;
+      }
+
+      if (leftAxisSelections.length === 0 && rightAxisSelections.length === 0) {
+        alert('Please select at least one metric for either axis.');
+        return;
+      }
+
+      const datasets = [];
+      const legendItems = [];
+
+      // Get theme colors
+      const computedStyle = getComputedStyle(document.documentElement);
+
+      // Add left axis datasets (solid lines)
+      leftAxisSelections.forEach((metric, idx) => {
+        const colorIdx = Object.keys(fields).indexOf(metric);
+        const color = correlationColors[colorIdx % correlationColors.length];
+        const values = filteredHistory[metric] || [];
+
+        datasets.push({
+          label: metric,
+          data: values,
+          borderColor: color,
+          backgroundColor: color + '20',
+          borderWidth: 2,
+          pointRadius: 0,
+          pointHoverRadius: 5,
+          tension: 0.3,
+          yAxisID: 'yLeft',
+          borderDash: [], // Solid line
+        });
+
+        legendItems.push({
+          metric,
+          color,
+          axis: 'left',
+          dashed: false
+        });
+      });
+
+      // Add right axis datasets (dashed lines)
+      rightAxisSelections.forEach((metric, idx) => {
+        const colorIdx = Object.keys(fields).indexOf(metric);
+        const color = correlationColors[colorIdx % correlationColors.length];
+        const values = filteredHistory[metric] || [];
+
+        datasets.push({
+          label: metric + ' (R)',
+          data: values,
+          borderColor: color,
+          backgroundColor: color + '20',
+          borderWidth: 2,
+          pointRadius: 0,
+          pointHoverRadius: 5,
+          tension: 0.3,
+          yAxisID: 'yRight',
+          borderDash: [8, 4], // Dashed line
+        });
+
+        legendItems.push({
+          metric,
+          color,
+          axis: 'right',
+          dashed: true
+        });
+      });
+
+      // Determine Y-axis titles
+      const leftTitle = leftAxisSelections.length === 1 ? leftAxisSelections[0] : 'Left Axis';
+      const rightTitle = rightAxisSelections.length === 1 ? rightAxisSelections[0] : 'Right Axis';
+
+      // Create or update chart
+      if (correlationChart) {
+        correlationChart.data.labels = elapsed;
+        correlationChart.data.datasets = datasets;
+        correlationChart.options.scales.yLeft.display = leftAxisSelections.length > 0;
+        correlationChart.options.scales.yRight.display = rightAxisSelections.length > 0;
+        correlationChart.options.scales.yLeft.title.text = leftTitle;
+        correlationChart.options.scales.yRight.title.text = rightTitle;
+        correlationChart.update();
+      } else {
+        const ctx = document.getElementById('correlationChart').getContext('2d');
+        correlationChart = new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: elapsed,
+            datasets: datasets
+          },
+          options: {
+            animation: false,
+            responsive: true,
+            maintainAspectRatio: true,
+            interaction: {
+              mode: 'index',
+              intersect: false,
+            },
+            scales: {
+              x: {
+                type: 'linear',
+                title: {
+                  display: true,
+                  text: 'Elapsed [s]',
+                  color: computedStyle.getPropertyValue('--color-text-muted').trim()
+                },
+                ticks: { color: computedStyle.getPropertyValue('--color-text-secondary').trim() },
+                grid: { color: computedStyle.getPropertyValue('--color-border').trim() }
+              },
+              yLeft: {
+                type: 'linear',
+                position: 'left',
+                display: leftAxisSelections.length > 0,
+                title: {
+                  display: true,
+                  text: leftTitle,
+                  color: computedStyle.getPropertyValue('--color-text-muted').trim()
+                },
+                ticks: { color: computedStyle.getPropertyValue('--color-text-secondary').trim() },
+                grid: { color: computedStyle.getPropertyValue('--color-border').trim() }
+              },
+              yRight: {
+                type: 'linear',
+                position: 'right',
+                display: rightAxisSelections.length > 0,
+                title: {
+                  display: true,
+                  text: rightTitle,
+                  color: computedStyle.getPropertyValue('--color-text-muted').trim()
+                },
+                ticks: { color: computedStyle.getPropertyValue('--color-text-secondary').trim() },
+                grid: {
+                  drawOnChartArea: false,
+                  color: computedStyle.getPropertyValue('--color-border').trim()
+                }
+              }
+            },
+            plugins: {
+              legend: {
+                display: false // Use custom legend
+              },
+              tooltip: {
+                enabled: true,
+                backgroundColor: 'rgba(0, 0, 0, 0.85)',
+                titleColor: '#fff',
+                bodyColor: '#fff',
+                borderColor: computedStyle.getPropertyValue('--color-primary').trim(),
+                borderWidth: 1,
+                cornerRadius: 8,
+                padding: 12,
+                displayColors: true,
+                callbacks: {
+                  title: function(context) {
+                    return `Time: ${parseFloat(context[0].label).toFixed(2)}s`;
+                  },
+                  label: function(context) {
+                    return ` ${context.dataset.label}: ${parseFloat(context.raw).toFixed(3)}`;
+                  }
+                }
+              },
+              zoom: {
+                pan: {
+                  enabled: true,
+                  mode: 'x',
+                  modifierKey: 'ctrl',
+                },
+                zoom: {
+                  wheel: { enabled: false },
+                  pinch: { enabled: true },
+                  drag: {
+                    enabled: true,
+                    backgroundColor: 'rgba(0, 170, 255, 0.15)',
+                    borderColor: 'rgba(0, 170, 255, 0.8)',
+                    borderWidth: 1,
+                  },
+                  mode: 'x',
+                }
+              }
+            }
+          }
+        });
+      }
+
+      // Update custom legend
+      updateCorrelationLegend(legendItems);
+    }
+
+    // Update custom legend
+    function updateCorrelationLegend(items) {
+      const legendContainer = document.getElementById('correlationLegend');
+
+      if (items.length === 0) {
+        legendContainer.innerHTML = '<span style="color: var(--color-text-muted); font-size: 0.85em;">Select metrics and click "Update Chart" to view correlation</span>';
+        return;
+      }
+
+      legendContainer.innerHTML = items.map(item => `
+        <div class="legend-item">
+          <div class="legend-line ${item.dashed ? 'dashed' : ''}" style="background: ${item.dashed ? 'none' : item.color}; color: ${item.color};"></div>
+          <span>${item.metric}</span>
+          <span class="legend-axis-label">${item.axis === 'left' ? 'L' : 'R'}</span>
+        </div>
+      `).join('');
+    }
+
+    // Correlation chart zoom controls
+    function resetCorrelationZoom() {
+      if (correlationChart && correlationChart.resetZoom) {
+        correlationChart.resetZoom();
+      }
+    }
+
+    function zoomCorrelationChart(direction) {
+      if (!correlationChart) return;
+      const zoomFactor = direction === 'in' ? 1.2 : 0.8;
+      correlationChart.zoom(zoomFactor);
+    }
+
+    function panCorrelationChart(direction) {
+      if (!correlationChart) return;
+      const panAmount = 50;
+      let deltaX = 0;
+      if (direction === 'left') deltaX = panAmount;
+      else if (direction === 'right') deltaX = -panAmount;
+      correlationChart.pan({x: deltaX, y: 0}, undefined, 'default');
     }
 
     // Time Range Filter Functions
@@ -2317,6 +3023,8 @@
       new ThemeManager();
       // Initialize sticky navigation
       new StickyNavHandler();
+      // Initialize correlation dropdowns
+      initCorrelationDropdowns();
       loadArchivedLogs();
       setInterval(fetchData, 1000);
       
