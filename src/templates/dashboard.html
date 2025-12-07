@@ -9,6 +9,7 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
   <style>
     :root {
       /* Dark Ocean (Default) */
@@ -1196,6 +1197,191 @@
         aspect-ratio: 1.5;
       }
     }
+
+    /* Chart Export Styles */
+    .chart-export-controls {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .export-options-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+
+    .export-checkbox-label {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 18px;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--color-border);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 0.9em;
+      color: var(--color-text-secondary);
+    }
+
+    .export-checkbox-label:hover {
+      border-color: var(--color-primary);
+      background: var(--bg-card);
+    }
+
+    .export-checkbox-label input[type="checkbox"] {
+      display: none;
+    }
+
+    .export-checkbox-custom {
+      width: 20px;
+      height: 20px;
+      border: 2px solid var(--color-border);
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+      flex-shrink: 0;
+    }
+
+    .export-checkbox-label input[type="checkbox"]:checked + .export-checkbox-custom {
+      background: var(--color-primary);
+      border-color: var(--color-primary);
+    }
+
+    .export-checkbox-custom::after {
+      content: '✓';
+      color: var(--bg-primary);
+      font-size: 0.85em;
+      font-weight: bold;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+
+    .export-checkbox-label input[type="checkbox"]:checked + .export-checkbox-custom::after {
+      opacity: 1;
+    }
+
+    .export-format-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+
+    .export-format-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .export-format-select {
+      padding: 10px 15px;
+      background: var(--bg-tertiary);
+      color: var(--color-text-primary);
+      border: 1px solid var(--color-border);
+      border-radius: 8px;
+      font-size: 0.9em;
+      cursor: pointer;
+      min-width: 180px;
+      transition: all 0.3s ease;
+    }
+
+    .export-format-select:hover,
+    .export-format-select:focus {
+      border-color: var(--color-primary);
+      outline: none;
+      box-shadow: var(--glow-accent);
+    }
+
+    .export-actions-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 5px;
+    }
+
+    .export-chart-btn {
+      padding: 12px 24px;
+      background: var(--color-primary);
+      color: var(--bg-primary);
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.9em;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      box-shadow: var(--glow-primary);
+    }
+
+    .export-chart-btn:hover {
+      background: var(--color-secondary);
+      transform: translateY(-2px);
+    }
+
+    .export-chart-btn.secondary {
+      background: var(--bg-tertiary);
+      color: var(--color-text-secondary);
+      border: 1px solid var(--color-border);
+      box-shadow: none;
+    }
+
+    .export-chart-btn.secondary:hover {
+      background: var(--bg-card);
+      border-color: var(--color-primary);
+      color: var(--color-text-primary);
+    }
+
+    .export-chart-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .export-status {
+      font-size: 0.85em;
+      color: var(--color-text-muted);
+      min-height: 20px;
+    }
+
+    .export-status.success {
+      color: #22c55e;
+    }
+
+    .export-status.error {
+      color: #ef4444;
+    }
+
+    .export-status.progress {
+      color: var(--color-primary);
+    }
+
+    @media (max-width: 768px) {
+      .export-options-grid {
+        flex-direction: column;
+      }
+
+      .export-checkbox-label {
+        width: 100%;
+      }
+
+      .export-format-row {
+        flex-direction: column;
+      }
+
+      .export-format-select {
+        width: 100%;
+      }
+
+      .export-actions-row {
+        flex-direction: column;
+      }
+
+      .export-chart-btn {
+        width: 100%;
+      }
+    }
   </style>
 </head>
 <body>
@@ -1682,6 +1868,62 @@
         <button class="export-filtered-btn" onclick="exportFilteredData()" id="exportFilteredBtn">
           <span>Export Filtered CSV</span>
         </button>
+      </div>
+    </div>
+
+    <!-- Export Charts Section -->
+    <div class="time-filter-section" style="margin-top: 30px;">
+      <h3>Export Charts as Images</h3>
+      <div class="chart-export-controls">
+        <div class="export-options-grid">
+          <label class="export-checkbox-label">
+            <input type="checkbox" id="exportBME280" checked>
+            <span class="export-checkbox-custom"></span>
+            <span>BME280 Charts (4)</span>
+          </label>
+          <label class="export-checkbox-label">
+            <input type="checkbox" id="exportMPU6050" checked>
+            <span class="export-checkbox-custom"></span>
+            <span>MPU6050 Charts (7)</span>
+          </label>
+          <label class="export-checkbox-label">
+            <input type="checkbox" id="exportCorrelation">
+            <span class="export-checkbox-custom"></span>
+            <span>Correlation Chart</span>
+          </label>
+        </div>
+
+        <div class="export-format-row">
+          <div class="export-format-group">
+            <label class="selector-label">Format</label>
+            <select id="chartExportFormat" class="export-format-select">
+              <option value="png">PNG (High Quality)</option>
+              <option value="jpeg">JPEG (Smaller Size)</option>
+            </select>
+          </div>
+
+          <div class="export-format-group">
+            <label class="selector-label">Download As</label>
+            <select id="chartExportMode" class="export-format-select">
+              <option value="zip">ZIP Archive</option>
+              <option value="individual">Individual Files</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="export-actions-row">
+          <button class="export-chart-btn" onclick="exportSelectedCharts()">
+            Export Selected Charts
+          </button>
+          <button class="export-chart-btn secondary" onclick="selectAllChartExports(true)">
+            Select All
+          </button>
+          <button class="export-chart-btn secondary" onclick="selectAllChartExports(false)">
+            Deselect All
+          </button>
+        </div>
+
+        <div class="export-status" id="chartExportStatus"></div>
       </div>
     </div>
   </section>
@@ -2389,6 +2631,181 @@
       if (direction === 'left') deltaX = panAmount;
       else if (direction === 'right') deltaX = -panAmount;
       correlationChart.pan({x: deltaX, y: 0}, undefined, 'default');
+    }
+
+    // ==========================================
+    // Chart Export Functions
+    // ==========================================
+
+    // Get list of charts to export based on selections
+    function getChartsToExport() {
+      const charts = [];
+      const exportBME280 = document.getElementById('exportBME280').checked;
+      const exportMPU6050 = document.getElementById('exportMPU6050').checked;
+      const exportCorrelation = document.getElementById('exportCorrelation').checked;
+
+      // BME280 charts
+      if (exportBME280) {
+        const bmeCharts = ['Temp_BME280 [°C]', 'Hum [%]', 'Press [hPa]', 'Alt [m]'];
+        bmeCharts.forEach(id => {
+          if (chartRefs[id]) {
+            charts.push({ id, name: id.replace(/[\[\]°\/]/g, '').replace(/\s+/g, '_'), chart: chartRefs[id] });
+          }
+        });
+      }
+
+      // MPU6050 charts
+      if (exportMPU6050) {
+        const mpuCharts = ['Acc x [m/s²]', 'Acc y [m/s²]', 'Acc z [m/s²]', 'Gyro x [°/s]', 'Gyro y [°/s]', 'Gyro z [°/s]', 'Temp_MPU [°C]'];
+        mpuCharts.forEach(id => {
+          if (chartRefs[id]) {
+            charts.push({ id, name: id.replace(/[\[\]°\/²]/g, '').replace(/\s+/g, '_'), chart: chartRefs[id] });
+          }
+        });
+      }
+
+      // Correlation chart
+      if (exportCorrelation && correlationChart) {
+        charts.push({ id: 'correlationChart', name: 'Correlation_Chart', chart: correlationChart });
+      }
+
+      return charts;
+    }
+
+    // Convert chart to image data URL
+    function chartToImage(chart, format) {
+      const canvas = chart.canvas;
+      const mimeType = format === 'jpeg' ? 'image/jpeg' : 'image/png';
+      const quality = format === 'jpeg' ? 0.92 : undefined;
+
+      // Create a temporary canvas with white background for JPEG
+      if (format === 'jpeg') {
+        const tempCanvas = document.createElement('canvas');
+        tempCanvas.width = canvas.width;
+        tempCanvas.height = canvas.height;
+        const tempCtx = tempCanvas.getContext('2d');
+
+        // Fill with theme background color
+        const computedStyle = getComputedStyle(document.documentElement);
+        tempCtx.fillStyle = computedStyle.getPropertyValue('--bg-card').trim() || '#1f3545';
+        tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+
+        // Draw chart on top
+        tempCtx.drawImage(canvas, 0, 0);
+        return tempCanvas.toDataURL(mimeType, quality);
+      }
+
+      return canvas.toDataURL(mimeType, quality);
+    }
+
+    // Download single file
+    function downloadFile(dataUrl, filename) {
+      const link = document.createElement('a');
+      link.href = dataUrl;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    // Convert data URL to blob
+    function dataURLtoBlob(dataURL) {
+      const parts = dataURL.split(',');
+      const mime = parts[0].match(/:(.*?);/)[1];
+      const bstr = atob(parts[1]);
+      let n = bstr.length;
+      const u8arr = new Uint8Array(n);
+      while (n--) {
+        u8arr[n] = bstr.charCodeAt(n);
+      }
+      return new Blob([u8arr], { type: mime });
+    }
+
+    // Select/deselect all chart export checkboxes
+    function selectAllChartExports(select) {
+      document.getElementById('exportBME280').checked = select;
+      document.getElementById('exportMPU6050').checked = select;
+      document.getElementById('exportCorrelation').checked = select;
+    }
+
+    // Update export status message
+    function setExportStatus(message, type = '') {
+      const statusEl = document.getElementById('chartExportStatus');
+      statusEl.textContent = message;
+      statusEl.className = 'export-status ' + type;
+    }
+
+    // Main export function
+    async function exportSelectedCharts() {
+      const charts = getChartsToExport();
+
+      if (charts.length === 0) {
+        setExportStatus('Please select at least one chart category to export.', 'error');
+        return;
+      }
+
+      const format = document.getElementById('chartExportFormat').value;
+      const mode = document.getElementById('chartExportMode').value;
+      const extension = format === 'jpeg' ? 'jpg' : 'png';
+      const timestamp = new Date().toISOString().slice(0, 19).replace(/[:-]/g, '');
+
+      setExportStatus(`Exporting ${charts.length} chart(s)...`, 'progress');
+
+      try {
+        if (mode === 'zip') {
+          // Export as ZIP
+          const zip = new JSZip();
+          const imgFolder = zip.folder("charts");
+
+          for (const { name, chart } of charts) {
+            const imageData = chartToImage(chart, format);
+            // Extract base64 data (remove the data:image/xxx;base64, prefix)
+            const base64Data = imageData.split(',')[1];
+            imgFolder.file(`${name}.${extension}`, base64Data, { base64: true });
+          }
+
+          const zipBlob = await zip.generateAsync({
+            type: 'blob',
+            compression: 'DEFLATE',
+            compressionOptions: { level: 6 }
+          });
+
+          // Create download link
+          const zipUrl = URL.createObjectURL(zipBlob);
+          const link = document.createElement('a');
+          link.href = zipUrl;
+          link.download = `TRITON_Charts_${timestamp}.zip`;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+
+          // Cleanup after a delay
+          setTimeout(() => URL.revokeObjectURL(zipUrl), 1000);
+
+          setExportStatus(`Successfully exported ${charts.length} chart(s) as ZIP!`, 'success');
+        } else {
+          // Export individual files
+          let exported = 0;
+          for (const { name, chart } of charts) {
+            const imageData = chartToImage(chart, format);
+            downloadFile(imageData, `TRITON_${name}_${timestamp}.${extension}`);
+            exported++;
+
+            // Small delay between downloads to prevent browser blocking
+            if (exported < charts.length) {
+              await new Promise(resolve => setTimeout(resolve, 200));
+            }
+          }
+
+          setExportStatus(`Successfully exported ${charts.length} chart(s)!`, 'success');
+        }
+      } catch (error) {
+        console.error('Export error:', error);
+        setExportStatus(`Export failed: ${error.message}`, 'error');
+      }
+
+      // Clear status after 5 seconds
+      setTimeout(() => setExportStatus(''), 5000);
     }
 
     // Time Range Filter Functions
