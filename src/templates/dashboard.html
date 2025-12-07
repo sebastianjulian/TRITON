@@ -782,9 +782,150 @@
       .theme-selector {
         padding: 8px;
       }
-      
+
       .theme-options {
         min-width: 120px;
+      }
+    }
+
+    /* Extended Statistics Styles */
+    .stats-meta-section {
+      background: var(--gradient-card);
+      padding: 20px;
+      border-radius: 16px;
+      margin-top: 20px;
+      border: 1px solid var(--color-border);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+    }
+
+    .stats-meta-section h2 {
+      margin-top: 0;
+      margin-bottom: 15px;
+    }
+
+    .stats-meta-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 15px;
+    }
+
+    .stats-meta-card {
+      background: var(--bg-tertiary);
+      padding: 15px;
+      border-radius: 10px;
+      border: 1px solid var(--color-border);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.3s ease;
+    }
+
+    .stats-meta-card:hover {
+      border-color: var(--color-primary);
+      box-shadow: var(--glow-accent);
+      transform: translateY(-2px);
+    }
+
+    .stats-meta-label {
+      font-size: 0.75em;
+      color: var(--color-text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-weight: 500;
+    }
+
+    .stats-meta-value {
+      font-size: 1.3em;
+      color: var(--color-primary);
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 600;
+      text-shadow: var(--glow-accent);
+    }
+
+    .stats-table-container {
+      overflow-x: auto;
+      margin-top: 15px;
+      border-radius: 12px;
+      border: 1px solid var(--color-border);
+      background: var(--gradient-card);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+    }
+
+    .extended-stats-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 0;
+      min-width: 900px;
+    }
+
+    .extended-stats-table th,
+    .extended-stats-table td {
+      border: 1px solid var(--color-border);
+      padding: 12px 10px;
+      text-align: center;
+      font-size: 0.85em;
+    }
+
+    .extended-stats-table th {
+      background: var(--bg-header);
+      color: var(--color-text-primary);
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 0.75em;
+      letter-spacing: 0.5px;
+      white-space: nowrap;
+    }
+
+    .extended-stats-table td {
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .extended-stats-table td:first-child {
+      text-align: left;
+      font-weight: 500;
+      color: var(--color-text-primary);
+      background: var(--bg-tertiary);
+      white-space: nowrap;
+    }
+
+    .extended-stats-table tbody tr:hover {
+      background: rgba(0, 170, 255, 0.05);
+    }
+
+    .extended-stats-table tbody tr:hover td:first-child {
+      background: rgba(0, 170, 255, 0.1);
+    }
+
+    .stat-positive {
+      color: #22c55e;
+    }
+
+    .stat-negative {
+      color: #ef4444;
+    }
+
+    .stat-neutral {
+      color: var(--color-text-secondary);
+    }
+
+    @media (max-width: 768px) {
+      .stats-meta-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .stats-meta-card {
+        padding: 12px;
+      }
+
+      .stats-meta-value {
+        font-size: 1.1em;
+      }
+
+      .extended-stats-table th,
+      .extended-stats-table td {
+        padding: 8px 6px;
+        font-size: 0.8em;
       }
     }
   </style>
@@ -1099,17 +1240,74 @@
 
   <!-- Statistics Section -->
   <section id="statistics">
+    <!-- Stats Meta Info -->
+    <div class="stats-meta-section">
+      <h2>Data Overview</h2>
+      <div class="stats-meta-grid">
+        <div class="stats-meta-card">
+          <span class="stats-meta-label">Total Points</span>
+          <span class="stats-meta-value" id="statsTotalPoints">0</span>
+        </div>
+        <div class="stats-meta-card">
+          <span class="stats-meta-label">Filtered Points</span>
+          <span class="stats-meta-value" id="statsFilteredPoints">0</span>
+        </div>
+        <div class="stats-meta-card">
+          <span class="stats-meta-label">Sample Rate</span>
+          <span class="stats-meta-value" id="statsSampleRate">-- Hz</span>
+        </div>
+        <div class="stats-meta-card">
+          <span class="stats-meta-label">Time Span</span>
+          <span class="stats-meta-value" id="statsTimeSpan">-- s</span>
+        </div>
+        <div class="stats-meta-card">
+          <span class="stats-meta-label">Last Update</span>
+          <span class="stats-meta-value" id="statsLastUpdate">--</span>
+        </div>
+      </div>
+    </div>
+
     <h2>Statistics: BME280</h2>
-    <table>
-      <thead><tr><th>Metric</th><th>Min</th><th>Max</th><th>Avg</th></tr></thead>
-      <tbody id="bmeSummary"></tbody>
-    </table>
+    <div class="stats-table-container">
+      <table class="extended-stats-table">
+        <thead>
+          <tr>
+            <th>Metric</th>
+            <th>Min</th>
+            <th>Max</th>
+            <th>Avg</th>
+            <th>Median</th>
+            <th>StdDev</th>
+            <th>25%</th>
+            <th>75%</th>
+            <th>95%</th>
+            <th>Rate/s</th>
+          </tr>
+        </thead>
+        <tbody id="bmeSummary"></tbody>
+      </table>
+    </div>
 
     <h2 style="margin-top: 50px;">Statistics: MPU6050</h2>
-    <table>
-      <thead><tr><th>Metric</th><th>Min</th><th>Max</th><th>Avg</th></tr></thead>
-      <tbody id="mpuSummary"></tbody>
-    </table>
+    <div class="stats-table-container">
+      <table class="extended-stats-table">
+        <thead>
+          <tr>
+            <th>Metric</th>
+            <th>Min</th>
+            <th>Max</th>
+            <th>Avg</th>
+            <th>Median</th>
+            <th>StdDev</th>
+            <th>25%</th>
+            <th>75%</th>
+            <th>95%</th>
+            <th>Rate/s</th>
+          </tr>
+        </thead>
+        <tbody id="mpuSummary"></tbody>
+      </table>
+    </div>
   </section>
 
 
@@ -1350,6 +1548,143 @@
       return [min.toFixed(2), max.toFixed(2), (sum / values.length).toFixed(2)];
     }
 
+    // Extended statistics computation
+    function computeExtendedStats(values, elapsedTimes) {
+      if (!values || !values.length) {
+        return {
+          min: "-",
+          max: "-",
+          avg: "-",
+          median: "-",
+          stdDev: "-",
+          p25: "-",
+          p75: "-",
+          p95: "-",
+          ratePerSec: "-"
+        };
+      }
+
+      const n = values.length;
+
+      // Basic stats
+      let min = values[0], max = values[0], sum = 0;
+      for (let v of values) {
+        min = Math.min(min, v);
+        max = Math.max(max, v);
+        sum += v;
+      }
+      const avg = sum / n;
+
+      // Sort values for percentile calculations
+      const sorted = [...values].sort((a, b) => a - b);
+
+      // Median (50th percentile)
+      const median = getPercentile(sorted, 0.5);
+
+      // Standard deviation
+      let sumSquaredDiff = 0;
+      for (let v of values) {
+        sumSquaredDiff += Math.pow(v - avg, 2);
+      }
+      const stdDev = Math.sqrt(sumSquaredDiff / n);
+
+      // Percentiles
+      const p25 = getPercentile(sorted, 0.25);
+      const p75 = getPercentile(sorted, 0.75);
+      const p95 = getPercentile(sorted, 0.95);
+
+      // Rate of change (linear regression slope of last 5 points)
+      let ratePerSec = 0;
+      if (elapsedTimes && elapsedTimes.length >= 2) {
+        const windowSize = Math.min(5, values.length);
+        const recentValues = values.slice(-windowSize);
+        const recentTimes = elapsedTimes.slice(-windowSize);
+        ratePerSec = calculateLinearRegressionSlope(recentTimes, recentValues);
+      }
+
+      return {
+        min: min.toFixed(2),
+        max: max.toFixed(2),
+        avg: avg.toFixed(2),
+        median: median.toFixed(2),
+        stdDev: stdDev.toFixed(3),
+        p25: p25.toFixed(2),
+        p75: p75.toFixed(2),
+        p95: p95.toFixed(2),
+        ratePerSec: ratePerSec.toFixed(3)
+      };
+    }
+
+    // Get percentile using linear interpolation
+    function getPercentile(sortedArray, percentile) {
+      if (sortedArray.length === 0) return 0;
+      if (sortedArray.length === 1) return sortedArray[0];
+
+      const index = percentile * (sortedArray.length - 1);
+      const lower = Math.floor(index);
+      const upper = Math.ceil(index);
+      const weight = index - lower;
+
+      if (upper >= sortedArray.length) return sortedArray[sortedArray.length - 1];
+      if (lower === upper) return sortedArray[lower];
+
+      return sortedArray[lower] * (1 - weight) + sortedArray[upper] * weight;
+    }
+
+    // Calculate linear regression slope
+    function calculateLinearRegressionSlope(xValues, yValues) {
+      const n = xValues.length;
+      if (n < 2) return 0;
+
+      let sumX = 0, sumY = 0, sumXY = 0, sumX2 = 0;
+      for (let i = 0; i < n; i++) {
+        sumX += xValues[i];
+        sumY += yValues[i];
+        sumXY += xValues[i] * yValues[i];
+        sumX2 += xValues[i] * xValues[i];
+      }
+
+      const denominator = n * sumX2 - sumX * sumX;
+      if (denominator === 0) return 0;
+
+      return (n * sumXY - sumX * sumY) / denominator;
+    }
+
+    // Format rate with color indication
+    function formatRateWithColor(rate) {
+      const numRate = parseFloat(rate);
+      if (isNaN(numRate) || rate === "-") return `<span class="stat-neutral">-</span>`;
+
+      if (numRate > 0.01) {
+        return `<span class="stat-positive">+${rate}</span>`;
+      } else if (numRate < -0.01) {
+        return `<span class="stat-negative">${rate}</span>`;
+      }
+      return `<span class="stat-neutral">${rate}</span>`;
+    }
+
+    // Update stats meta information
+    let lastUpdateTime = null;
+    function updateStatsMeta(totalPoints, filteredPoints, elapsedTimes) {
+      document.getElementById('statsTotalPoints').textContent = totalPoints;
+      document.getElementById('statsFilteredPoints').textContent = filteredPoints;
+
+      // Calculate sample rate
+      if (elapsedTimes && elapsedTimes.length >= 2) {
+        const timeSpan = elapsedTimes[elapsedTimes.length - 1] - elapsedTimes[0];
+        const sampleRate = timeSpan > 0 ? ((elapsedTimes.length - 1) / timeSpan).toFixed(2) : 0;
+        document.getElementById('statsSampleRate').textContent = `${sampleRate} Hz`;
+        document.getElementById('statsTimeSpan').textContent = `${timeSpan.toFixed(1)} s`;
+      } else {
+        document.getElementById('statsSampleRate').textContent = '-- Hz';
+        document.getElementById('statsTimeSpan').textContent = '-- s';
+      }
+
+      // Update last update time
+      lastUpdateTime = new Date();
+      document.getElementById('statsLastUpdate').textContent = lastUpdateTime.toLocaleTimeString();
+    }
+
     // Time Range Filter Functions
     function filterDataByTimeRange(history, filter) {
       const elapsed = history["Elapsed [s]"] || [];
@@ -1491,8 +1826,20 @@
           chartRefs[id].update('none');
         }
 
-        const [min, max, avg] = computeStats(values);
-        const row = `<tr><td>${id}</td><td>${min}</td><td>${max}</td><td>${avg}</td></tr>`;
+        // Use extended statistics
+        const stats = computeExtendedStats(values, elapsed);
+        const row = `<tr>
+          <td>${id}</td>
+          <td>${stats.min}</td>
+          <td>${stats.max}</td>
+          <td>${stats.avg}</td>
+          <td>${stats.median}</td>
+          <td>${stats.stdDev}</td>
+          <td>${stats.p25}</td>
+          <td>${stats.p75}</td>
+          <td>${stats.p95}</td>
+          <td>${formatRateWithColor(stats.ratePerSec)}</td>
+        </tr>`;
         (group === "bme" ? bmeRows : mpuRows).push(row);
       }
 
@@ -1503,6 +1850,9 @@
       const totalPoints = (fullHistory["Elapsed [s]"] || []).length;
       const filteredPoints = elapsed.length;
       updateFilterInfo(totalPoints, filteredPoints);
+
+      // Update stats meta information
+      updateStatsMeta(totalPoints, filteredPoints, elapsed);
     }
 
     // Export Filter Functions (separate from display filter)

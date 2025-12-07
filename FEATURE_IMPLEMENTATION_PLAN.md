@@ -23,7 +23,7 @@
 | Order | Feature # | Name | Complexity | Status |
 |-------|-----------|------|------------|--------|
 | 1 | 2 | Chart Interactivity | Low | ✅ Completed |
-| 2 | 6 | Extended Statistics | Low | ⬜ Not Started |
+| 2 | 6 | Extended Statistics | Low | ✅ Completed |
 | 3 | 7 | Time Range Filtering | Medium | ✅ Completed |
 | 4 | 8 | Multi-Metric Correlation | Medium | ⬜ Not Started |
 | 5 | 16 | Mission Comparison | Medium | ⬜ Not Started |
@@ -293,7 +293,7 @@ Update this section as features are completed:
 
 ```
 [x] Feature 2: Chart Interactivity (Completed Dec 2024)
-[ ] Feature 6: Extended Statistics
+[x] Feature 6: Extended Statistics (Completed Dec 2024)
 [x] Feature 7: Time Range Filtering (Completed Dec 2024)
 [ ] Feature 8: Multi-Metric Correlation
 [ ] Feature 10: Configuration UI
