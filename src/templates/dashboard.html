@@ -551,7 +551,7 @@
     }
 
     .custom-range-input {
-      width: 70px;
+      width: 90px;
       padding: 6px 10px;
       background: var(--bg-secondary);
       color: var(--color-text-primary);
@@ -2400,6 +2400,74 @@
       }
 
       chart.pan({x: deltaX, y: deltaY}, undefined, 'default');
+    }
+
+    // Hold-to-repeat functionality for zoom and pan buttons
+    let holdInterval = null;
+    let holdTimeout = null;
+    const HOLD_DELAY = 300; // ms before repeat starts
+    const HOLD_RATE = 80;   // ms between repeats
+
+    function startHoldAction(action) {
+      // Execute immediately
+      action();
+      // Start repeating after delay
+      holdTimeout = setTimeout(() => {
+        holdInterval = setInterval(action, HOLD_RATE);
+      }, HOLD_DELAY);
+    }
+
+    function stopHoldAction() {
+      if (holdTimeout) {
+        clearTimeout(holdTimeout);
+        holdTimeout = null;
+      }
+      if (holdInterval) {
+        clearInterval(holdInterval);
+        holdInterval = null;
+      }
+    }
+
+    // Setup hold-to-repeat for all zoom and pan buttons
+    document.addEventListener('DOMContentLoaded', function() {
+      setupHoldButtons();
+    });
+
+    function setupHoldButtons() {
+      // Get all zoom and pan buttons
+      const buttons = document.querySelectorAll('.zoom-btn, .pan-btn');
+
+      buttons.forEach(btn => {
+        const onclick = btn.getAttribute('onclick');
+        if (!onclick) return;
+
+        // Parse the onclick to extract function and arguments
+        const match = onclick.match(/(zoomChart|panChart)\('([^']+)',\s*'([^']+)'\)/);
+        if (!match) return;
+
+        const [, funcName, chartId, direction] = match;
+        const actionFn = funcName === 'zoomChart' ? zoomChart : panChart;
+
+        // Remove onclick attribute since we're handling it differently
+        btn.removeAttribute('onclick');
+
+        // Add mousedown/mouseup/mouseleave for hold behavior
+        btn.addEventListener('mousedown', (e) => {
+          e.preventDefault();
+          startHoldAction(() => actionFn(chartId, direction));
+        });
+
+        btn.addEventListener('mouseup', stopHoldAction);
+        btn.addEventListener('mouseleave', stopHoldAction);
+
+        // Touch support
+        btn.addEventListener('touchstart', (e) => {
+          e.preventDefault();
+          startHoldAction(() => actionFn(chartId, direction));
+        });
+        btn.addEventListener('touchend', stopHoldAction);
+        btn.addEventListener('touchcancel', stopHoldAction);
+      });
     }
 
     function computeStats(values) {
