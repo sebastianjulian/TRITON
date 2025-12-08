@@ -849,52 +849,6 @@
       font-weight: 600;
     }
 
-    /* FAQ Styles */
-    .faq-section {
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-      margin: 20px 0;
-    }
-
-    .faq-item {
-      background: var(--gradient-card);
-      padding: 25px;
-      border-radius: 12px;
-      border: 1px solid var(--color-border);
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-      transition: all 0.3s ease;
-    }
-
-    .faq-item:hover {
-      border-color: var(--color-primary);
-      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4), var(--glow-primary);
-      transform: translateY(-2px);
-    }
-
-    .faq-item h4 {
-      margin: 0 0 15px 0;
-      color: var(--color-primary);
-      font-size: 1.2em;
-      font-weight: 600;
-      text-shadow: var(--glow-accent);
-    }
-
-    .faq-item p {
-      margin: 0;
-      color: var(--color-text-secondary);
-      line-height: 1.7;
-    }
-
-    .faq-item code {
-      background: var(--bg-tertiary);
-      padding: 2px 6px;
-      border-radius: 4px;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.9em;
-      color: var(--color-primary);
-    }
-
     /* Mobile responsiveness for new sections */
     @media (max-width: 768px) {
       .main-nav {
@@ -1082,7 +1036,7 @@
         <a href="#documentation">Documentation</a>
         <a href="#api">API</a>
         <a href="#hardware">Hardware</a>
-        <a href="#faq">FAQ</a>
+        <a href="#usage">Usage</a>
         <!-- Theme Selector -->
         <div class="theme-selector">
           <div class="theme-dropdown">
@@ -1157,9 +1111,54 @@
         <div class="feature-card">
           <h4>Real-time Dashboard</h4>
           <p>
-            Web-based mission control shows live sensor data, statistics, 
-            and logging. Chart.js provides data 
-            visualization for analysis.
+            Web-based mission control shows live sensor data, statistics,
+            and logging. Chart.js provides interactive data
+            visualization with zoom/pan controls for detailed analysis.
+          </p>
+        </div>
+
+        <div class="feature-card">
+          <h4>Multi-Metric Correlation</h4>
+          <p>
+            Dual Y-axis correlation view allows comparing different sensor metrics
+            on a single chart. Visualize relationships between temperature and pressure,
+            acceleration and rotation, or any combination of sensor data.
+          </p>
+        </div>
+
+        <div class="feature-card">
+          <h4>Mission Comparison</h4>
+          <p>
+            Compare data from multiple missions side-by-side with statistical analysis.
+            Load archived CSV logs and overlay them with current live data to track
+            performance changes and analyze trends across different runs.
+          </p>
+        </div>
+
+        <div class="feature-card">
+          <h4>Chart Export</h4>
+          <p>
+            Export individual charts or all visualizations as PNG or JPEG images.
+            Download charts individually or as a ZIP archive for reports,
+            documentation, and post-mission analysis presentations.
+          </p>
+        </div>
+
+        <div class="feature-card">
+          <h4>Time Range Filtering</h4>
+          <p>
+            Filter displayed data by time range with preset options (30s, 1min, 5min)
+            or custom time windows. Apply filters to both chart display and data exports
+            for focused analysis of specific mission phases.
+          </p>
+        </div>
+
+        <div class="feature-card">
+          <h4>Extended Statistics</h4>
+          <p>
+            Comprehensive statistical analysis including min, max, average, median,
+            standard deviation, and percentiles (25%, 75%, 95%). Track data overview
+            with total points, sample rate, time span, and real-time update status.
           </p>
         </div>
 
@@ -1204,7 +1203,7 @@
         <div class="flow-arrow">→</div>
         <div class="flow-step">
           <h4>Mission Control</h4>
-          <p>Live visualization<br>Statistical analysis<br>Data download</p>
+          <p>Live visualization<br>Statistical analysis<br>Mission comparison<br>Chart export</p>
         </div>
         </div>
       </div>
@@ -1369,9 +1368,14 @@ Error Handle → Retry Logic → CSV Logging → Web Dashboard
               <li><strong>Web Interface</strong>
                 <ul>
                   <li>Flask server on port 5000</li>
-                  <li>Chart.js visualization</li>
+                  <li>Chart.js visualization with zoom/pan</li>
                   <li>Real-time updates via AJAX</li>
                   <li>CSV download functionality</li>
+                  <li>Time range filtering (presets + custom)</li>
+                  <li>Multi-metric correlation charts</li>
+                  <li>Mission comparison with overlays</li>
+                  <li>Chart export (PNG/JPEG/ZIP)</li>
+                  <li>Extended statistics dashboard</li>
                 </ul>
               </li>
             </ul>
@@ -1381,7 +1385,18 @@ Error Handle → Retry Logic → CSV Logging → Web Dashboard
         <div class="feature-card">
           <h4>Software Feature Updates</h4>
           <div class="feature-updates">
-            <h5>Version 2.1 - Current</h5>
+            <h5>Version 2.2 - Current</h5>
+            <ul>
+              <li>Mission comparison with side-by-side data analysis</li>
+              <li>Multi-metric correlation view with dual Y-axis</li>
+              <li>Chart export functionality (PNG/JPEG/ZIP)</li>
+              <li>Time range filtering for display and exports</li>
+              <li>Extended statistics with percentiles and sample rate</li>
+              <li>Interactive zoom/pan controls on all charts</li>
+              <li>Filtered data CSV export</li>
+            </ul>
+
+            <h5>Version 2.1</h5>
             <ul>
               <li>Enhanced web dashboard with multi-theme support</li>
               <li>Real-time test data generation system</li>
@@ -1528,6 +1543,63 @@ Error Handle → Retry Logic → CSV Logging → Web Dashboard
             <div class="api-details">
               <h5>Response:</h5>
               <pre><code>{"status": "success", "message": "Test data cleared"}</code></pre>
+            </div>
+          </div>
+
+          <div class="api-endpoint">
+            <h4>GET /logs/list</h4>
+            <p><strong>Description:</strong> Get list of all mission log files for comparison</p>
+            <div class="api-details">
+              <h5>Response Format:</h5>
+              <pre><code>{
+  "logs": [
+    {
+      "filename": "sensor_data_20251208_143022.csv",
+      "path": "logs/sensor_data_20251208_143022.csv",
+      "size": 15234,
+      "modified": "2025-12-08 14:30:22"
+    },
+    ...
+  ],
+  "archived": [
+    {
+      "filename": "sensor_data_20251207_091522.csv",
+      "path": "logs/previous_data/sensor_data_20251207_091522.csv",
+      "size": 45678,
+      "modified": "2025-12-07 09:15:22"
+    },
+    ...
+  ]
+}</code></pre>
+            </div>
+          </div>
+
+          <div class="api-endpoint">
+            <h4>GET /logs/&lt;filename&gt;</h4>
+            <p><strong>Description:</strong> Load specific mission log file data for comparison</p>
+            <div class="api-details">
+              <h5>Response:</h5>
+              <pre><code>{
+  "filename": "sensor_data_20251208_143022.csv",
+  "data": {
+    "Elapsed [s]": [0.0, 1.2, 2.5, ...],
+    "Temp_BME280 [°C]": [22.5, 22.7, 22.6, ...],
+    ...
+  },
+  "stats": {
+    "points": 1234,
+    "duration": 4567.8
+  }
+}</code></pre>
+            </div>
+          </div>
+
+          <div class="api-endpoint">
+            <h4>POST /open_logs_folder</h4>
+            <p><strong>Description:</strong> Open logs directory in system file explorer</p>
+            <div class="api-details">
+              <h5>Response:</h5>
+              <pre><code>{"status": "success", "message": "Opened logs folder"}</code></pre>
             </div>
           </div>
         </div>
@@ -1716,116 +1788,238 @@ Depth Rating: 10 meters (1 ATM overpressure)
       </div>
     </section>
 
-    <section id="faq">
-      <h2>Frequently Asked Questions</h2>
-      <div class="faq-section">
-        <div class="faq-item">
-          <h4>What sensors does TRITON use?</h4>
+    <section id="usage">
+      <h2>Usage Guide</h2>
+      <p>
+        This section covers common questions about operating TRITON, from hardware setup to
+        dashboard features and troubleshooting.
+      </p>
+
+      <div class="features-grid">
+        <div class="feature-card">
+          <h4>Sensor Configuration</h4>
           <p>
-            TRITON uses a BME280 environmental sensor for temperature, humidity, pressure, and altitude readings, 
+            TRITON uses a BME280 environmental sensor for temperature, humidity, pressure, and altitude readings,
             plus an MPU6050 motion sensor for acceleration and rotation data. Both connect via I2C to the Raspberry Pi.
+            The BME280 requires sea level pressure calibration for accurate altitude readings - check a local weather
+            site for current values. The motion sensor works out of the box but can be calibrated by placing it flat
+            and still to establish baseline readings.
           </p>
         </div>
 
-        <div class="faq-item">
-          <h4>How far can the submarine communicate?</h4>
+        <div class="feature-card">
+          <h4>Communication Range</h4>
           <p>
-            LoRa has a range of up to 15km in open air. Underwater, the range drops significantly to maybe 50-100 meters 
-            depending on water clarity, depth, and antenna setup. For deeper operations, you'd need a tethered buoy or 
-            surface float for the transmitter.
+            LoRa provides up to 15km range in open air. Underwater, range drops significantly to 50-100 meters
+            depending on water clarity, depth, and antenna setup. For deeper operations, consider using a tethered
+            buoy or surface float for the transmitter. The system continues logging data locally even without
+            wireless connectivity - retrieve CSV files from the SD card after the mission.
           </p>
         </div>
 
-        <div class="faq-item">
-          <h4>How long will the battery last?</h4>
+        <div class="feature-card">
+          <h4>Power Management</h4>
           <p>
-            About 4 hours with a 2200mAh 7.4V battery running continuously. You can extend this by reducing 
-            how often it transmits data or by using a bigger battery pack. The Pi and sensors don't use much power, 
-            but the LoRa transmission eats up most of the battery.
+            Expect approximately 4 hours of operation with a 2200mAh 7.4V battery running continuously.
+            Extend battery life by adjusting transmission thresholds in <code>src/test.py</code> via the
+            <code>should_transmit()</code> function. Lower thresholds increase transmission frequency
+            (more battery usage), while higher thresholds reduce updates but conserve power. LoRa transmission
+            consumes most of the power budget.
           </p>
         </div>
 
-        <div class="faq-item">
-          <h4>Can I change when it sends data?</h4>
+        <div class="feature-card">
+          <h4>Error Handling</h4>
           <p>
-            Yes, you can edit the thresholds in <code>src/test.py</code> in the <code>should_transmit()</code> function. 
-            Lower thresholds mean it sends data more often (uses more battery), higher thresholds mean less frequent 
-            updates but longer battery life.
+            The system continues operating with whatever sensors remain functional. If the pressure sensor fails,
+            depth information is lost but motion data continues. Complete sensor failure triggers retry logic
+            with error logging. The dashboard displays "Sensor Error" for malfunctioning components, allowing
+            operators to identify issues in real-time during missions.
           </p>
         </div>
 
-        <div class="faq-item">
-          <h4>Do I need to calibrate anything?</h4>
+        <div class="feature-card">
+          <h4>Network Access</h4>
           <p>
-            For the pressure sensor, you'll want to update the sea level pressure value in the code to match your location 
-            (check a weather site). The motion sensor works pretty well out of the box, but you can calibrate it by 
-            placing it flat and still to get baseline readings.
+            Access the dashboard from any device on the same network by navigating to
+            <code>http://[PC-IP]:5000</code> in a browser. Find the host IP using <code>ipconfig</code> on Windows
+            or <code>ifconfig</code> on Linux. For external network access, configure port forwarding on your
+            router to expose port 5000. The dashboard works on any modern browser including mobile devices.
           </p>
         </div>
 
-        <div class="faq-item">
-          <h4>What if a sensor stops working?</h4>
+        <div class="feature-card">
+          <h4>Sensor Troubleshooting</h4>
           <p>
-            The system keeps running with whatever sensors still work. If the pressure sensor fails, you lose depth info 
-            but still get motion data. If everything fails, it'll keep trying and log error messages. 
-            The dashboard will show "Sensor Error" for broken parts.
-          </p>
-        </div>
-
-        <div class="faq-item">
-          <h4>How do I check the data from another computer?</h4>
-          <p>
-            Find the IP address of the computer running the dashboard (use <code>ipconfig</code> on Windows), then 
-            go to <code>http://[that-IP]:5000</code> on any browser on the same wifi network. To access from outside 
-            your network, you'd need to set up port forwarding on your router.
-          </p>
-        </div>
-
-        <div class="faq-item">
-          <h4>Can it work without wireless?</h4>
-          <p>
-            Yes, it'll still collect and save data to the SD card even if the LoRa isn't working. 
-            You just won't see live updates on the dashboard. After the mission, you can pull the SD card 
-            and grab the CSV files with all the sensor data.
-          </p>
-        </div>
-
-        <div class="faq-item">
-          <h4>The sensors aren't working, what should I check?</h4>
-          <p>
-            First, make sure I2C is enabled on the Pi (<code>sudo raspi-config</code> > Interface Options > I2C). 
-            Check your wiring - sensors need 3.3V power and ground, plus SDA/SCL data lines. Run <code>i2cdetect -y 1</code> 
-            to see if the Pi can find the sensors (should show 0x68 and 0x76).
-          </p>
-        </div>
-
-        <div class="faq-item">
-          <h4>How waterproof is this thing?</h4>
-          <p>
-            The sensors themselves are pretty fragile and not waterproof at all. You'd need to build a proper 
-            waterproof enclosure with sealed cable penetrations. The pressure sensor can handle some moisture 
-            but the electronics definitely can't. Most people test this in pools or shallow water first.
+            If sensors aren't responding, first verify I2C is enabled via <code>sudo raspi-config</code> under
+            Interface Options. Check wiring: sensors require 3.3V power, ground, and SDA/SCL data lines.
+            Run <code>i2cdetect -y 1</code> to verify the Pi detects the sensors - expect addresses 0x68 (MPU6050)
+            and 0x76 (BME280). Missing addresses indicate wiring or power issues.
           </p>
         </div>
       </div>
+
+      <h3>Dashboard Features</h3>
+      <p>
+        The mission control dashboard provides several analysis tools for monitoring and reviewing mission data.
+      </p>
+
+      <div class="features-grid">
+        <div class="feature-card">
+          <h4>Test Data Generation</h4>
+          <p>
+            Generate simulated sensor data for testing and demonstration without hardware connected.
+            Start/stop data generation with adjustable speed from 0.5x to 10x (4 seconds to 0.2 seconds
+            per update). Clear all test data instantly with the Clear Data button. Useful for testing
+            dashboard functionality and demonstrating features.
+          </p>
+        </div>
+
+        <div class="feature-card">
+          <h4>Interactive Chart Controls</h4>
+          <p>
+            Every chart includes zoom and pan controls for detailed data inspection. Use +/− buttons
+            to zoom in/out, arrow buttons to pan in any direction, or drag to select a zoom area.
+            Click legend items to toggle individual data series visibility. Reset button restores
+            the original view. Reset All Charts button available at the bottom of the MPU6050 section.
+          </p>
+        </div>
+
+        <div class="feature-card">
+          <h4>Real-time Sensor Charts</h4>
+          <p>
+            Live updating charts organized by sensor: BME280 section displays temperature, humidity,
+            pressure, and altitude (4 charts). MPU6050 section shows acceleration X/Y/Z, gyroscope X/Y/Z,
+            and temperature (7 charts). All charts update automatically as new data arrives with
+            smooth animations and consistent styling across themes.
+          </p>
+        </div>
+
+        <div class="feature-card">
+          <h4>Time Range Filtering</h4>
+          <p>
+            Filter displayed data using the Time Range Filter section. Use preset buttons (30s, 1min, 5min)
+            or enter custom start/end times for precise control. Display filters affect chart visualization
+            while separate export filters in the download section allow exporting specific time windows.
+            Info bar shows total points, filtered points, and current time range.
+          </p>
+        </div>
+
+        <div class="feature-card">
+          <h4>Correlation Analysis</h4>
+          <p>
+            The multi-metric correlation view plots two different sensor metrics on a single chart with
+            dual Y-axes. This reveals relationships between measurements - temperature vs altitude,
+            acceleration vs gyroscope, or any metric combination. Select metrics from the dropdowns and
+            click "Update Chart" to generate the visualization. Useful for identifying sensor interdependencies.
+          </p>
+        </div>
+
+        <div class="feature-card">
+          <h4>Mission Comparison</h4>
+          <p>
+            Compare data from multiple missions by selecting archived CSV logs from the dropdown menus in the
+            Mission Comparison section. Choose which metric to compare and view both missions overlaid on a
+            single chart. Enable "Include Current Live Data" to add the active session. The statistics table
+            displays min/max/average values for both missions with calculated differences.
+          </p>
+        </div>
+
+        <div class="feature-card">
+          <h4>Data Overview Statistics</h4>
+          <p>
+            The Statistics section displays key metrics at a glance: total data points collected, filtered
+            points currently displayed, calculated sample rate in Hz, total time span of data, and timestamp
+            of the last update. These cards provide instant insight into data collection status and
+            help verify system performance during missions.
+          </p>
+        </div>
+
+        <div class="feature-card">
+          <h4>Extended Statistics Tables</h4>
+          <p>
+            Comprehensive statistics tables for both BME280 and MPU6050 sensors showing: minimum, maximum,
+            average, median, standard deviation, and percentiles (25th, 75th, 95th) for each metric.
+            Rate per second column shows data frequency. Tables update in real-time and respect
+            current time range filters for focused analysis.
+          </p>
+        </div>
+
+        <div class="feature-card">
+          <h4>Log Management</h4>
+          <p>
+            Download the latest log file directly or select from archived logs via dropdown menu.
+            Open Logs Folder button launches the system file explorer at the logs directory for
+            direct file access. Logs are automatically archived to the previous_data folder and
+            available for download or mission comparison analysis.
+          </p>
+        </div>
+
+        <div class="feature-card">
+          <h4>Filtered Data Export</h4>
+          <p>
+            Export CSV data with time-based filtering independent of display filters. Select preset
+            time ranges (All, 30s, 1min, 5min) or specify custom start/end times. Export only the
+            data you need for external analysis tools, spreadsheets, or archival purposes.
+            Exported files maintain full precision of all sensor readings.
+          </p>
+        </div>
+
+        <div class="feature-card">
+          <h4>Chart Export</h4>
+          <p>
+            Export visualizations from the Download Logs section under "Export Charts as Images". Select which
+            chart groups to include (BME280, MPU6050, Correlation), choose PNG or JPEG format, and download
+            as individual files or a consolidated ZIP archive. Select All/Deselect All buttons for
+            quick selection. Status indicator shows export progress.
+          </p>
+        </div>
+
+        <div class="feature-card">
+          <h4>Theme Selection</h4>
+          <p>
+            Three visual themes available via dropdown in the navigation bar: Dark Ocean (default blue
+            theme), Night (amber/orange accents), and Light Ocean (bright blue for well-lit environments).
+            Theme preference persists across sessions via localStorage. All charts and UI elements
+            adapt colors automatically when switching themes.
+          </p>
+        </div>
+      </div>
+
+      <h3>Hardware Considerations</h3>
+      <p>
+        The sensors and electronics are not inherently waterproof. Submarine deployment requires a properly
+        sealed enclosure with waterproof cable penetrations and O-ring seals. The pressure sensor tolerates
+        some moisture but electronics require complete isolation. The reference enclosure design (200mm x 100mm
+        x 60mm ABS plastic) provides 10 meter depth rating. Test in controlled environments like pools before
+        open water deployment.
+      </p>
     </section>
 
     <section>
       <div class="container">
         <h2>Mission Capabilities</h2>
         <p>
-          TRITON is built for submarine operations with monitoring and navigation 
-          features. The system continuously monitors the environment for depth calculation through 
-          pressure readings, provides navigation data through accelerometer and gyroscope sensors, and 
+          TRITON is built for submarine operations with monitoring and navigation
+          features. The system continuously monitors the environment for depth calculation through
+          pressure readings, provides navigation data through accelerometer and gyroscope sensors, and
           transmits data wirelessly to the surface for monitoring and control.
         </p>
-        
+
         <p>
-          The two-part system ensures reliability. The Raspberry Pi 
-          handles sensor data collection and LoRa transmission, while the PC base station receives data, 
-          logs it, runs statistics, and hosts the web interface. This setup 
-          allows real-time monitoring of submarine operations from long distances while keeping 
+          The two-part system ensures reliability. The Raspberry Pi
+          handles sensor data collection and LoRa transmission, while the PC base station receives data,
+          logs it, runs statistics, and hosts the web interface. This setup
+          allows real-time monitoring of submarine operations from long distances while keeping
           detailed data logs for later analysis.
+        </p>
+
+        <p>
+          The mission control dashboard provides comprehensive data analysis tools including
+          multi-metric correlation views for understanding sensor relationships, mission comparison
+          for analyzing performance across different runs, and chart export capabilities for
+          documentation and reporting. Time range filtering and extended statistics help identify
+          critical events and trends during mission review.
         </p>
 
         <div style="text-align: center; margin: 40px 0;">
