@@ -334,7 +334,7 @@ def list_missions():
     # Get files from main logs directory
     try:
         for f in os.listdir(LOG_DIR):
-            if f.endswith('.csv') and f.startswith('sensor_data_'):
+            if f.endswith('.csv'):
                 filepath = os.path.join(LOG_DIR, f)
                 stat = os.stat(filepath)
                 missions.append({
@@ -407,10 +407,27 @@ def load_mission(filepath):
 
         first_line = lines[0]
 
-        # Detect format: comma-delimited CSV vs fixed-width
+        # Detect format: comma-delimited, semicolon-delimited, or fixed-width
+        is_semicolon_csv = ';' in first_line and first_line.count(';') >= 5
         is_comma_csv = ',' in first_line and first_line.count(',') >= 5
 
-        if is_comma_csv:
+        if is_semicolon_csv:
+            # Semicolon-delimited CSV (common in European Excel)
+            import io
+            reader = csv.DictReader(io.StringIO(file_content), delimiter=';')
+            headers = reader.fieldnames
+
+            for header in headers:
+                data[header] = []
+
+            for row in reader:
+                for header in headers:
+                    try:
+                        value = float(row[header])
+                    except (ValueError, TypeError):
+                        value = row[header]
+                    data[header].append(value)
+        elif is_comma_csv:
             # Standard comma-delimited CSV
             import io
             reader = csv.DictReader(io.StringIO(file_content), delimiter=',')
