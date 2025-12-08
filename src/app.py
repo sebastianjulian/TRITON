@@ -232,6 +232,64 @@ def generate_random_data():
     
     return jsonify({"status": "success", "message": "Random data generated"})
 
+@app.route("/save_session_csv", methods=["POST"])
+def save_session_csv():
+    """Save current session data to a proper CSV file"""
+    global history
+
+    if not history.get("Elapsed [s]") or len(history["Elapsed [s]"]) == 0:
+        return jsonify({"status": "error", "message": "No data to save"}), 400
+
+    try:
+        # Generate filename with timestamp
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        filename = f"sensor_data_{timestamp}.csv"
+        filepath = os.path.join(LOG_DIR, filename)
+
+        # Move any existing files to archive
+        import glob
+        import shutil
+        for file in glob.glob(os.path.join(LOG_DIR, "sensor_data_*.csv")):
+            shutil.move(file, ARCHIVE_DIR)
+
+        # Write CSV with proper comma-delimited format
+        headers = ["MET [s]"] + [
+            "Elapsed [s]", "Temp_BME280 [°C]", "Hum [%]", "Press [hPa]", "Alt [m]",
+            "Acc x [m/s²]", "Acc y [m/s²]", "Acc z [m/s²]",
+            "Gyro x [°/s]", "Gyro y [°/s]", "Gyro z [°/s]", "Temp_MPU [°C]"
+        ]
+
+        with open(filepath, 'w', encoding='utf-8') as f:
+            f.write(",".join(headers) + "\n")
+
+            num_rows = len(history.get("Elapsed [s]", []))
+            for i in range(num_rows):
+                row = []
+                # MET timestamp (use elapsed time as MET)
+                elapsed = history.get("Elapsed [s]", [0])[i] if i < len(history.get("Elapsed [s]", [])) else 0
+                row.append(f"{elapsed:.3f}")
+
+                # Add all other columns
+                for key in headers[1:]:
+                    values = history.get(key, [])
+                    if i < len(values) and values[i] is not None:
+                        row.append(f"{values[i]:.3f}" if isinstance(values[i], (int, float)) else str(values[i]))
+                    else:
+                        row.append("")
+
+                f.write(",".join(row) + "\n")
+
+        return jsonify({
+            "status": "success",
+            "message": f"Saved {num_rows} rows to {filename}",
+            "filename": filename,
+            "rows": num_rows
+        })
+
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+
 @app.route("/clear_test_data", methods=["POST"])
 def clear_test_data():
     global latest_data, history
@@ -267,6 +325,164 @@ def download_archive(filename):
     if os.path.isfile(path):
         return send_from_directory(ARCHIVE_DIR, filename, as_attachment=True)
     return "File not found", 404
+
+@app.route('/api/missions/list', methods=['GET'])
+def list_missions():
+    """List all available mission CSV files from logs/ and logs/previous_data/"""
+    missions = []
+
+    # Get files from main logs directory
+    try:
+        for f in os.listdir(LOG_DIR):
+            if f.endswith('.csv') and f.startswith('sensor_data_'):
+                filepath = os.path.join(LOG_DIR, f)
+                stat = os.stat(filepath)
+                missions.append({
+                    'filename': f,
+                    'path': 'logs',
+                    'size': stat.st_size,
+                    'modified': datetime.fromtimestamp(stat.st_mtime).strftime('%Y-%m-%d %H:%M:%S')
+                })
+    except Exception as e:
+        print(f"[WARN] Error reading logs directory: {e}")
+
+    # Get files from archive directory
+    try:
+        for f in os.listdir(ARCHIVE_DIR):
+            if f.endswith('.csv'):
+                filepath = os.path.join(ARCHIVE_DIR, f)
+                stat = os.stat(filepath)
+                missions.append({
+                    'filename': f,
+                    'path': 'logs/previous_data',
+                    'size': stat.st_size,
+                    'modified': datetime.fromtimestamp(stat.st_mtime).strftime('%Y-%m-%d %H:%M:%S')
+                })
+    except Exception as e:
+        print(f"[WARN] Error reading archive directory: {e}")
+
+    # Sort by modified date (newest first)
+    missions.sort(key=lambda x: x['modified'], reverse=True)
+
+    return jsonify(missions)
+
+
+@app.route('/api/missions/load/<path:filepath>', methods=['GET'])
+def load_mission(filepath):
+    """Load and parse a mission CSV file, returning data as JSON"""
+    import csv
+    import re
+
+    # Security: only allow files from logs/ or logs/previous_data/
+    if filepath.startswith('logs/previous_data/'):
+        full_path = os.path.join(ARCHIVE_DIR, os.path.basename(filepath))
+    elif filepath.startswith('logs/'):
+        full_path = os.path.join(LOG_DIR, os.path.basename(filepath))
+    else:
+        return jsonify({'error': 'Invalid path'}), 400
+
+    if not os.path.isfile(full_path):
+        return jsonify({'error': 'File not found'}), 404
+
+    try:
+        data = {}
+        # Try different encodings
+        encodings = ['utf-8', 'latin-1', 'cp1252', 'iso-8859-1']
+        file_content = None
+
+        for encoding in encodings:
+            try:
+                with open(full_path, 'r', encoding=encoding) as f:
+                    file_content = f.read()
+                break
+            except UnicodeDecodeError:
+                continue
+
+        if file_content is None:
+            return jsonify({'error': 'Could not decode file with any supported encoding'}), 500
+
+        lines = file_content.strip().split('\n')
+        if not lines:
+            return jsonify({'error': 'Empty file'}), 400
+
+        first_line = lines[0]
+
+        # Detect format: comma-delimited CSV vs fixed-width
+        is_comma_csv = ',' in first_line and first_line.count(',') >= 5
+
+        if is_comma_csv:
+            # Standard comma-delimited CSV
+            import io
+            reader = csv.DictReader(io.StringIO(file_content), delimiter=',')
+            headers = reader.fieldnames
+
+            for header in headers:
+                data[header] = []
+
+            for row in reader:
+                for header in headers:
+                    try:
+                        value = float(row[header])
+                    except (ValueError, TypeError):
+                        value = row[header]
+                    data[header].append(value)
+        else:
+            # Fixed-width format from legacy lorareceivertest.py
+            # The header has known column names - use them to define expected structure
+            expected_headers = [
+                "Timestamp (MET)", "Elapsed [s]", "Temp_BME280 [°C]", "Hum [%]",
+                "Press [hPa]", "Alt [m]", "Acc x [m/s²]", "Acc y [m/s²]",
+                "Acc z [m/s²]", "Gyro x [°/s]", "Gyro y [°/s]", "Gyro z [°/s]",
+                "Temp_MPU [°C]"
+            ]
+
+            # Check if this looks like our legacy format
+            if "Timestamp (MET)" in first_line or "Elapsed [s]" in first_line:
+                headers = expected_headers
+            else:
+                # Fallback to splitting by multiple spaces
+                header_parts = re.split(r'\s{2,}', first_line.strip())
+                headers = [h.strip() for h in header_parts if h.strip()]
+
+            for header in headers:
+                data[header] = []
+
+            # Parse data rows - split by multiple whitespace
+            for line in lines[1:]:
+                if not line.strip():
+                    continue
+                # Skip MIN/MAX summary lines at the end
+                if line.strip().startswith('MIN,') or line.strip().startswith('MAX,'):
+                    continue
+
+                # Split by multiple spaces (2+ spaces)
+                values = re.split(r'\s{2,}', line.strip())
+                values = [v.strip() for v in values if v.strip()]
+
+                # Match values to headers
+                for i, header in enumerate(headers):
+                    if i < len(values):
+                        try:
+                            value = float(values[i])
+                        except (ValueError, TypeError):
+                            value = values[i]
+                        data[header].append(value)
+
+        # Get file info
+        stat = os.stat(full_path)
+
+        return jsonify({
+            'filename': os.path.basename(full_path),
+            'headers': headers,
+            'data': data,
+            'rowCount': len(data.get(headers[0], [])) if headers else 0,
+            'fileSize': stat.st_size,
+            'modified': datetime.fromtimestamp(stat.st_mtime).strftime('%Y-%m-%d %H:%M:%S')
+        })
+
+    except Exception as e:
+        return jsonify({'error': f'Failed to parse CSV: {str(e)}'}), 500
+
 
 @app.route('/open_logs_folder', methods=['POST'])
 def open_logs_folder():

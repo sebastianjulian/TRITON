@@ -26,7 +26,7 @@
 | 2 | 6 | Extended Statistics | Low | ✅ Completed |
 | 3 | 7 | Time Range Filtering | Medium | ✅ Completed |
 | 4 | 8 | Multi-Metric Correlation | Medium | ✅ Completed |
-| 5 | 16 | Mission Comparison | Medium | ⬜ Not Started |
+| 5 | 16 | Mission Comparison | Medium | ✅ Completed |
 | 6 | 17 | Mission Replay | Medium | ⬜ Not Started |
 | 7 | 13 | 3D Orientation | Medium | ⬜ Not Started |
 | 8 | 10 | Configuration UI | Medium | ⬜ Not Started |
@@ -296,11 +296,11 @@ Update this section as features are completed:
 [x] Feature 6: Extended Statistics (Completed Dec 2024)
 [x] Feature 7: Time Range Filtering (Completed Dec 2024)
 [x] Feature 8: Multi-Metric Correlation (Completed Dec 2024)
+[x] Feature 16: Mission Comparison (Completed Dec 2024)
 [ ] Feature 10: Configuration UI
 [ ] Feature 12: Export Formats
 [ ] Feature 13: 3D Orientation
 [ ] Feature 15: Alerts System
-[ ] Feature 16: Mission Comparison
 [ ] Feature 17: Mission Replay
 ```
 
