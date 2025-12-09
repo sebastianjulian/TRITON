@@ -1156,10 +1156,27 @@
       display: none;
     }
 
+    .toggle-all-btn {
+      padding: 4px 10px;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--color-border);
+      border-radius: 16px;
+      cursor: pointer;
+      font-size: 0.75em;
+      font-weight: 500;
+      color: var(--color-text-muted);
+      transition: all 0.2s ease;
+    }
+
+    .toggle-all-btn:hover {
+      border-color: var(--color-primary);
+      color: var(--color-text-secondary);
+      background: var(--bg-card);
+    }
+
     .grid-col-chips {
       display: flex;
       gap: 4px;
-      margin-left: auto;
     }
 
     .grid-col-chip {
@@ -3436,6 +3453,9 @@
   <!-- Section Toggle Bar -->
   <div class="section-toggle-bar" id="sectionToggleBar">
     <span class="toggle-bar-label">Sections:</span>
+    <button class="toggle-all-btn" onclick="layoutManager.selectAllSections()">All</button>
+    <button class="toggle-all-btn" onclick="layoutManager.deselectAllSections()">None</button>
+    <div class="toggle-bar-divider"></div>
     <label class="section-toggle-chip active" data-section="mission-control">
       <input type="checkbox" checked>
       Control
@@ -3473,12 +3493,12 @@
       Downloads
     </label>
     <div class="toggle-bar-divider"></div>
-    <span class="toggle-bar-label">Cols:</span>
+    <span class="toggle-bar-label">Columns:</span>
     <div class="grid-col-chips">
       <span class="grid-col-chip" data-cols="1">1</span>
-      <span class="grid-col-chip active" data-cols="2">2</span>
+      <span class="grid-col-chip" data-cols="2">2</span>
       <span class="grid-col-chip" data-cols="3">3</span>
-      <span class="grid-col-chip" data-cols="4">4</span>
+      <span class="grid-col-chip active" data-cols="4">4</span>
     </div>
   </div>
 
@@ -6991,10 +7011,10 @@
           'full-dashboard': {
             name: 'Full Dashboard',
             icon: '&#128421;',
-            description: 'All sections, 2 columns',
+            description: 'All sections, 4 columns',
             sections: ['mission-control', 'bme280', 'mpu6050', 'correlation', 'mission-compare', 'mission-replay', 'statistics', 'configuration', 'downloads'],
-            gridColumns: 2,
-            densityClass: ''
+            gridColumns: 4,
+            densityClass: 'layout-ultra-dense'
           },
           'dense-3col': {
             name: 'Dense (3 columns)',
@@ -7084,7 +7104,8 @@
         this.currentSpan = document.querySelector('.layout-current');
 
         this.renderCustomLayouts();
-        this.applyLayout(this.currentLayout);
+        // Always start with all sections visible (full-dashboard)
+        this.applyLayout('full-dashboard');
         this.setupEventListeners();
         this.setupToggleBar();
         this.updateActiveButton();
@@ -7102,6 +7123,38 @@
             section.classList.add('super-compact');
           }
         });
+      }
+
+      // Select all sections
+      selectAllSections() {
+        const toggleChips = document.querySelectorAll('.section-toggle-chip');
+        toggleChips.forEach(chip => {
+          const sectionId = chip.getAttribute('data-section');
+          const section = document.getElementById(sectionId);
+          const checkbox = chip.querySelector('input');
+
+          chip.classList.add('active');
+          checkbox.checked = true;
+          if (section) section.classList.remove('hidden-section');
+        });
+        this.updateNavLinksFromToggleBar();
+        this.triggerChartResize();
+      }
+
+      // Deselect all sections
+      deselectAllSections() {
+        const toggleChips = document.querySelectorAll('.section-toggle-chip');
+        toggleChips.forEach(chip => {
+          const sectionId = chip.getAttribute('data-section');
+          const section = document.getElementById(sectionId);
+          const checkbox = chip.querySelector('input');
+
+          chip.classList.remove('active');
+          checkbox.checked = false;
+          if (section) section.classList.add('hidden-section');
+        });
+        this.updateNavLinksFromToggleBar();
+        this.triggerChartResize();
       }
 
       // Setup toggle bar event listeners
