@@ -1678,7 +1678,7 @@
 
     .analysis-row > section .correlation-chart-box canvas,
     .analysis-row > section .comparison-chart-box canvas {
-      height: 300px !important;
+      height: 350px;
     }
 
     .analysis-stats-row {
@@ -2316,7 +2316,8 @@
     }
 
     .correlation-chart-box canvas {
-      aspect-ratio: 2.5;
+      height: 350px;
+      width: 100%;
     }
 
     .correlation-legend {
@@ -2382,7 +2383,7 @@
       }
 
       .correlation-chart-box canvas {
-        aspect-ratio: 1.5;
+        height: 280px;
       }
     }
 
@@ -2711,7 +2712,8 @@
     }
 
     .comparison-chart-box canvas {
-      aspect-ratio: 2.5;
+      height: 350px;
+      width: 100%;
     }
 
     /* Mission Replay/Playback Styles */
@@ -3067,7 +3069,7 @@
       }
 
       .comparison-chart-box canvas {
-        aspect-ratio: 1.5;
+        height: 280px;
       }
     }
 
@@ -5048,7 +5050,7 @@
           options: {
             animation: false,
             responsive: true,
-            maintainAspectRatio: true,
+            maintainAspectRatio: false,
             interaction: {
               mode: 'index',
               intersect: false,
@@ -5591,7 +5593,7 @@
           options: {
             animation: false,
             responsive: true,
-            maintainAspectRatio: true,
+            maintainAspectRatio: false,
             interaction: {
               mode: 'index',
               intersect: false,
