@@ -1537,6 +1537,323 @@
       aspect-ratio: 2.5;
     }
 
+    /* Mission Replay/Playback Styles */
+    .playback-section {
+      background: var(--gradient-card);
+      padding: 20px;
+      border-radius: 16px;
+      margin: 20px 0;
+      border: 1px solid var(--color-border);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+    }
+
+    .playback-mode-indicator {
+      position: fixed;
+      top: 60px;
+      right: 20px;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 0.85em;
+      font-weight: 600;
+      z-index: 10001;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    .playback-mode-indicator.live {
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+      color: white;
+    }
+
+    .playback-mode-indicator.playback {
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      color: white;
+    }
+
+    .playback-mode-indicator .mode-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: currentColor;
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .playback-controls-container {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .playback-mission-selector {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+
+    .playback-mission-selector label {
+      font-weight: 500;
+      color: var(--color-text-secondary);
+    }
+
+    .playback-mission-selector select {
+      flex: 1;
+      min-width: 250px;
+      max-width: 400px;
+      padding: 12px 15px;
+      background: var(--bg-tertiary);
+      color: var(--color-text-primary);
+      border: 1px solid var(--color-border);
+      border-radius: 8px;
+      font-size: 0.9em;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .playback-mission-selector select:hover,
+    .playback-mission-selector select:focus {
+      border-color: var(--color-primary);
+      outline: none;
+      box-shadow: var(--glow-accent);
+    }
+
+    .playback-mission-selector select option {
+      background: var(--bg-card);
+      color: var(--color-text-primary);
+    }
+
+    .playback-transport {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .playback-btn {
+      width: 48px;
+      height: 48px;
+      border: none;
+      border-radius: 50%;
+      background: var(--bg-tertiary);
+      color: var(--color-text-primary);
+      font-size: 1.2em;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--color-border);
+    }
+
+    .playback-btn:hover {
+      background: var(--color-primary);
+      color: var(--bg-primary);
+      transform: scale(1.1);
+      box-shadow: var(--glow-primary);
+    }
+
+    .playback-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .playback-btn:disabled:hover {
+      background: var(--bg-tertiary);
+      color: var(--color-text-primary);
+      box-shadow: none;
+    }
+
+    .playback-btn.play-btn {
+      width: 56px;
+      height: 56px;
+      font-size: 1.4em;
+      background: var(--color-primary);
+      color: var(--bg-primary);
+    }
+
+    .playback-btn.play-btn:hover {
+      background: var(--color-secondary);
+    }
+
+    .playback-btn.active {
+      background: var(--color-primary);
+      color: var(--bg-primary);
+    }
+
+    .playback-seek-container {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      width: 100%;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .playback-time {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.9em;
+      color: var(--color-text-secondary);
+      min-width: 70px;
+      text-align: center;
+    }
+
+    .playback-seek {
+      flex: 1;
+      -webkit-appearance: none;
+      appearance: none;
+      height: 8px;
+      background: var(--bg-tertiary);
+      border-radius: 4px;
+      outline: none;
+      cursor: pointer;
+      border: 1px solid var(--color-border);
+    }
+
+    .playback-seek::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--color-primary);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+
+    .playback-seek::-webkit-slider-thumb:hover {
+      transform: scale(1.2);
+      box-shadow: var(--glow-primary);
+    }
+
+    .playback-seek::-moz-range-thumb {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--color-primary);
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s ease;
+    }
+
+    .playback-options {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .playback-speed-selector {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .playback-speed-selector label {
+      font-size: 0.9em;
+      color: var(--color-text-muted);
+    }
+
+    .speed-btn {
+      padding: 6px 12px;
+      background: var(--bg-tertiary);
+      color: var(--color-text-secondary);
+      border: 1px solid var(--color-border);
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.85em;
+      transition: all 0.2s ease;
+    }
+
+    .speed-btn:hover {
+      border-color: var(--color-primary);
+      color: var(--color-text-primary);
+    }
+
+    .speed-btn.active {
+      background: var(--color-primary);
+      color: var(--bg-primary);
+      border-color: var(--color-primary);
+    }
+
+    .playback-loop-toggle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--color-border);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 0.9em;
+      color: var(--color-text-secondary);
+    }
+
+    .playback-loop-toggle:hover {
+      border-color: var(--color-primary);
+    }
+
+    .playback-loop-toggle.active {
+      background: var(--color-primary);
+      color: var(--bg-primary);
+      border-color: var(--color-primary);
+    }
+
+    .playback-loop-toggle input {
+      display: none;
+    }
+
+    .playback-status {
+      text-align: center;
+      font-size: 0.85em;
+      color: var(--color-text-muted);
+      min-height: 20px;
+    }
+
+    .playback-status.active {
+      color: var(--color-primary);
+    }
+
+    .return-live-btn {
+      padding: 12px 24px;
+      background: #22c55e;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.9em;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      box-shadow: 0 0 15px rgba(34, 197, 94, 0.3);
+    }
+
+    .return-live-btn:hover {
+      background: #16a34a;
+      transform: translateY(-2px);
+    }
+
+    .playback-info {
+      font-size: 0.8em;
+      color: var(--color-text-muted);
+      margin-top: 5px;
+    }
+
+    .playback-info.loaded {
+      color: var(--color-primary);
+    }
+
     .comparison-stats-section {
       margin-top: 30px;
     }
@@ -1588,6 +1905,7 @@
         <a href="#mpu6050">MPU6050 Data</a>
         <a href="#correlation">Correlation</a>
         <a href="#mission-compare">Compare</a>
+        <a href="#mission-replay">Replay</a>
         <a href="#statistics">Statistics</a>
         <a href="#downloads">Downloads</a>
         <!-- Theme Selector -->
@@ -2043,6 +2361,78 @@
             <tr><td colspan="5" style="text-align: center; color: var(--color-text-muted);">Select missions to compare</td></tr>
           </tbody>
         </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- Mission Replay Section -->
+  <section id="mission-replay">
+    <h2>Mission Replay</h2>
+    <p class="chart-controls-hint">Replay recorded mission data with playback controls</p>
+
+    <!-- Mode Indicator (fixed position) -->
+    <div class="playback-mode-indicator live" id="modeIndicator">
+      <span class="mode-dot"></span>
+      <span class="mode-text">LIVE</span>
+    </div>
+
+    <div class="playback-section">
+      <div class="playback-controls-container">
+        <!-- Mission Selector -->
+        <div class="playback-mission-selector">
+          <label>Select Mission:</label>
+          <select id="playbackMissionSelect" onchange="playbackController.onMissionSelect()">
+            <option value="">Choose a recorded mission...</option>
+          </select>
+          <button class="comparison-btn secondary" onclick="playbackController.refreshMissions()">Refresh</button>
+          <button class="return-live-btn" id="returnLiveBtn" onclick="playbackController.returnToLive()" style="display: none;">
+            ← Return to Live
+          </button>
+        </div>
+        <div class="playback-info" id="playbackMissionInfo"></div>
+
+        <!-- Transport Controls -->
+        <div class="playback-transport">
+          <button class="playback-btn" id="playbackStopBtn" onclick="playbackController.stop()" disabled title="Stop">
+            ⏹
+          </button>
+          <button class="playback-btn" id="playbackPrevBtn" onclick="playbackController.stepBackward()" disabled title="Step Backward">
+            ⏮
+          </button>
+          <button class="playback-btn play-btn" id="playbackPlayBtn" onclick="playbackController.togglePlay()" disabled title="Play/Pause">
+            ▶
+          </button>
+          <button class="playback-btn" id="playbackNextBtn" onclick="playbackController.stepForward()" disabled title="Step Forward">
+            ⏭
+          </button>
+        </div>
+
+        <!-- Seek Slider -->
+        <div class="playback-seek-container">
+          <span class="playback-time" id="playbackCurrentTime">0.00s</span>
+          <input type="range" class="playback-seek" id="playbackSeek" min="0" max="100" value="0"
+                 oninput="playbackController.onSeek(this.value)" disabled>
+          <span class="playback-time" id="playbackTotalTime">0.00s</span>
+        </div>
+
+        <!-- Options: Speed and Loop -->
+        <div class="playback-options">
+          <div class="playback-speed-selector">
+            <label>Speed:</label>
+            <button class="speed-btn" data-speed="0.5" onclick="playbackController.setSpeed(0.5)">0.5x</button>
+            <button class="speed-btn active" data-speed="1" onclick="playbackController.setSpeed(1)">1x</button>
+            <button class="speed-btn" data-speed="2" onclick="playbackController.setSpeed(2)">2x</button>
+            <button class="speed-btn" data-speed="5" onclick="playbackController.setSpeed(5)">5x</button>
+            <button class="speed-btn" data-speed="10" onclick="playbackController.setSpeed(10)">10x</button>
+          </div>
+
+          <button class="playback-loop-toggle" id="playbackLoopToggle" onclick="playbackController.toggleLoop()">
+            <span>🔁 Loop</span>
+          </button>
+        </div>
+
+        <!-- Status -->
+        <div class="playback-status" id="playbackStatus"></div>
       </div>
     </div>
   </section>
@@ -3566,6 +3956,459 @@
       comparisonChart.pan({x: deltaX, y: 0}, undefined, 'default');
     }
 
+    // ==========================================
+    // Mission Replay/Playback Controller
+    // ==========================================
+
+    class PlaybackController {
+      constructor() {
+        this.missionData = null;
+        this.isPlaying = false;
+        this.isPaused = false;
+        this.currentIndex = 0;
+        this.speed = 1;
+        this.loop = false;
+        this.playbackInterval = null;
+        this.baseInterval = 1000; // 1 second base interval between data points
+        this.isPlaybackMode = false;
+
+        // Cache DOM elements
+        this.elements = {
+          missionSelect: document.getElementById('playbackMissionSelect'),
+          missionInfo: document.getElementById('playbackMissionInfo'),
+          playBtn: document.getElementById('playbackPlayBtn'),
+          stopBtn: document.getElementById('playbackStopBtn'),
+          prevBtn: document.getElementById('playbackPrevBtn'),
+          nextBtn: document.getElementById('playbackNextBtn'),
+          seekSlider: document.getElementById('playbackSeek'),
+          currentTime: document.getElementById('playbackCurrentTime'),
+          totalTime: document.getElementById('playbackTotalTime'),
+          loopToggle: document.getElementById('playbackLoopToggle'),
+          status: document.getElementById('playbackStatus'),
+          modeIndicator: document.getElementById('modeIndicator'),
+          returnLiveBtn: document.getElementById('returnLiveBtn')
+        };
+
+        // Initialize
+        this.refreshMissions();
+      }
+
+      async refreshMissions() {
+        this.setStatus('Loading missions...', true);
+
+        try {
+          const response = await fetch('/api/missions/list');
+          if (!response.ok) throw new Error('Failed to fetch mission list');
+
+          const missions = await response.json();
+
+          // Populate dropdown
+          const select = this.elements.missionSelect;
+          select.innerHTML = '<option value="">Choose a recorded mission...</option>';
+
+          missions.forEach(mission => {
+            const optionText = `${mission.filename} (${mission.modified})`;
+            const optionValue = `${mission.path}/${mission.filename}`;
+            select.innerHTML += `<option value="${optionValue}">${optionText}</option>`;
+          });
+
+          this.setStatus(`Found ${missions.length} mission(s)`);
+          setTimeout(() => this.setStatus(''), 2000);
+
+        } catch (error) {
+          console.error('Error loading missions:', error);
+          this.setStatus(`Error: ${error.message}`);
+        }
+      }
+
+      async onMissionSelect() {
+        const filepath = this.elements.missionSelect.value;
+
+        if (!filepath) {
+          this.missionData = null;
+          this.elements.missionInfo.textContent = '';
+          this.elements.missionInfo.className = 'playback-info';
+          this.disableControls();
+          return;
+        }
+
+        this.setStatus('Loading mission...', true);
+        this.elements.missionInfo.textContent = 'Loading...';
+
+        try {
+          const response = await fetch(`/api/missions/load/${filepath}`);
+          if (!response.ok) throw new Error('Failed to load mission');
+
+          this.missionData = await response.json();
+
+          const elapsed = this.getMissionElapsed();
+          const totalTime = elapsed.length > 0 ? elapsed[elapsed.length - 1] : 0;
+
+          this.elements.missionInfo.textContent = `${this.missionData.rowCount} data points | Duration: ${totalTime.toFixed(1)}s`;
+          this.elements.missionInfo.className = 'playback-info loaded';
+
+          // Setup seek slider
+          this.elements.seekSlider.max = elapsed.length - 1;
+          this.elements.seekSlider.value = 0;
+          this.elements.totalTime.textContent = `${totalTime.toFixed(2)}s`;
+          this.elements.currentTime.textContent = '0.00s';
+
+          // Enable controls
+          this.enableControls();
+          this.currentIndex = 0;
+
+          this.setStatus(`Mission loaded: ${this.missionData.filename}`);
+          setTimeout(() => this.setStatus('Ready to play'), 2000);
+
+        } catch (error) {
+          console.error('Error loading mission:', error);
+          this.elements.missionInfo.textContent = 'Error loading';
+          this.elements.missionInfo.className = 'playback-info';
+          this.setStatus(`Error: ${error.message}`);
+          this.disableControls();
+        }
+      }
+
+      getMissionElapsed() {
+        if (!this.missionData || !this.missionData.data) return [];
+        return getMissionMetric(this.missionData.data, 'Elapsed [s]') ||
+               getMissionMetric(this.missionData.data, 'MET [s]') || [];
+      }
+
+      enableControls() {
+        this.elements.playBtn.disabled = false;
+        this.elements.stopBtn.disabled = false;
+        this.elements.prevBtn.disabled = false;
+        this.elements.nextBtn.disabled = false;
+        this.elements.seekSlider.disabled = false;
+      }
+
+      disableControls() {
+        this.elements.playBtn.disabled = true;
+        this.elements.stopBtn.disabled = true;
+        this.elements.prevBtn.disabled = true;
+        this.elements.nextBtn.disabled = true;
+        this.elements.seekSlider.disabled = true;
+      }
+
+      togglePlay() {
+        if (!this.missionData) return;
+
+        if (this.isPlaying) {
+          this.pause();
+        } else {
+          this.play();
+        }
+      }
+
+      play() {
+        if (!this.missionData) return;
+
+        // Enter playback mode
+        this.enterPlaybackMode();
+
+        this.isPlaying = true;
+        this.isPaused = false;
+        this.elements.playBtn.textContent = '⏸';
+        this.elements.playBtn.title = 'Pause';
+
+        const elapsed = this.getMissionElapsed();
+
+        // If at end, restart
+        if (this.currentIndex >= elapsed.length - 1) {
+          this.currentIndex = 0;
+        }
+
+        this.setStatus('Playing...', true);
+
+        // Start playback interval
+        const interval = this.baseInterval / this.speed;
+        this.playbackInterval = setInterval(() => {
+          this.advanceFrame();
+        }, interval);
+
+        // Show current frame immediately
+        this.updateDisplay();
+      }
+
+      pause() {
+        this.isPlaying = false;
+        this.isPaused = true;
+        this.elements.playBtn.textContent = '▶';
+        this.elements.playBtn.title = 'Play';
+
+        if (this.playbackInterval) {
+          clearInterval(this.playbackInterval);
+          this.playbackInterval = null;
+        }
+
+        this.setStatus('Paused');
+      }
+
+      stop() {
+        this.isPlaying = false;
+        this.isPaused = false;
+        this.currentIndex = 0;
+        this.elements.playBtn.textContent = '▶';
+        this.elements.playBtn.title = 'Play';
+
+        if (this.playbackInterval) {
+          clearInterval(this.playbackInterval);
+          this.playbackInterval = null;
+        }
+
+        this.updateSeekPosition();
+        this.setStatus('Stopped');
+
+        // Update display with first frame
+        this.updateDisplay();
+      }
+
+      advanceFrame() {
+        const elapsed = this.getMissionElapsed();
+
+        if (this.currentIndex < elapsed.length - 1) {
+          this.currentIndex++;
+          this.updateSeekPosition();
+          this.updateDisplay();
+        } else {
+          // End of playback
+          if (this.loop) {
+            this.currentIndex = 0;
+            this.updateSeekPosition();
+            this.updateDisplay();
+            this.setStatus('Looping...', true);
+          } else {
+            this.pause();
+            this.setStatus('Playback complete');
+          }
+        }
+      }
+
+      stepForward() {
+        if (!this.missionData) return;
+
+        const elapsed = this.getMissionElapsed();
+        if (this.currentIndex < elapsed.length - 1) {
+          this.currentIndex++;
+          this.updateSeekPosition();
+
+          // Enter playback mode if not already
+          if (!this.isPlaybackMode) {
+            this.enterPlaybackMode();
+          }
+
+          this.updateDisplay();
+        }
+      }
+
+      stepBackward() {
+        if (!this.missionData) return;
+
+        if (this.currentIndex > 0) {
+          this.currentIndex--;
+          this.updateSeekPosition();
+
+          // Enter playback mode if not already
+          if (!this.isPlaybackMode) {
+            this.enterPlaybackMode();
+          }
+
+          this.updateDisplay();
+        }
+      }
+
+      onSeek(value) {
+        if (!this.missionData) return;
+
+        this.currentIndex = parseInt(value);
+
+        // Enter playback mode if not already
+        if (!this.isPlaybackMode) {
+          this.enterPlaybackMode();
+        }
+
+        this.updateSeekPosition();
+        this.updateDisplay();
+      }
+
+      updateSeekPosition() {
+        const elapsed = this.getMissionElapsed();
+        this.elements.seekSlider.value = this.currentIndex;
+
+        if (elapsed.length > 0 && this.currentIndex < elapsed.length) {
+          this.elements.currentTime.textContent = `${elapsed[this.currentIndex].toFixed(2)}s`;
+        }
+      }
+
+      setSpeed(speed) {
+        this.speed = speed;
+
+        // Update button states
+        document.querySelectorAll('.speed-btn').forEach(btn => {
+          btn.classList.remove('active');
+          if (parseFloat(btn.dataset.speed) === speed) {
+            btn.classList.add('active');
+          }
+        });
+
+        // If playing, restart interval with new speed
+        if (this.isPlaying) {
+          if (this.playbackInterval) {
+            clearInterval(this.playbackInterval);
+          }
+          const interval = this.baseInterval / this.speed;
+          this.playbackInterval = setInterval(() => {
+            this.advanceFrame();
+          }, interval);
+        }
+
+        this.setStatus(`Speed: ${speed}x`);
+        setTimeout(() => {
+          if (this.isPlaying) this.setStatus('Playing...', true);
+          else if (this.isPaused) this.setStatus('Paused');
+          else this.setStatus('');
+        }, 1000);
+      }
+
+      toggleLoop() {
+        this.loop = !this.loop;
+        this.elements.loopToggle.classList.toggle('active', this.loop);
+
+        this.setStatus(this.loop ? 'Loop enabled' : 'Loop disabled');
+        setTimeout(() => {
+          if (this.isPlaying) this.setStatus('Playing...', true);
+          else if (this.isPaused) this.setStatus('Paused');
+          else this.setStatus('');
+        }, 1000);
+      }
+
+      enterPlaybackMode() {
+        if (this.isPlaybackMode) return;
+
+        this.isPlaybackMode = true;
+
+        // Update mode indicator
+        this.elements.modeIndicator.className = 'playback-mode-indicator playback';
+        this.elements.modeIndicator.querySelector('.mode-text').textContent = 'PLAYBACK';
+
+        // Show return to live button
+        this.elements.returnLiveBtn.style.display = 'inline-block';
+
+        // Stop live data fetching
+        if (window.liveDataInterval) {
+          clearInterval(window.liveDataInterval);
+          window.liveDataInterval = null;
+        }
+      }
+
+      returnToLive() {
+        // Stop playback
+        if (this.playbackInterval) {
+          clearInterval(this.playbackInterval);
+          this.playbackInterval = null;
+        }
+
+        this.isPlaying = false;
+        this.isPaused = false;
+        this.isPlaybackMode = false;
+        this.currentIndex = 0;
+        this.elements.playBtn.textContent = '▶';
+        this.elements.playBtn.title = 'Play';
+
+        // Update mode indicator
+        this.elements.modeIndicator.className = 'playback-mode-indicator live';
+        this.elements.modeIndicator.querySelector('.mode-text').textContent = 'LIVE';
+
+        // Hide return to live button
+        this.elements.returnLiveBtn.style.display = 'none';
+
+        // Reset mission selection
+        this.elements.missionSelect.value = '';
+        this.missionData = null;
+        this.elements.missionInfo.textContent = '';
+        this.elements.missionInfo.className = 'playback-info';
+        this.disableControls();
+
+        // Restart live data fetching
+        window.liveDataInterval = setInterval(fetchData, 1000);
+        fetchData(); // Fetch immediately
+
+        this.setStatus('Returned to live mode');
+        setTimeout(() => this.setStatus(''), 2000);
+      }
+
+      updateDisplay() {
+        if (!this.missionData || !this.missionData.data) return;
+
+        const elapsed = this.getMissionElapsed();
+        if (this.currentIndex >= elapsed.length) return;
+
+        // Build history object with data up to current index, using normalized keys
+        const playbackHistory = {
+          'Elapsed [s]': elapsed.slice(0, this.currentIndex + 1)
+        };
+
+        // Map each field using getMissionMetric for flexible key matching
+        for (const fieldKey of Object.keys(fields)) {
+          const fullData = getMissionMetric(this.missionData.data, fieldKey);
+          if (fullData && fullData.length > 0) {
+            playbackHistory[fieldKey] = fullData.slice(0, this.currentIndex + 1);
+          }
+        }
+
+        // Update charts with playback data
+        const filteredHistory = filterDataByTimeRange(playbackHistory, currentTimeFilter);
+        const elapsedFiltered = filteredHistory["Elapsed [s]"] || [];
+
+        for (const [id, group] of Object.entries(fields)) {
+          const values = filteredHistory[id] || [];
+          if (chartRefs[id]) {
+            chartRefs[id].data.labels = elapsedFiltered;
+            chartRefs[id].data.datasets[0].data = values;
+            chartRefs[id].update('none');
+          }
+        }
+
+        // Update statistics
+        const bmeRows = [], mpuRows = [];
+        for (const [id, group] of Object.entries(fields)) {
+          const values = filteredHistory[id] || [];
+          const stats = computeExtendedStats(values, elapsedFiltered);
+          const row = `<tr>
+            <td>${id}</td>
+            <td>${stats.min}</td>
+            <td>${stats.max}</td>
+            <td>${stats.avg}</td>
+            <td>${stats.median}</td>
+            <td>${stats.stdDev}</td>
+            <td>${stats.p25}</td>
+            <td>${stats.p75}</td>
+            <td>${stats.p95}</td>
+            <td>${formatRateWithColor(stats.ratePerSec)}</td>
+          </tr>`;
+          (group === "bme" ? bmeRows : mpuRows).push(row);
+        }
+
+        document.getElementById("bmeSummary").innerHTML = bmeRows.join("");
+        document.getElementById("mpuSummary").innerHTML = mpuRows.join("");
+
+        // Update stats meta
+        const totalPoints = elapsed.length;
+        const filteredPoints = elapsedFiltered.length;
+        updateFilterInfo(totalPoints, filteredPoints);
+        updateStatsMeta(totalPoints, filteredPoints, elapsedFiltered);
+      }
+
+      setStatus(message, active = false) {
+        this.elements.status.textContent = message;
+        this.elements.status.className = active ? 'playback-status active' : 'playback-status';
+      }
+    }
+
+    // Global playback controller instance
+    let playbackController;
+
     // Time Range Filter Functions
     function filterDataByTimeRange(history, filter) {
       const elapsed = history["Elapsed [s]"] || [];
@@ -4203,7 +5046,10 @@
       // Initialize mission comparison
       refreshMissionList();
       loadArchivedLogs();
-      setInterval(fetchData, 1000);
+      // Initialize playback controller
+      playbackController = new PlaybackController();
+      // Start live data fetching (stored in window for playback control)
+      window.liveDataInterval = setInterval(fetchData, 1000);
       
       // Smooth scrolling for anchor links with offset for fixed header
       document.querySelectorAll('a[href^="#"]').forEach(anchor => {
