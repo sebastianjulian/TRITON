@@ -100,9 +100,65 @@ import atexit
 import platform
 import random
 import time
+import json
+import glob as glob_module
 
 from flask import Flask, request, jsonify, render_template, send_from_directory
 from datetime import datetime
+
+# Configuration directory setup
+CONFIG_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'config'))
+CONFIG_FILE = os.path.join(CONFIG_DIR, 'triton_config.json')
+
+# Default configuration values
+DEFAULT_CONFIG = {
+    "sea_level_pressure": 993.9,
+    "transmission_thresholds": {
+        "temp_bme280": 0.25,
+        "humidity": 1.0,
+        "pressure": 0.5,
+        "altitude": 0.5,
+        "acceleration": 0.25,
+        "gyroscope": 5.0,
+        "temp_mpu": 0.25
+    },
+    "update_frequency": 1.0,
+    "history_length": 300
+}
+
+def load_config():
+    """Load configuration from file or return defaults"""
+    try:
+        if os.path.exists(CONFIG_FILE):
+            with open(CONFIG_FILE, 'r', encoding='utf-8') as f:
+                return json.load(f)
+    except Exception as e:
+        print(f"[WARN] Could not load config: {e}")
+    return DEFAULT_CONFIG.copy()
+
+def save_config(config):
+    """Save configuration to file"""
+    os.makedirs(CONFIG_DIR, exist_ok=True)
+    with open(CONFIG_FILE, 'w', encoding='utf-8') as f:
+        json.dump(config, f, indent=4)
+
+def get_profile_path(name):
+    """Get the path for a configuration profile"""
+    # Sanitize profile name
+    safe_name = "".join(c for c in name if c.isalnum() or c in ('-', '_')).strip()
+    if not safe_name:
+        raise ValueError("Invalid profile name")
+    return os.path.join(CONFIG_DIR, f'profile_{safe_name}.json')
+
+def list_profiles():
+    """List all saved configuration profiles"""
+    profiles = []
+    if os.path.exists(CONFIG_DIR):
+        for f in os.listdir(CONFIG_DIR):
+            if f.startswith('profile_') and f.endswith('.json'):
+                name = f[8:-5]  # Remove 'profile_' prefix and '.json' suffix
+                profiles.append(name)
+    return profiles
 
 def kill_port(port=5000):
     try:
@@ -506,11 +562,11 @@ def open_logs_folder():
     try:
         # Get absolute path to logs directory for security
         logs_path = os.path.abspath(LOG_DIR)
-        
+
         # Ensure logs directory exists
         if not os.path.exists(logs_path):
             return jsonify({"status": "error", "message": "Logs directory does not exist"}), 404
-        
+
         # Open folder based on operating system
         system = platform.system()
         if system == "Windows":
@@ -521,11 +577,148 @@ def open_logs_folder():
             subprocess.run(["xdg-open", logs_path], check=True)
         else:
             return jsonify({"status": "error", "message": f"Unsupported operating system: {system}"}), 400
-        
+
         return jsonify({"status": "success", "message": "Logs folder opened successfully"})
-    
+
     except Exception as e:
         return jsonify({"status": "error", "message": f"Failed to open logs folder: {str(e)}"}), 500
+
+
+# ==================== Configuration API Endpoints ====================
+
+@app.route('/config', methods=['GET'])
+def get_config():
+    """Get current configuration"""
+    config = load_config()
+    return jsonify(config)
+
+
+@app.route('/config', methods=['POST'])
+def update_config():
+    """Update configuration"""
+    try:
+        new_config = request.json
+        if not new_config:
+            return jsonify({"error": "No configuration data provided"}), 400
+
+        # Load current config and merge with new values
+        current_config = load_config()
+
+        # Update top-level values
+        if 'sea_level_pressure' in new_config:
+            current_config['sea_level_pressure'] = float(new_config['sea_level_pressure'])
+        if 'update_frequency' in new_config:
+            current_config['update_frequency'] = float(new_config['update_frequency'])
+        if 'history_length' in new_config:
+            current_config['history_length'] = int(new_config['history_length'])
+
+        # Update transmission thresholds
+        if 'transmission_thresholds' in new_config:
+            for key, value in new_config['transmission_thresholds'].items():
+                if key in current_config['transmission_thresholds']:
+                    current_config['transmission_thresholds'][key] = float(value)
+
+        save_config(current_config)
+        return jsonify({"status": "success", "config": current_config})
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route('/config/reset', methods=['POST'])
+def reset_config():
+    """Reset configuration to defaults"""
+    try:
+        save_config(DEFAULT_CONFIG.copy())
+        return jsonify({"status": "success", "config": DEFAULT_CONFIG})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route('/config/profiles', methods=['GET'])
+def get_profiles():
+    """List all saved configuration profiles"""
+    profiles = list_profiles()
+    return jsonify({"profiles": profiles})
+
+
+@app.route('/config/profiles/<name>', methods=['GET'])
+def get_profile(name):
+    """Load a specific configuration profile"""
+    try:
+        profile_path = get_profile_path(name)
+        if not os.path.exists(profile_path):
+            return jsonify({"error": f"Profile '{name}' not found"}), 404
+
+        with open(profile_path, 'r', encoding='utf-8') as f:
+            profile = json.load(f)
+        return jsonify(profile)
+
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route('/config/profiles/<name>', methods=['POST'])
+def save_profile(name):
+    """Save current configuration as a named profile"""
+    try:
+        profile_path = get_profile_path(name)
+
+        # Get current config or use provided config
+        if request.json:
+            config = request.json
+        else:
+            config = load_config()
+
+        os.makedirs(CONFIG_DIR, exist_ok=True)
+        with open(profile_path, 'w', encoding='utf-8') as f:
+            json.dump(config, f, indent=4)
+
+        return jsonify({"status": "success", "message": f"Profile '{name}' saved"})
+
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route('/config/profiles/<name>', methods=['DELETE'])
+def delete_profile(name):
+    """Delete a configuration profile"""
+    try:
+        profile_path = get_profile_path(name)
+        if not os.path.exists(profile_path):
+            return jsonify({"error": f"Profile '{name}' not found"}), 404
+
+        os.remove(profile_path)
+        return jsonify({"status": "success", "message": f"Profile '{name}' deleted"})
+
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route('/config/profiles/<name>/apply', methods=['POST'])
+def apply_profile(name):
+    """Apply a profile as the current configuration"""
+    try:
+        profile_path = get_profile_path(name)
+        if not os.path.exists(profile_path):
+            return jsonify({"error": f"Profile '{name}' not found"}), 404
+
+        with open(profile_path, 'r', encoding='utf-8') as f:
+            profile = json.load(f)
+
+        save_config(profile)
+        return jsonify({"status": "success", "config": profile})
+
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 def cleanup():
     try:

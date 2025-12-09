@@ -1,0 +1,14 @@
+{
+    "sea_level_pressure": 993.9,
+    "update_frequency": 1,
+    "history_length": 300,
+    "transmission_thresholds": {
+        "temp_bme280": 0.25,
+        "humidity": 100,
+        "pressure": 0.5,
+        "altitude": 0.5,
+        "acceleration": 0.25,
+        "gyroscope": 5,
+        "temp_mpu": 0.25
+    }
+}

@@ -1893,6 +1893,270 @@
         aspect-ratio: 1.5;
       }
     }
+
+    /* Configuration UI Styles */
+    .config-section {
+      background: var(--gradient-card);
+      padding: 25px;
+      border-radius: 16px;
+      margin: 20px 0;
+      border: 1px solid var(--color-border);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+    }
+
+    .config-section h3 {
+      margin: 0 0 20px 0;
+      color: var(--color-text-primary);
+      font-size: 1.1em;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .config-section h3::before {
+      content: '';
+      width: 4px;
+      height: 20px;
+      background: var(--color-primary);
+      border-radius: 2px;
+      box-shadow: var(--glow-primary);
+    }
+
+    .config-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+    }
+
+    .config-group {
+      background: var(--bg-tertiary);
+      padding: 20px;
+      border-radius: 12px;
+      border: 1px solid var(--color-border);
+    }
+
+    .config-group h4 {
+      margin: 0 0 15px 0;
+      color: var(--color-primary);
+      font-size: 0.95em;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .config-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .config-row:last-child {
+      border-bottom: none;
+    }
+
+    .config-label {
+      font-size: 0.9em;
+      color: var(--color-text-secondary);
+      font-weight: 500;
+    }
+
+    .config-input {
+      width: 120px;
+      padding: 8px 12px;
+      background: var(--bg-secondary);
+      color: var(--color-text-primary);
+      border: 1px solid var(--color-border);
+      border-radius: 6px;
+      font-size: 0.9em;
+      font-family: 'JetBrains Mono', monospace;
+      text-align: right;
+      transition: all 0.3s ease;
+    }
+
+    .config-input:focus {
+      outline: none;
+      border-color: var(--color-primary);
+      box-shadow: var(--glow-accent);
+    }
+
+    .config-input:hover {
+      border-color: var(--color-primary);
+    }
+
+    .config-unit {
+      font-size: 0.8em;
+      color: var(--color-text-muted);
+      margin-left: 8px;
+      min-width: 50px;
+    }
+
+    .config-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 1px solid var(--color-border);
+    }
+
+    .config-btn {
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 0.9em;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border: 1px solid transparent;
+    }
+
+    .config-btn.primary {
+      background: var(--color-primary);
+      color: var(--bg-primary);
+      border-color: var(--color-primary);
+    }
+
+    .config-btn.primary:hover {
+      background: var(--color-accent);
+      transform: translateY(-2px);
+      box-shadow: var(--glow-primary);
+    }
+
+    .config-btn.secondary {
+      background: var(--bg-tertiary);
+      color: var(--color-text-secondary);
+      border-color: var(--color-border);
+    }
+
+    .config-btn.secondary:hover {
+      border-color: var(--color-primary);
+      color: var(--color-text-primary);
+    }
+
+    .config-btn.danger {
+      background: transparent;
+      color: #ef4444;
+      border-color: #ef4444;
+    }
+
+    .config-btn.danger:hover {
+      background: #ef4444;
+      color: white;
+    }
+
+    .config-status {
+      font-size: 0.85em;
+      padding: 10px 15px;
+      border-radius: 8px;
+      margin-top: 15px;
+      display: none;
+    }
+
+    .config-status.success {
+      display: block;
+      background: rgba(34, 197, 94, 0.15);
+      color: #22c55e;
+      border: 1px solid rgba(34, 197, 94, 0.3);
+    }
+
+    .config-status.error {
+      display: block;
+      background: rgba(239, 68, 68, 0.15);
+      color: #ef4444;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    /* Profile Management Styles */
+    .profile-section {
+      margin-top: 20px;
+    }
+
+    .profile-controls {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .profile-select {
+      flex: 1;
+      min-width: 200px;
+      padding: 10px 14px;
+      background: var(--bg-secondary);
+      color: var(--color-text-primary);
+      border: 1px solid var(--color-border);
+      border-radius: 8px;
+      font-size: 0.9em;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .profile-select:focus {
+      outline: none;
+      border-color: var(--color-primary);
+    }
+
+    .profile-select option {
+      background: var(--bg-secondary);
+      color: var(--color-text-primary);
+    }
+
+    .profile-name-input {
+      width: 200px;
+      padding: 10px 14px;
+      background: var(--bg-secondary);
+      color: var(--color-text-primary);
+      border: 1px solid var(--color-border);
+      border-radius: 8px;
+      font-size: 0.9em;
+      transition: all 0.3s ease;
+    }
+
+    .profile-name-input:focus {
+      outline: none;
+      border-color: var(--color-primary);
+      box-shadow: var(--glow-accent);
+    }
+
+    .profile-name-input::placeholder {
+      color: var(--color-text-muted);
+    }
+
+    @media (max-width: 768px) {
+      .config-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .config-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+      }
+
+      .config-input {
+        width: 100%;
+        text-align: left;
+      }
+
+      .config-actions {
+        flex-direction: column;
+      }
+
+      .config-btn {
+        width: 100%;
+        text-align: center;
+      }
+
+      .profile-controls {
+        flex-direction: column;
+      }
+
+      .profile-select,
+      .profile-name-input {
+        width: 100%;
+      }
+    }
   </style>
 </head>
 <body>
@@ -1907,6 +2171,7 @@
         <a href="#mission-compare">Compare</a>
         <a href="#mission-replay">Replay</a>
         <a href="#statistics">Statistics</a>
+        <a href="#configuration">Config</a>
         <a href="#downloads">Downloads</a>
         <!-- Theme Selector -->
         <div class="theme-selector">
@@ -2506,6 +2771,149 @@
         </thead>
         <tbody id="mpuSummary"></tbody>
       </table>
+    </div>
+  </section>
+
+
+  <!-- Configuration Section -->
+  <section id="configuration">
+    <h2>System Configuration</h2>
+
+    <div class="config-section">
+      <h3>Sensor Calibration & Settings</h3>
+
+      <div class="config-grid">
+        <!-- Calibration Settings -->
+        <div class="config-group">
+          <h4>Calibration</h4>
+          <div class="config-row">
+            <span class="config-label">Sea Level Pressure</span>
+            <div>
+              <input type="number" class="config-input" id="configSeaLevelPressure" step="0.1" min="900" max="1100">
+              <span class="config-unit">hPa</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Update Settings -->
+        <div class="config-group">
+          <h4>Update Settings</h4>
+          <div class="config-row">
+            <span class="config-label">Update Frequency</span>
+            <div>
+              <input type="number" class="config-input" id="configUpdateFrequency" step="0.1" min="0.1" max="10">
+              <span class="config-unit">sec</span>
+            </div>
+          </div>
+          <div class="config-row">
+            <span class="config-label">History Length</span>
+            <div>
+              <input type="number" class="config-input" id="configHistoryLength" step="10" min="50" max="1000">
+              <span class="config-unit">points</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="config-section" style="margin-top: 20px; padding: 20px;">
+        <h3>Transmission Thresholds</h3>
+        <p style="color: var(--color-text-muted); font-size: 0.85em; margin-bottom: 15px;">
+          Minimum change required before transmitting new data (reduces network overhead)
+        </p>
+
+        <div class="config-grid">
+          <!-- BME280 Thresholds -->
+          <div class="config-group">
+            <h4>BME280 Sensor</h4>
+            <div class="config-row">
+              <span class="config-label">Temperature</span>
+              <div>
+                <input type="number" class="config-input" id="configThresholdTempBme" step="0.05" min="0">
+                <span class="config-unit">°C</span>
+              </div>
+            </div>
+            <div class="config-row">
+              <span class="config-label">Humidity</span>
+              <div>
+                <input type="number" class="config-input" id="configThresholdHumidity" step="0.1" min="0">
+                <span class="config-unit">%</span>
+              </div>
+            </div>
+            <div class="config-row">
+              <span class="config-label">Pressure</span>
+              <div>
+                <input type="number" class="config-input" id="configThresholdPressure" step="0.1" min="0">
+                <span class="config-unit">hPa</span>
+              </div>
+            </div>
+            <div class="config-row">
+              <span class="config-label">Altitude</span>
+              <div>
+                <input type="number" class="config-input" id="configThresholdAltitude" step="0.1" min="0">
+                <span class="config-unit">m</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- MPU6050 Thresholds -->
+          <div class="config-group">
+            <h4>MPU6050 Sensor</h4>
+            <div class="config-row">
+              <span class="config-label">Acceleration (all axes)</span>
+              <div>
+                <input type="number" class="config-input" id="configThresholdAcceleration" step="0.05" min="0">
+                <span class="config-unit">m/s²</span>
+              </div>
+            </div>
+            <div class="config-row">
+              <span class="config-label">Gyroscope (all axes)</span>
+              <div>
+                <input type="number" class="config-input" id="configThresholdGyroscope" step="0.5" min="0">
+                <span class="config-unit">°/s</span>
+              </div>
+            </div>
+            <div class="config-row">
+              <span class="config-label">Temperature</span>
+              <div>
+                <input type="number" class="config-input" id="configThresholdTempMpu" step="0.05" min="0">
+                <span class="config-unit">°C</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Configuration Actions -->
+      <div class="config-actions">
+        <button class="config-btn secondary" onclick="loadConfiguration()">Reload</button>
+        <button class="config-btn danger" onclick="resetConfiguration()">Reset to Defaults</button>
+        <button class="config-btn primary" onclick="saveConfiguration()">Save Configuration</button>
+      </div>
+
+      <div class="config-status" id="configStatus"></div>
+    </div>
+
+    <!-- Profile Management -->
+    <div class="config-section profile-section">
+      <h3>Configuration Profiles</h3>
+      <p style="color: var(--color-text-muted); font-size: 0.85em; margin-bottom: 15px;">
+        Save and load configuration presets for different mission scenarios
+      </p>
+
+      <div class="profile-controls">
+        <select class="profile-select" id="profileSelect">
+          <option value="">-- Select a profile --</option>
+        </select>
+        <button class="config-btn secondary" onclick="loadProfile()">Load Profile</button>
+        <button class="config-btn danger" onclick="deleteProfile()">Delete</button>
+      </div>
+
+      <div class="profile-controls" style="margin-top: 15px;">
+        <input type="text" class="profile-name-input" id="newProfileName" placeholder="New profile name...">
+        <button class="config-btn primary" onclick="saveProfile()">Save as New Profile</button>
+      </div>
+
+      <div class="config-status" id="profileStatus"></div>
     </div>
   </section>
 
@@ -4914,6 +5322,263 @@
       }
     }
 
+    // ==================== Configuration Management System ====================
+
+    // Load configuration from server
+    async function loadConfiguration() {
+      try {
+        const response = await fetch('/config');
+        const config = await response.json();
+
+        // Populate main settings
+        document.getElementById('configSeaLevelPressure').value = config.sea_level_pressure || 993.9;
+        document.getElementById('configUpdateFrequency').value = config.update_frequency || 1.0;
+        document.getElementById('configHistoryLength').value = config.history_length || 300;
+
+        // Populate thresholds
+        const thresholds = config.transmission_thresholds || {};
+        document.getElementById('configThresholdTempBme').value = thresholds.temp_bme280 || 0.25;
+        document.getElementById('configThresholdHumidity').value = thresholds.humidity || 1.0;
+        document.getElementById('configThresholdPressure').value = thresholds.pressure || 0.5;
+        document.getElementById('configThresholdAltitude').value = thresholds.altitude || 0.5;
+        document.getElementById('configThresholdAcceleration').value = thresholds.acceleration || 0.25;
+        document.getElementById('configThresholdGyroscope').value = thresholds.gyroscope || 5.0;
+        document.getElementById('configThresholdTempMpu').value = thresholds.temp_mpu || 0.25;
+
+        showConfigStatus('Configuration loaded successfully', 'success');
+      } catch (error) {
+        console.error('Error loading configuration:', error);
+        showConfigStatus('Failed to load configuration: ' + error.message, 'error');
+      }
+    }
+
+    // Save configuration to server
+    async function saveConfiguration() {
+      try {
+        const config = {
+          sea_level_pressure: parseFloat(document.getElementById('configSeaLevelPressure').value),
+          update_frequency: parseFloat(document.getElementById('configUpdateFrequency').value),
+          history_length: parseInt(document.getElementById('configHistoryLength').value),
+          transmission_thresholds: {
+            temp_bme280: parseFloat(document.getElementById('configThresholdTempBme').value),
+            humidity: parseFloat(document.getElementById('configThresholdHumidity').value),
+            pressure: parseFloat(document.getElementById('configThresholdPressure').value),
+            altitude: parseFloat(document.getElementById('configThresholdAltitude').value),
+            acceleration: parseFloat(document.getElementById('configThresholdAcceleration').value),
+            gyroscope: parseFloat(document.getElementById('configThresholdGyroscope').value),
+            temp_mpu: parseFloat(document.getElementById('configThresholdTempMpu').value)
+          }
+        };
+
+        const response = await fetch('/config', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(config)
+        });
+
+        const result = await response.json();
+        if (result.error) {
+          throw new Error(result.error);
+        }
+
+        showConfigStatus('Configuration saved successfully', 'success');
+      } catch (error) {
+        console.error('Error saving configuration:', error);
+        showConfigStatus('Failed to save configuration: ' + error.message, 'error');
+      }
+    }
+
+    // Reset configuration to defaults
+    async function resetConfiguration() {
+      if (!confirm('Are you sure you want to reset all settings to defaults?')) {
+        return;
+      }
+
+      try {
+        const response = await fetch('/config/reset', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' }
+        });
+
+        const result = await response.json();
+        if (result.error) {
+          throw new Error(result.error);
+        }
+
+        // Reload the configuration to update UI
+        await loadConfiguration();
+        showConfigStatus('Configuration reset to defaults', 'success');
+      } catch (error) {
+        console.error('Error resetting configuration:', error);
+        showConfigStatus('Failed to reset configuration: ' + error.message, 'error');
+      }
+    }
+
+    // Show configuration status message
+    function showConfigStatus(message, type) {
+      const statusEl = document.getElementById('configStatus');
+      statusEl.textContent = message;
+      statusEl.className = 'config-status ' + type;
+
+      // Auto-hide after 5 seconds
+      setTimeout(() => {
+        statusEl.className = 'config-status';
+        statusEl.textContent = '';
+      }, 5000);
+    }
+
+    // Load available profiles
+    async function loadProfileList() {
+      try {
+        const response = await fetch('/config/profiles');
+        const data = await response.json();
+
+        const select = document.getElementById('profileSelect');
+        // Clear existing options except the first one
+        select.innerHTML = '<option value="">-- Select a profile --</option>';
+
+        (data.profiles || []).forEach(profile => {
+          const option = document.createElement('option');
+          option.value = profile;
+          option.textContent = profile;
+          select.appendChild(option);
+        });
+      } catch (error) {
+        console.error('Error loading profiles:', error);
+      }
+    }
+
+    // Load a specific profile
+    async function loadProfile() {
+      const select = document.getElementById('profileSelect');
+      const profileName = select.value;
+
+      if (!profileName) {
+        showProfileStatus('Please select a profile', 'error');
+        return;
+      }
+
+      try {
+        // Apply the profile as current config
+        const response = await fetch(`/config/profiles/${encodeURIComponent(profileName)}/apply`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' }
+        });
+
+        const result = await response.json();
+        if (result.error) {
+          throw new Error(result.error);
+        }
+
+        // Reload the configuration to update UI
+        await loadConfiguration();
+        showProfileStatus(`Profile "${profileName}" loaded and applied`, 'success');
+      } catch (error) {
+        console.error('Error loading profile:', error);
+        showProfileStatus('Failed to load profile: ' + error.message, 'error');
+      }
+    }
+
+    // Save current config as a new profile
+    async function saveProfile() {
+      const nameInput = document.getElementById('newProfileName');
+      const profileName = nameInput.value.trim();
+
+      if (!profileName) {
+        showProfileStatus('Please enter a profile name', 'error');
+        return;
+      }
+
+      // Check for valid characters
+      if (!/^[a-zA-Z0-9_-]+$/.test(profileName)) {
+        showProfileStatus('Profile name can only contain letters, numbers, hyphens, and underscores', 'error');
+        return;
+      }
+
+      try {
+        // First save current config
+        const config = {
+          sea_level_pressure: parseFloat(document.getElementById('configSeaLevelPressure').value),
+          update_frequency: parseFloat(document.getElementById('configUpdateFrequency').value),
+          history_length: parseInt(document.getElementById('configHistoryLength').value),
+          transmission_thresholds: {
+            temp_bme280: parseFloat(document.getElementById('configThresholdTempBme').value),
+            humidity: parseFloat(document.getElementById('configThresholdHumidity').value),
+            pressure: parseFloat(document.getElementById('configThresholdPressure').value),
+            altitude: parseFloat(document.getElementById('configThresholdAltitude').value),
+            acceleration: parseFloat(document.getElementById('configThresholdAcceleration').value),
+            gyroscope: parseFloat(document.getElementById('configThresholdGyroscope').value),
+            temp_mpu: parseFloat(document.getElementById('configThresholdTempMpu').value)
+          }
+        };
+
+        const response = await fetch(`/config/profiles/${encodeURIComponent(profileName)}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(config)
+        });
+
+        const result = await response.json();
+        if (result.error) {
+          throw new Error(result.error);
+        }
+
+        // Clear input and reload profile list
+        nameInput.value = '';
+        await loadProfileList();
+        showProfileStatus(`Profile "${profileName}" saved successfully`, 'success');
+      } catch (error) {
+        console.error('Error saving profile:', error);
+        showProfileStatus('Failed to save profile: ' + error.message, 'error');
+      }
+    }
+
+    // Delete a profile
+    async function deleteProfile() {
+      const select = document.getElementById('profileSelect');
+      const profileName = select.value;
+
+      if (!profileName) {
+        showProfileStatus('Please select a profile to delete', 'error');
+        return;
+      }
+
+      if (!confirm(`Are you sure you want to delete the profile "${profileName}"?`)) {
+        return;
+      }
+
+      try {
+        const response = await fetch(`/config/profiles/${encodeURIComponent(profileName)}`, {
+          method: 'DELETE'
+        });
+
+        const result = await response.json();
+        if (result.error) {
+          throw new Error(result.error);
+        }
+
+        // Reload profile list
+        await loadProfileList();
+        showProfileStatus(`Profile "${profileName}" deleted`, 'success');
+      } catch (error) {
+        console.error('Error deleting profile:', error);
+        showProfileStatus('Failed to delete profile: ' + error.message, 'error');
+      }
+    }
+
+    // Show profile status message
+    function showProfileStatus(message, type) {
+      const statusEl = document.getElementById('profileStatus');
+      statusEl.textContent = message;
+      statusEl.className = 'config-status ' + type;
+
+      // Auto-hide after 5 seconds
+      setTimeout(() => {
+        statusEl.className = 'config-status';
+        statusEl.textContent = '';
+      }, 5000);
+    }
+
     // Theme Management System
     class ThemeManager {
       constructor() {
@@ -5048,6 +5713,9 @@
       loadArchivedLogs();
       // Initialize playback controller
       playbackController = new PlaybackController();
+      // Initialize configuration
+      loadConfiguration();
+      loadProfileList();
       // Start live data fetching (stored in window for playback control)
       window.liveDataInterval = setInterval(fetchData, 1000);
       
