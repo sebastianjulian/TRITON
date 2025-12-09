@@ -4366,6 +4366,11 @@
             <span class="export-checkbox-custom"></span>
             <span>Correlation Chart</span>
           </label>
+          <label class="export-checkbox-label">
+            <input type="checkbox" id="exportMissionComparison">
+            <span class="export-checkbox-custom"></span>
+            <span>Mission Comparison</span>
+          </label>
         </div>
 
         <div class="export-format-row">
@@ -5213,6 +5218,12 @@
         charts.push({ id: 'correlationChart', name: 'Correlation_Chart', chart: correlationChart });
       }
 
+      // Mission Comparison chart
+      const exportMissionComparison = document.getElementById('exportMissionComparison').checked;
+      if (exportMissionComparison && comparisonChart) {
+        charts.push({ id: 'comparisonChart', name: 'Mission_Comparison', chart: comparisonChart });
+      }
+
       return charts;
     }
 
@@ -5270,6 +5281,7 @@
       document.getElementById('exportBME280').checked = select;
       document.getElementById('exportMPU6050').checked = select;
       document.getElementById('exportCorrelation').checked = select;
+      document.getElementById('exportMissionComparison').checked = select;
     }
 
     // Update export status message
