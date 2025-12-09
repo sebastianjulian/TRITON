@@ -72,7 +72,73 @@
       --gradient-bg: linear-gradient(135deg, #c2e7f7 0%, #92d4ef 35%, #68c1e7 70%, #4fb6e3 100%);
       --gradient-card: linear-gradient(145deg, #a8dcf4 0%, #7ac6eb 40%, #5fb0db 80%, #4ba3d1 100%);
     }
-    
+
+    [data-theme="nature"] {
+      /* Nature - Earthy greens and browns (High Contrast) */
+      --bg-primary: #0d1a0d;
+      --bg-secondary: #1a2e1a;
+      --bg-tertiary: #142414;
+      --bg-card: #1f3a1f;
+      --bg-header: #142414;
+      --color-primary: #5eff8a;
+      --color-secondary: #2edd62;
+      --color-accent: #98ffb8;
+      --color-chart: #3cb371;
+      --color-text-primary: #ffffff;
+      --color-text-secondary: #d0ffd8;
+      --color-text-muted: #7abf8a;
+      --color-border: #2d5a2d;
+      --color-border-accent: #5eff8a;
+      --glow-primary: 0 0 25px rgba(94, 255, 138, 0.4);
+      --glow-accent: 0 0 18px rgba(46, 221, 98, 0.3);
+      --gradient-bg: linear-gradient(135deg, #0d1a0d 0%, #1a2e1a 50%, #0d1a0d 100%);
+      --gradient-card: linear-gradient(145deg, #1f3a1f 0%, #2d5a2d 100%);
+    }
+
+    [data-theme="retro"] {
+      /* Retro - 80s Synthwave/Neon (High Contrast) */
+      --bg-primary: #0d0518;
+      --bg-secondary: #1a0a2e;
+      --bg-tertiary: #140a24;
+      --bg-card: #2a1048;
+      --bg-header: #140a24;
+      --color-primary: #ff33ff;
+      --color-secondary: #33ffff;
+      --color-accent: #ff85d5;
+      --color-chart: #cc66cc;
+      --color-text-primary: #ffffff;
+      --color-text-secondary: #ffe6fc;
+      --color-text-muted: #d4a8e0;
+      --color-border: #5a2088;
+      --color-border-accent: #ff33ff;
+      --glow-primary: 0 0 30px rgba(255, 51, 255, 0.6);
+      --glow-accent: 0 0 25px rgba(51, 255, 255, 0.5);
+      --gradient-bg: linear-gradient(135deg, #0d0518 0%, #1a0a2e 50%, #0d0518 100%);
+      --gradient-card: linear-gradient(145deg, #2a1048 0%, #3d1868 50%, #2a1048 100%);
+    }
+
+    [data-theme="futuristic"] {
+      /* Futuristic - Cyberpunk/Tech (High Contrast) */
+      --bg-primary: #050508;
+      --bg-secondary: #0a0a10;
+      --bg-tertiary: #08080c;
+      --bg-card: #0f0f18;
+      --bg-header: #08080c;
+      --color-primary: #00ffff;
+      --color-secondary: #9945ff;
+      --color-accent: #ff3377;
+      --color-chart: #00b8b8;
+      --color-text-primary: #ffffff;
+      --color-text-secondary: #c0f8ff;
+      --color-text-muted: #5599aa;
+      --color-border: #1a1a2e;
+      --color-border-accent: #00ffff;
+      --glow-primary: 0 0 35px rgba(0, 255, 255, 0.5);
+      --glow-accent: 0 0 25px rgba(153, 69, 255, 0.4);
+      --gradient-bg: linear-gradient(135deg, #050508 0%, #0a0a10 50%, #050508 100%);
+      --gradient-card: linear-gradient(145deg, #0f0f18 0%, #14142a 50%, #0f0f18 100%);
+    }
+
     * {
       transition: color 0.4s ease, background-color 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease, background 0.4s ease;
     }
@@ -3295,6 +3361,9 @@
               <div class="theme-button active" data-theme="dark-ocean">Dark Ocean</div>
               <div class="theme-button" data-theme="night">Night</div>
               <div class="theme-button" data-theme="light-ocean">Light Ocean</div>
+              <div class="theme-button" data-theme="nature">Nature</div>
+              <div class="theme-button" data-theme="retro">Retro</div>
+              <div class="theme-button" data-theme="futuristic">Futuristic</div>
             </div>
           </div>
         </div>
@@ -4368,8 +4437,9 @@
       const ctx = document.getElementById(id).getContext("2d");
       // Get current theme colors
       const computedStyle = getComputedStyle(document.documentElement);
-      const primaryColor = computedStyle.getPropertyValue('--color-primary').trim();
-      const backgroundColor = primaryColor + '20'; // Add transparency
+      const chartColor = computedStyle.getPropertyValue('--color-chart').trim() ||
+                        computedStyle.getPropertyValue('--color-primary').trim();
+      const backgroundColor = chartColor + '20'; // Add transparency
 
       return new Chart(ctx, {
         type: "line",
@@ -4378,12 +4448,12 @@
           datasets: [{
             label: label,
             data: [],
-            borderColor: primaryColor,
+            borderColor: chartColor,
             backgroundColor: backgroundColor,
             borderWidth: 2,
             pointRadius: 0,
             pointHoverRadius: 6,
-            pointHoverBackgroundColor: primaryColor,
+            pointHoverBackgroundColor: chartColor,
             pointHoverBorderColor: '#fff',
             pointHoverBorderWidth: 2,
             tension: 0.3
@@ -4426,7 +4496,7 @@
               backgroundColor: 'rgba(0, 0, 0, 0.85)',
               titleColor: '#fff',
               bodyColor: '#fff',
-              borderColor: primaryColor,
+              borderColor: chartColor,
               borderWidth: 1,
               cornerRadius: 8,
               padding: 12,
@@ -6926,7 +6996,10 @@
           const themeNames = {
             'dark-ocean': 'Dark Ocean',
             'night': 'Night',
-            'light-ocean': 'Light Ocean'
+            'light-ocean': 'Light Ocean',
+            'nature': 'Nature',
+            'retro': 'Retro',
+            'futuristic': 'Futuristic'
           };
           this.currentSpan.textContent = themeNames[themeName] || themeName;
         }
@@ -6938,14 +7011,49 @@
       updateChartColors() {
         // Get current theme colors
         const computedStyle = getComputedStyle(document.documentElement);
-        const primaryColor = computedStyle.getPropertyValue('--color-primary').trim();
-        const accentColor = computedStyle.getPropertyValue('--color-accent').trim();
-        
+        const chartColor = computedStyle.getPropertyValue('--color-chart').trim() ||
+                          computedStyle.getPropertyValue('--color-primary').trim();
+        const borderColor = computedStyle.getPropertyValue('--color-border').trim();
+        const textMuted = computedStyle.getPropertyValue('--color-text-muted').trim();
+        const textSecondary = computedStyle.getPropertyValue('--color-text-secondary').trim();
+        const textPrimary = computedStyle.getPropertyValue('--color-text-primary').trim();
+
         // Update all existing charts
         Object.values(chartRefs).forEach(chart => {
           if (chart && chart.data && chart.data.datasets && chart.data.datasets[0]) {
-            chart.data.datasets[0].borderColor = primaryColor;
-            chart.data.datasets[0].backgroundColor = primaryColor + '20';
+            // Update line colors
+            chart.data.datasets[0].borderColor = chartColor;
+            chart.data.datasets[0].backgroundColor = chartColor + '20';
+            chart.data.datasets[0].pointHoverBackgroundColor = chartColor;
+
+            // Update grid and axis colors
+            if (chart.options.scales) {
+              if (chart.options.scales.x) {
+                chart.options.scales.x.grid.color = borderColor;
+                chart.options.scales.x.ticks.color = textSecondary;
+                if (chart.options.scales.x.title) {
+                  chart.options.scales.x.title.color = textMuted;
+                }
+              }
+              if (chart.options.scales.y) {
+                chart.options.scales.y.grid.color = borderColor;
+                chart.options.scales.y.ticks.color = textSecondary;
+                if (chart.options.scales.y.title) {
+                  chart.options.scales.y.title.color = textMuted;
+                }
+              }
+            }
+
+            // Update legend colors
+            if (chart.options.plugins && chart.options.plugins.legend) {
+              chart.options.plugins.legend.labels.color = textPrimary;
+            }
+
+            // Update tooltip border color
+            if (chart.options.plugins && chart.options.plugins.tooltip) {
+              chart.options.plugins.tooltip.borderColor = chartColor;
+            }
+
             chart.update('none');
           }
         });

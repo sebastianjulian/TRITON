@@ -69,12 +69,74 @@
       --gradient-bg: linear-gradient(135deg, #c2e7f7 0%, #92d4ef 35%, #68c1e7 70%, #4fb6e3 100%);
       --gradient-card: linear-gradient(145deg, #a8dcf4 0%, #7ac6eb 40%, #5fb0db 80%, #4ba3d1 100%);
     }
-    
-    
-    
-    
-    
-    
+
+    [data-theme="nature"] {
+      /* Nature - Earthy greens and browns (High Contrast) */
+      --bg-primary: #0d1a0d;
+      --bg-secondary: #1a2e1a;
+      --bg-tertiary: #142414;
+      --bg-card: #1f3a1f;
+      --bg-header: #142414;
+      --color-primary: #5eff8a;
+      --color-secondary: #2edd62;
+      --color-accent: #98ffb8;
+      --color-chart: #3cb371;
+      --color-text-primary: #ffffff;
+      --color-text-secondary: #d0ffd8;
+      --color-text-muted: #7abf8a;
+      --color-border: #2d5a2d;
+      --color-border-accent: #5eff8a;
+      --glow-primary: 0 0 25px rgba(94, 255, 138, 0.4);
+      --glow-accent: 0 0 18px rgba(46, 221, 98, 0.3);
+      --gradient-bg: linear-gradient(135deg, #0d1a0d 0%, #1a2e1a 50%, #0d1a0d 100%);
+      --gradient-card: linear-gradient(145deg, #1f3a1f 0%, #2d5a2d 100%);
+    }
+
+    [data-theme="retro"] {
+      /* Retro - 80s Synthwave/Neon (High Contrast) */
+      --bg-primary: #0d0518;
+      --bg-secondary: #1a0a2e;
+      --bg-tertiary: #140a24;
+      --bg-card: #2a1048;
+      --bg-header: #140a24;
+      --color-primary: #ff33ff;
+      --color-secondary: #33ffff;
+      --color-accent: #ff85d5;
+      --color-chart: #cc66cc;
+      --color-text-primary: #ffffff;
+      --color-text-secondary: #ffe6fc;
+      --color-text-muted: #d4a8e0;
+      --color-border: #5a2088;
+      --color-border-accent: #ff33ff;
+      --glow-primary: 0 0 30px rgba(255, 51, 255, 0.6);
+      --glow-accent: 0 0 25px rgba(51, 255, 255, 0.5);
+      --gradient-bg: linear-gradient(135deg, #0d0518 0%, #1a0a2e 50%, #0d0518 100%);
+      --gradient-card: linear-gradient(145deg, #2a1048 0%, #3d1868 50%, #2a1048 100%);
+    }
+
+    [data-theme="futuristic"] {
+      /* Futuristic - Cyberpunk/Tech (High Contrast) */
+      --bg-primary: #050508;
+      --bg-secondary: #0a0a10;
+      --bg-tertiary: #08080c;
+      --bg-card: #0f0f18;
+      --bg-header: #08080c;
+      --color-primary: #00ffff;
+      --color-secondary: #9945ff;
+      --color-accent: #ff3377;
+      --color-chart: #00b8b8;
+      --color-text-primary: #ffffff;
+      --color-text-secondary: #c0f8ff;
+      --color-text-muted: #5599aa;
+      --color-border: #1a1a2e;
+      --color-border-accent: #00ffff;
+      --glow-primary: 0 0 35px rgba(0, 255, 255, 0.5);
+      --glow-accent: 0 0 25px rgba(153, 69, 255, 0.4);
+      --gradient-bg: linear-gradient(135deg, #050508 0%, #0a0a10 50%, #050508 100%);
+      --gradient-card: linear-gradient(145deg, #0f0f18 0%, #14142a 50%, #0f0f18 100%);
+    }
+
+
     
     
     
@@ -1048,6 +1110,9 @@
               <div class="theme-button active" data-theme="dark-ocean">Dark Ocean</div>
               <div class="theme-button" data-theme="night">Night</div>
               <div class="theme-button" data-theme="light-ocean">Light Ocean</div>
+              <div class="theme-button" data-theme="nature">Nature</div>
+              <div class="theme-button" data-theme="retro">Retro</div>
+              <div class="theme-button" data-theme="futuristic">Futuristic</div>
             </div>
           </div>
         </div>
@@ -2069,7 +2134,10 @@ Depth Rating: 10 meters (1 ATM overpressure)
           const themeNames = {
             'dark-ocean': 'Dark Ocean',
             'night': 'Night',
-            'light-ocean': 'Light Ocean'
+            'light-ocean': 'Light Ocean',
+            'nature': 'Nature',
+            'retro': 'Retro',
+            'futuristic': 'Futuristic'
           };
           this.currentSpan.textContent = themeNames[themeName] || themeName;
         }
