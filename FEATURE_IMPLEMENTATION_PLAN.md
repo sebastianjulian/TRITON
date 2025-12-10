@@ -30,7 +30,7 @@
 | 6 | 17 | Mission Replay | Medium | ✅ Completed |
 | 7 | 13 | 3D Orientation | Medium | ✅ Completed |
 | 8 | 10 | Configuration UI | Medium | ✅ Completed |
-| 9 | 12 | Export Formats | Medium | ⬜ Not Started |
+| 9 | 12 | Export Formats | Medium | ✅ Completed |
 | 10 | 15 | Alerts System | High | ⬜ Not Started |
 | 11 | 18 | Layout Presets | Medium | ✅ Completed |
 
@@ -365,7 +365,7 @@ Update this section as features are completed:
 [x] Feature 16: Mission Comparison (Completed Dec 2024)
 [x] Feature 17: Mission Replay (Completed Dec 2024)
 [x] Feature 10: Configuration UI (Completed Dec 2024)
-[ ] Feature 12: Export Formats
+[x] Feature 12: Export Formats (Completed Dec 2024)
 [x] Feature 13: 3D Orientation (Completed Dec 2024)
 [ ] Feature 15: Alerts System
 [x] Feature 18: Layout Presets (Completed Dec 2024)

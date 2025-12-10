@@ -2737,6 +2737,77 @@
       color: #ef4444;
     }
 
+    /* Export Format Cards */
+    .export-format-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 15px;
+    }
+
+    .export-format-card {
+      background: var(--bg-tertiary);
+      border: 1px solid var(--color-border);
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .export-format-card:hover {
+      border-color: var(--color-primary);
+      background: var(--bg-card);
+      transform: translateY(-3px);
+      box-shadow: var(--glow-primary);
+    }
+
+    .export-format-icon {
+      font-size: 1.8em;
+      font-weight: bold;
+      color: var(--color-primary);
+      margin-bottom: 10px;
+      font-family: monospace;
+    }
+
+    .export-format-name {
+      font-size: 1.1em;
+      font-weight: 600;
+      color: var(--color-text-primary);
+      margin-bottom: 5px;
+    }
+
+    .export-format-desc {
+      font-size: 0.8em;
+      color: var(--color-text-muted);
+      line-height: 1.3;
+    }
+
+    .export-time-range-row {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+
+    .export-range-preview {
+      font-size: 0.85em;
+      color: var(--color-text-muted);
+      background: var(--bg-tertiary);
+      padding: 5px 12px;
+      border-radius: 6px;
+      border: 1px solid var(--color-border);
+    }
+
+    @media (max-width: 600px) {
+      .export-format-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .export-format-card {
+        padding: 15px;
+      }
+    }
+
     .export-status.progress {
       color: var(--color-primary);
     }
@@ -4667,6 +4738,44 @@
         </div>
 
         <div class="export-status" id="chartExportStatus"></div>
+      </div>
+    </div>
+
+    <!-- Export Data Formats Section -->
+    <div class="time-filter-section" style="margin-top: 30px;">
+      <h3>Export Data Formats</h3>
+      <p style="color: var(--color-text-muted); font-size: 0.85em; margin-bottom: 15px;">
+        Export current session data in different formats. Use time range filter above to limit data.
+      </p>
+      <div class="chart-export-controls">
+        <div class="export-format-grid">
+          <div class="export-format-card" onclick="exportDataFormat('json')">
+            <div class="export-format-icon">{ }</div>
+            <div class="export-format-name">JSON</div>
+            <div class="export-format-desc">Structured data with metadata and statistics</div>
+          </div>
+          <div class="export-format-card" onclick="exportDataFormat('excel')">
+            <div class="export-format-icon">XLS</div>
+            <div class="export-format-name">Excel</div>
+            <div class="export-format-desc">Multi-sheet workbook (BME280, MPU6050, Stats)</div>
+          </div>
+          <div class="export-format-card" onclick="exportDataFormat('pdf')">
+            <div class="export-format-icon">PDF</div>
+            <div class="export-format-name">PDF Report</div>
+            <div class="export-format-desc">Formatted report with statistics and data tables</div>
+          </div>
+        </div>
+
+        <div class="export-time-range-row" style="margin-top: 15px;">
+          <label class="export-checkbox-label">
+            <input type="checkbox" id="useExportTimeRange">
+            <span class="export-checkbox-custom"></span>
+            <span>Use export time filter (above)</span>
+          </label>
+          <span class="export-range-preview" id="exportRangePreview">All data</span>
+        </div>
+
+        <div class="export-status" id="dataExportStatus"></div>
       </div>
     </div>
   </section>
@@ -6747,6 +6856,11 @@
       // Disable export button if no data
       const exportBtn = document.getElementById('exportFilteredBtn');
       exportBtn.disabled = exportPoints === 0;
+
+      // Also update the data format export preview
+      if (typeof updateExportRangePreview === 'function') {
+        updateExportRangePreview();
+      }
     }
 
     function exportFilteredData() {
@@ -6794,6 +6908,115 @@
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
     }
+
+    // Export data in multiple formats (JSON, Excel, PDF)
+    async function exportDataFormat(format) {
+      const statusEl = document.getElementById('dataExportStatus');
+      statusEl.className = 'export-status';
+      statusEl.textContent = `Preparing ${format.toUpperCase()} export...`;
+
+      // Build query params based on time filter
+      let queryParams = '';
+      const useTimeRange = document.getElementById('useExportTimeRange').checked;
+
+      if (useTimeRange && exportTimeFilter.type !== 'all') {
+        const elapsed = fullHistory["Elapsed [s]"] || [];
+        if (elapsed.length > 0) {
+          let start = null;
+          let end = null;
+
+          if (exportTimeFilter.type === 'preset') {
+            // Get last N seconds
+            const maxTime = Math.max(...elapsed);
+            start = Math.max(0, maxTime - exportTimeFilter.value);
+            end = maxTime;
+          } else if (exportTimeFilter.type === 'custom' && exportTimeFilter.value) {
+            start = exportTimeFilter.value.from;
+            end = exportTimeFilter.value.to;
+          }
+
+          if (start !== null) queryParams += `?start=${start}`;
+          if (end !== null) queryParams += `${queryParams ? '&' : '?'}end=${end}`;
+        }
+      }
+
+      try {
+        const response = await fetch(`/export/${format}${queryParams}`);
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || `Export failed with status ${response.status}`);
+        }
+
+        // Get filename from Content-Disposition header
+        const contentDisposition = response.headers.get('Content-Disposition');
+        let filename = `triton_export.${format === 'excel' ? 'xlsx' : format}`;
+        if (contentDisposition) {
+          const match = contentDisposition.match(/filename=([^;]+)/);
+          if (match) filename = match[1].trim();
+        }
+
+        // Download the file
+        const blob = await response.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        statusEl.className = 'export-status success';
+        statusEl.textContent = `${format.toUpperCase()} exported successfully!`;
+
+        // Clear status after 3 seconds
+        setTimeout(() => {
+          statusEl.textContent = '';
+          statusEl.className = 'export-status';
+        }, 3000);
+
+      } catch (error) {
+        statusEl.className = 'export-status error';
+        statusEl.textContent = `Export failed: ${error.message}`;
+        console.error('Export error:', error);
+      }
+    }
+
+    // Update export range preview
+    function updateExportRangePreview() {
+      const previewEl = document.getElementById('exportRangePreview');
+      const useTimeRange = document.getElementById('useExportTimeRange').checked;
+
+      if (!useTimeRange || exportTimeFilter.type === 'all') {
+        previewEl.textContent = 'All data';
+        return;
+      }
+
+      const elapsed = fullHistory["Elapsed [s]"] || [];
+      if (elapsed.length === 0) {
+        previewEl.textContent = 'No data';
+        return;
+      }
+
+      if (exportTimeFilter.type === 'preset') {
+        const maxTime = Math.max(...elapsed);
+        const start = Math.max(0, maxTime - exportTimeFilter.value);
+        previewEl.textContent = `${start.toFixed(1)}s - ${maxTime.toFixed(1)}s`;
+      } else if (exportTimeFilter.type === 'custom' && exportTimeFilter.value) {
+        previewEl.textContent = `${exportTimeFilter.value.from.toFixed(1)}s - ${exportTimeFilter.value.to.toFixed(1)}s`;
+      } else {
+        previewEl.textContent = 'All data';
+      }
+    }
+
+    // Setup export range preview listener
+    document.addEventListener('DOMContentLoaded', function() {
+      const checkbox = document.getElementById('useExportTimeRange');
+      if (checkbox) {
+        checkbox.addEventListener('change', updateExportRangePreview);
+      }
+    });
 
     async function fetchData() {
       const res = await fetch("/data");

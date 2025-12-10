@@ -102,9 +102,11 @@ import random
 import time
 import json
 import glob as glob_module
-
-from flask import Flask, request, jsonify, render_template, send_from_directory
+import io
+import csv
 from datetime import datetime
+
+from flask import Flask, request, jsonify, render_template, send_from_directory, Response
 
 # Configuration directory setup
 CONFIG_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'config'))
@@ -719,6 +721,472 @@ def apply_profile(name):
         return jsonify({"error": str(e)}), 400
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+
+# ==================== Export API Endpoints ====================
+
+def filter_history_by_time(hist, start=None, end=None):
+    """Filter history data by time range (in seconds)"""
+    if not hist.get("Elapsed [s]"):
+        return hist
+
+    elapsed = hist["Elapsed [s]"]
+    if not elapsed:
+        return hist
+
+    # Determine indices within the time range
+    indices = []
+    for i, t in enumerate(elapsed):
+        if t is None:
+            continue
+        if start is not None and t < start:
+            continue
+        if end is not None and t > end:
+            continue
+        indices.append(i)
+
+    # Build filtered history
+    filtered = {}
+    for key, values in hist.items():
+        filtered[key] = [values[i] for i in indices if i < len(values)]
+
+    return filtered
+
+
+@app.route('/export/json', methods=['GET'])
+def export_json():
+    """Export current session data as JSON with metadata"""
+    global history
+
+    start = request.args.get('start', type=float)
+    end = request.args.get('end', type=float)
+
+    # Filter data by time range if specified
+    export_data = filter_history_by_time(history, start, end)
+
+    # Build metadata
+    elapsed = export_data.get("Elapsed [s]", [])
+    metadata = {
+        "export_timestamp": datetime.now().isoformat(),
+        "project": "TRITON",
+        "description": "Autonomous submarine sensor data",
+        "point_count": len(elapsed),
+        "time_range": {
+            "start": min(elapsed) if elapsed else None,
+            "end": max(elapsed) if elapsed else None,
+            "filter_applied": {
+                "start": start,
+                "end": end
+            } if start is not None or end is not None else None
+        },
+        "sensors": {
+            "BME280": ["Temp_BME280 [°C]", "Hum [%]", "Press [hPa]", "Alt [m]"],
+            "MPU6050": ["Acc x [m/s²]", "Acc y [m/s²]", "Acc z [m/s²]",
+                       "Gyro x [°/s]", "Gyro y [°/s]", "Gyro z [°/s]", "Temp_MPU [°C]"]
+        }
+    }
+
+    # Compute basic statistics for each sensor
+    statistics = {}
+    for key, values in export_data.items():
+        if key == "Elapsed [s]":
+            continue
+        numeric_values = [v for v in values if v is not None and isinstance(v, (int, float))]
+        if numeric_values:
+            statistics[key] = {
+                "min": min(numeric_values),
+                "max": max(numeric_values),
+                "avg": sum(numeric_values) / len(numeric_values),
+                "count": len(numeric_values)
+            }
+
+    output = {
+        "metadata": metadata,
+        "statistics": statistics,
+        "data": export_data
+    }
+
+    # Generate filename
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    filename = f"triton_export_{timestamp}.json"
+
+    response = Response(
+        json.dumps(output, indent=2),
+        mimetype='application/json',
+        headers={'Content-Disposition': f'attachment; filename={filename}'}
+    )
+    return response
+
+
+@app.route('/export/excel', methods=['GET'])
+def export_excel():
+    """Export current session data as Excel (.xlsx) with multiple sheets"""
+    global history
+
+    try:
+        import openpyxl
+        from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+        from openpyxl.utils import get_column_letter
+    except ImportError:
+        return jsonify({"error": "openpyxl not installed. Run: pip install openpyxl"}), 500
+
+    start = request.args.get('start', type=float)
+    end = request.args.get('end', type=float)
+
+    # Filter data by time range if specified
+    export_data = filter_history_by_time(history, start, end)
+
+    # Create workbook
+    wb = openpyxl.Workbook()
+
+    # Define styles
+    header_font = Font(bold=True, color="FFFFFF")
+    header_fill = PatternFill(start_color="0066CC", end_color="0066CC", fill_type="solid")
+    thin_border = Border(
+        left=Side(style='thin'),
+        right=Side(style='thin'),
+        top=Side(style='thin'),
+        bottom=Side(style='thin')
+    )
+
+    # Sheet 1: All Data
+    ws_data = wb.active
+    ws_data.title = "Sensor Data"
+
+    # Headers
+    headers = ["Elapsed [s]", "Temp_BME280 [°C]", "Hum [%]", "Press [hPa]", "Alt [m]",
+               "Acc x [m/s²]", "Acc y [m/s²]", "Acc z [m/s²]",
+               "Gyro x [°/s]", "Gyro y [°/s]", "Gyro z [°/s]", "Temp_MPU [°C]"]
+
+    for col, header in enumerate(headers, 1):
+        cell = ws_data.cell(row=1, column=col, value=header)
+        cell.font = header_font
+        cell.fill = header_fill
+        cell.alignment = Alignment(horizontal='center')
+        cell.border = thin_border
+
+    # Data rows
+    num_rows = len(export_data.get("Elapsed [s]", []))
+    for row_idx in range(num_rows):
+        for col_idx, header in enumerate(headers, 1):
+            values = export_data.get(header, [])
+            value = values[row_idx] if row_idx < len(values) else None
+            cell = ws_data.cell(row=row_idx + 2, column=col_idx, value=value)
+            cell.border = thin_border
+            if isinstance(value, float):
+                cell.number_format = '0.000'
+
+    # Auto-width columns
+    for col_idx, header in enumerate(headers, 1):
+        ws_data.column_dimensions[get_column_letter(col_idx)].width = max(len(header) + 2, 12)
+
+    # Sheet 2: BME280 Data
+    ws_bme = wb.create_sheet("BME280")
+    bme_headers = ["Elapsed [s]", "Temp_BME280 [°C]", "Hum [%]", "Press [hPa]", "Alt [m]"]
+    for col, header in enumerate(bme_headers, 1):
+        cell = ws_bme.cell(row=1, column=col, value=header)
+        cell.font = header_font
+        cell.fill = header_fill
+        cell.alignment = Alignment(horizontal='center')
+        cell.border = thin_border
+
+    for row_idx in range(num_rows):
+        for col_idx, header in enumerate(bme_headers, 1):
+            values = export_data.get(header, [])
+            value = values[row_idx] if row_idx < len(values) else None
+            cell = ws_bme.cell(row=row_idx + 2, column=col_idx, value=value)
+            cell.border = thin_border
+            if isinstance(value, float):
+                cell.number_format = '0.000'
+
+    for col_idx, header in enumerate(bme_headers, 1):
+        ws_bme.column_dimensions[get_column_letter(col_idx)].width = max(len(header) + 2, 12)
+
+    # Sheet 3: MPU6050 Data
+    ws_mpu = wb.create_sheet("MPU6050")
+    mpu_headers = ["Elapsed [s]", "Acc x [m/s²]", "Acc y [m/s²]", "Acc z [m/s²]",
+                   "Gyro x [°/s]", "Gyro y [°/s]", "Gyro z [°/s]", "Temp_MPU [°C]"]
+    for col, header in enumerate(mpu_headers, 1):
+        cell = ws_mpu.cell(row=1, column=col, value=header)
+        cell.font = header_font
+        cell.fill = header_fill
+        cell.alignment = Alignment(horizontal='center')
+        cell.border = thin_border
+
+    for row_idx in range(num_rows):
+        for col_idx, header in enumerate(mpu_headers, 1):
+            values = export_data.get(header, [])
+            value = values[row_idx] if row_idx < len(values) else None
+            cell = ws_mpu.cell(row=row_idx + 2, column=col_idx, value=value)
+            cell.border = thin_border
+            if isinstance(value, float):
+                cell.number_format = '0.000'
+
+    for col_idx, header in enumerate(mpu_headers, 1):
+        ws_mpu.column_dimensions[get_column_letter(col_idx)].width = max(len(header) + 2, 12)
+
+    # Sheet 4: Statistics
+    ws_stats = wb.create_sheet("Statistics")
+    stats_headers = ["Metric", "Min", "Max", "Average", "Count"]
+    for col, header in enumerate(stats_headers, 1):
+        cell = ws_stats.cell(row=1, column=col, value=header)
+        cell.font = header_font
+        cell.fill = header_fill
+        cell.alignment = Alignment(horizontal='center')
+        cell.border = thin_border
+
+    row = 2
+    for key in headers[1:]:  # Skip Elapsed
+        values = export_data.get(key, [])
+        numeric_values = [v for v in values if v is not None and isinstance(v, (int, float))]
+        if numeric_values:
+            ws_stats.cell(row=row, column=1, value=key).border = thin_border
+            ws_stats.cell(row=row, column=2, value=min(numeric_values)).border = thin_border
+            ws_stats.cell(row=row, column=3, value=max(numeric_values)).border = thin_border
+            ws_stats.cell(row=row, column=4, value=sum(numeric_values) / len(numeric_values)).border = thin_border
+            ws_stats.cell(row=row, column=5, value=len(numeric_values)).border = thin_border
+            for c in range(2, 5):
+                ws_stats.cell(row=row, column=c).number_format = '0.000'
+            row += 1
+
+    for col_idx, header in enumerate(stats_headers, 1):
+        ws_stats.column_dimensions[get_column_letter(col_idx)].width = max(len(header) + 2, 18)
+
+    # Sheet 5: Metadata
+    ws_meta = wb.create_sheet("Metadata")
+    meta_data = [
+        ("Project", "TRITON"),
+        ("Description", "Autonomous submarine sensor data"),
+        ("Export Time", datetime.now().strftime("%Y-%m-%d %H:%M:%S")),
+        ("Data Points", num_rows),
+        ("Time Range Start", min(export_data.get("Elapsed [s]", [0])) if export_data.get("Elapsed [s]") else "N/A"),
+        ("Time Range End", max(export_data.get("Elapsed [s]", [0])) if export_data.get("Elapsed [s]") else "N/A"),
+        ("Filter Start", start if start is not None else "None"),
+        ("Filter End", end if end is not None else "None"),
+    ]
+
+    for row_idx, (label, value) in enumerate(meta_data, 1):
+        cell_label = ws_meta.cell(row=row_idx, column=1, value=label)
+        cell_label.font = Font(bold=True)
+        cell_label.border = thin_border
+        cell_value = ws_meta.cell(row=row_idx, column=2, value=value)
+        cell_value.border = thin_border
+
+    ws_meta.column_dimensions['A'].width = 20
+    ws_meta.column_dimensions['B'].width = 30
+
+    # Save to bytes buffer
+    buffer = io.BytesIO()
+    wb.save(buffer)
+    buffer.seek(0)
+
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    filename = f"triton_export_{timestamp}.xlsx"
+
+    return Response(
+        buffer.getvalue(),
+        mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        headers={'Content-Disposition': f'attachment; filename={filename}'}
+    )
+
+
+@app.route('/export/pdf', methods=['GET'])
+def export_pdf():
+    """Export current session data as a formatted PDF report"""
+    global history
+
+    try:
+        from reportlab.lib import colors
+        from reportlab.lib.pagesizes import letter, landscape
+        from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+        from reportlab.lib.units import inch
+        from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, PageBreak
+        from reportlab.lib.enums import TA_CENTER, TA_LEFT
+    except ImportError:
+        return jsonify({"error": "reportlab not installed. Run: pip install reportlab"}), 500
+
+    start = request.args.get('start', type=float)
+    end = request.args.get('end', type=float)
+
+    # Filter data by time range if specified
+    export_data = filter_history_by_time(history, start, end)
+
+    # Create PDF buffer
+    buffer = io.BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=landscape(letter),
+                           leftMargin=0.5*inch, rightMargin=0.5*inch,
+                           topMargin=0.5*inch, bottomMargin=0.5*inch)
+
+    # Styles
+    styles = getSampleStyleSheet()
+    title_style = ParagraphStyle(
+        'Title',
+        parent=styles['Title'],
+        fontSize=24,
+        spaceAfter=20,
+        alignment=TA_CENTER
+    )
+    heading_style = ParagraphStyle(
+        'Heading',
+        parent=styles['Heading2'],
+        fontSize=14,
+        spaceBefore=15,
+        spaceAfter=10,
+        textColor=colors.HexColor('#0066CC')
+    )
+    normal_style = styles['Normal']
+
+    elements = []
+
+    # Title
+    elements.append(Paragraph("TRITON Sensor Data Report", title_style))
+    elements.append(Spacer(1, 0.2*inch))
+
+    # Metadata section
+    elements.append(Paragraph("Report Information", heading_style))
+    elapsed = export_data.get("Elapsed [s]", [])
+    meta_data = [
+        ["Project:", "TRITON - Autonomous Submarine Navigation System"],
+        ["Export Date:", datetime.now().strftime("%Y-%m-%d %H:%M:%S")],
+        ["Data Points:", str(len(elapsed))],
+        ["Time Range:", f"{min(elapsed):.2f}s - {max(elapsed):.2f}s" if elapsed else "No data"],
+    ]
+    if start is not None or end is not None:
+        meta_data.append(["Filter Applied:", f"Start: {start if start else 'N/A'}, End: {end if end else 'N/A'}"])
+
+    meta_table = Table(meta_data, colWidths=[1.5*inch, 5*inch])
+    meta_table.setStyle(TableStyle([
+        ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, -1), 10),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
+        ('TOPPADDING', (0, 0), (-1, -1), 5),
+    ]))
+    elements.append(meta_table)
+    elements.append(Spacer(1, 0.3*inch))
+
+    # Statistics section
+    elements.append(Paragraph("Sensor Statistics", heading_style))
+
+    headers = ["Elapsed [s]", "Temp_BME280 [°C]", "Hum [%]", "Press [hPa]", "Alt [m]",
+               "Acc x [m/s²]", "Acc y [m/s²]", "Acc z [m/s²]",
+               "Gyro x [°/s]", "Gyro y [°/s]", "Gyro z [°/s]", "Temp_MPU [°C]"]
+
+    stats_data = [["Metric", "Min", "Max", "Average", "Std Dev"]]
+    for key in headers[1:]:  # Skip Elapsed
+        values = export_data.get(key, [])
+        numeric_values = [v for v in values if v is not None and isinstance(v, (int, float))]
+        if numeric_values:
+            avg = sum(numeric_values) / len(numeric_values)
+            variance = sum((x - avg) ** 2 for x in numeric_values) / len(numeric_values)
+            std_dev = variance ** 0.5
+            stats_data.append([
+                key,
+                f"{min(numeric_values):.3f}",
+                f"{max(numeric_values):.3f}",
+                f"{avg:.3f}",
+                f"{std_dev:.3f}"
+            ])
+
+    stats_table = Table(stats_data, colWidths=[2.5*inch, 1.3*inch, 1.3*inch, 1.3*inch, 1.3*inch])
+    stats_table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#0066CC')),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, -1), 9),
+        ('ALIGN', (1, 0), (-1, -1), 'CENTER'),
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+        ('TOPPADDING', (0, 0), (-1, -1), 6),
+        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#F0F0F0')]),
+    ]))
+    elements.append(stats_table)
+    elements.append(Spacer(1, 0.3*inch))
+
+    # BME280 Data Table (first 50 rows as sample)
+    elements.append(PageBreak())
+    elements.append(Paragraph("BME280 Environmental Data (Sample)", heading_style))
+
+    bme_headers = ["Elapsed [s]", "Temp [C]", "Humidity [%]", "Pressure [hPa]", "Altitude [m]"]
+    bme_data = [bme_headers]
+    num_rows = min(50, len(export_data.get("Elapsed [s]", [])))
+    for i in range(num_rows):
+        row = [
+            f"{export_data.get('Elapsed [s]', [])[i]:.2f}" if i < len(export_data.get('Elapsed [s]', [])) else "",
+            f"{export_data.get('Temp_BME280 [°C]', [])[i]:.2f}" if i < len(export_data.get('Temp_BME280 [°C]', [])) and export_data.get('Temp_BME280 [°C]', [])[i] is not None else "",
+            f"{export_data.get('Hum [%]', [])[i]:.1f}" if i < len(export_data.get('Hum [%]', [])) and export_data.get('Hum [%]', [])[i] is not None else "",
+            f"{export_data.get('Press [hPa]', [])[i]:.1f}" if i < len(export_data.get('Press [hPa]', [])) and export_data.get('Press [hPa]', [])[i] is not None else "",
+            f"{export_data.get('Alt [m]', [])[i]:.1f}" if i < len(export_data.get('Alt [m]', [])) and export_data.get('Alt [m]', [])[i] is not None else "",
+        ]
+        bme_data.append(row)
+
+    bme_table = Table(bme_data, colWidths=[1.2*inch, 1.2*inch, 1.2*inch, 1.4*inch, 1.2*inch])
+    bme_table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#0066CC')),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, -1), 8),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
+        ('TOPPADDING', (0, 0), (-1, -1), 4),
+        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#F0F0F0')]),
+    ]))
+    elements.append(bme_table)
+
+    if len(export_data.get("Elapsed [s]", [])) > 50:
+        elements.append(Spacer(1, 0.1*inch))
+        elements.append(Paragraph(f"<i>Showing first 50 of {len(export_data.get('Elapsed [s]', []))} data points. Use Excel or JSON export for complete data.</i>", normal_style))
+
+    # MPU6050 Data Table (first 50 rows as sample)
+    elements.append(PageBreak())
+    elements.append(Paragraph("MPU6050 Inertial Data (Sample)", heading_style))
+
+    mpu_headers = ["Time [s]", "Acc X", "Acc Y", "Acc Z", "Gyro X", "Gyro Y", "Gyro Z", "Temp [C]"]
+    mpu_data = [mpu_headers]
+    for i in range(num_rows):
+        row = [
+            f"{export_data.get('Elapsed [s]', [])[i]:.2f}" if i < len(export_data.get('Elapsed [s]', [])) else "",
+            f"{export_data.get('Acc x [m/s²]', [])[i]:.3f}" if i < len(export_data.get('Acc x [m/s²]', [])) and export_data.get('Acc x [m/s²]', [])[i] is not None else "",
+            f"{export_data.get('Acc y [m/s²]', [])[i]:.3f}" if i < len(export_data.get('Acc y [m/s²]', [])) and export_data.get('Acc y [m/s²]', [])[i] is not None else "",
+            f"{export_data.get('Acc z [m/s²]', [])[i]:.3f}" if i < len(export_data.get('Acc z [m/s²]', [])) and export_data.get('Acc z [m/s²]', [])[i] is not None else "",
+            f"{export_data.get('Gyro x [°/s]', [])[i]:.2f}" if i < len(export_data.get('Gyro x [°/s]', [])) and export_data.get('Gyro x [°/s]', [])[i] is not None else "",
+            f"{export_data.get('Gyro y [°/s]', [])[i]:.2f}" if i < len(export_data.get('Gyro y [°/s]', [])) and export_data.get('Gyro y [°/s]', [])[i] is not None else "",
+            f"{export_data.get('Gyro z [°/s]', [])[i]:.2f}" if i < len(export_data.get('Gyro z [°/s]', [])) and export_data.get('Gyro z [°/s]', [])[i] is not None else "",
+            f"{export_data.get('Temp_MPU [°C]', [])[i]:.1f}" if i < len(export_data.get('Temp_MPU [°C]', [])) and export_data.get('Temp_MPU [°C]', [])[i] is not None else "",
+        ]
+        mpu_data.append(row)
+
+    mpu_table = Table(mpu_data, colWidths=[0.9*inch, 0.9*inch, 0.9*inch, 0.9*inch, 0.9*inch, 0.9*inch, 0.9*inch, 0.9*inch])
+    mpu_table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#0066CC')),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, -1), 8),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
+        ('TOPPADDING', (0, 0), (-1, -1), 4),
+        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#F0F0F0')]),
+    ]))
+    elements.append(mpu_table)
+
+    if len(export_data.get("Elapsed [s]", [])) > 50:
+        elements.append(Spacer(1, 0.1*inch))
+        elements.append(Paragraph(f"<i>Showing first 50 of {len(export_data.get('Elapsed [s]', []))} data points. Use Excel or JSON export for complete data.</i>", normal_style))
+
+    # Build PDF
+    doc.build(elements)
+    buffer.seek(0)
+
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    filename = f"triton_report_{timestamp}.pdf"
+
+    return Response(
+        buffer.getvalue(),
+        mimetype='application/pdf',
+        headers={'Content-Disposition': f'attachment; filename={filename}'}
+    )
+
 
 def cleanup():
     try:
