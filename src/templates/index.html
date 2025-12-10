@@ -1103,9 +1103,9 @@
       }
     }
 
-    /* Compaction Dropdown */
+    /* Compaction Dropdown - DISABLED see Disabled_Features.md */
     .compaction-selector {
-      display: inline-block;
+      display: none !important; /* DISABLED - see Disabled_Features.md */
       background: var(--gradient-card);
       border: 1px solid var(--color-border);
       border-radius: 8px;
@@ -1199,18 +1199,89 @@
       font-weight: 600;
     }
 
-    /* API Endpoints in 3-column grid */
-    .api-endpoints {
+    /* Combined API & Hardware Row - 3 columns side by side */
+    .api-hardware-row {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 8px;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 20px;
+      align-items: stretch;
     }
 
+    .api-hardware-row > div {
+      background: var(--bg-card);
+      border-radius: 10px;
+      padding: 15px;
+      border: 1px solid var(--color-border);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .api-hardware-row h3 {
+      color: var(--color-primary);
+      font-size: 1.1em;
+      margin: 0 0 12px 0;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--color-border);
+      flex-shrink: 0;
+    }
+
+    /* API Endpoints in single column within its box */
+    .api-endpoints {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    /* Python API list styling */
+    .python-api-list {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      flex: 1;
+      justify-content: space-between;
+    }
+
+    .python-api-list > div {
+      background: var(--bg-tertiary);
+      border-radius: 6px;
+      padding: 10px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .python-api-list h4 {
+      color: var(--color-primary);
+      font-size: 0.9em;
+      margin: 0 0 8px 0;
+    }
+
+    .python-api-list ul {
+      margin: 0;
+      padding-left: 15px;
+      flex: 1;
+    }
+
+    .python-api-list li {
+      font-size: 0.85em;
+      margin-bottom: 4px;
+      color: var(--color-text-secondary);
+    }
+
+    .python-api-list code {
+      color: var(--color-primary);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* Hardware diagrams in 2x2 grid within its box */
     .hardware-diagrams {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 12px;
-      align-items: start;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      align-items: stretch;
+      flex: 1;
     }
 
     .hardware-diagrams > h3 {
@@ -1239,131 +1310,104 @@
       border-bottom: 1px solid var(--color-border);
     }
 
-    /* Ultra Compact Mode (Default) */
-    body.ultra-compact .api-endpoint {
+    /* Compact Mode (Default) */
+    body.compact .api-endpoint {
       padding: 8px;
       border-radius: 6px;
     }
 
-    body.ultra-compact .api-endpoint h4 {
+    body.compact .api-endpoint h4 {
       font-size: 0.8em;
       margin-bottom: 2px;
     }
 
-    body.ultra-compact .api-endpoint p {
+    body.compact .api-endpoint p {
       font-size: 0.7em;
       margin: 2px 0;
     }
 
-    body.ultra-compact .api-details {
+    body.compact .api-details {
       margin-top: 4px;
     }
 
-    body.ultra-compact .api-details h5 {
+    body.compact .api-details h5 {
       font-size: 0.75em;
       margin: 4px 0 2px 0;
     }
 
-    body.ultra-compact .api-details pre {
+    body.compact .api-details pre {
       padding: 5px;
       font-size: 0.6em;
       line-height: 1.2;
       margin: 3px 0;
     }
 
-    body.ultra-compact .api-details ul {
+    body.compact .api-details ul {
       margin: 3px 0;
       padding-left: 12px;
     }
 
-    body.ultra-compact .api-details li {
+    body.compact .api-details li {
       font-size: 0.7em;
       margin: 1px 0;
       line-height: 1.3;
     }
 
-    body.ultra-compact .python-api {
+    body.compact .python-api {
       gap: 5px;
     }
 
-    body.ultra-compact .python-api > div {
+    body.compact .python-api > div {
       padding: 5px;
     }
 
-    body.ultra-compact .python-api h4 {
+    body.compact .python-api h4 {
       font-size: 0.75em;
       margin: 0 0 3px 0;
       padding-bottom: 2px;
     }
 
-    body.ultra-compact .python-api ul {
+    body.compact .python-api ul {
       font-size: 0.65em;
       padding-left: 10px;
     }
 
-    body.ultra-compact .python-api li {
+    body.compact .python-api li {
       margin: 1px 0;
     }
 
-    body.ultra-compact .hardware-diagrams h3 {
+    body.compact .hardware-diagrams h3 {
       font-size: 0.9em;
       margin: 8px 0 5px 0;
       padding-bottom: 4px;
     }
 
-    body.ultra-compact .wiring-diagram h4,
-    body.ultra-compact .power-diagram h4,
-    body.ultra-compact .mechanical-diagram h4 {
+    body.compact .wiring-diagram h4,
+    body.compact .power-diagram h4,
+    body.compact .mechanical-diagram h4 {
       font-size: 0.8em;
       margin: 6px 0 4px 0;
     }
 
-    body.ultra-compact .ascii-diagram {
+    body.compact .ascii-diagram {
       margin: 4px 0;
     }
 
-    body.ultra-compact .ascii-diagram pre {
+    body.compact .ascii-diagram pre {
       padding: 6px;
       font-size: 0.58em;
       line-height: 1.15;
     }
 
-    body.ultra-compact h2 {
+    body.compact h2 {
       font-size: 1.1em;
       margin-bottom: 8px;
     }
 
-    body.ultra-compact h3 {
+    body.compact h3 {
       font-size: 0.95em;
       margin-top: 10px;
       margin-bottom: 5px;
-    }
-
-    /* Compact Mode */
-    body.compact .api-endpoint {
-      padding: 10px;
-    }
-
-    body.compact .api-endpoint h4 {
-      font-size: 0.85em;
-    }
-
-    body.compact .api-endpoint p {
-      font-size: 0.75em;
-    }
-
-    body.compact .api-details pre {
-      font-size: 0.65em;
-      padding: 6px;
-    }
-
-    body.compact .api-details li {
-      font-size: 0.75em;
-    }
-
-    body.compact .ascii-diagram pre {
-      font-size: 0.65em;
-      padding: 8px;
     }
 
     /* Normal Mode - single column layouts */
@@ -1418,12 +1462,11 @@
         <div class="compaction-selector">
           <div class="compaction-dropdown">
             <button class="compaction-dropdown-btn">
-              <span class="compaction-current">Ultra Compact</span>
+              <span class="compaction-current">Compact</span>
               <span class="compaction-dropdown-arrow">▼</span>
             </button>
             <div class="compaction-options">
-              <div class="compaction-button active" data-compaction="ultra-compact">Ultra Compact</div>
-              <div class="compaction-button" data-compaction="compact">Compact</div>
+              <div class="compaction-button active" data-compaction="compact">Compact</div>
               <div class="compaction-button" data-compaction="normal">Normal</div>
             </div>
           </div>
@@ -1850,11 +1893,12 @@ Error Handle → Retry Logic → CSV Logging → Web Dashboard
       </div>
     </section>
 
-    <section id="api">
-      <h2>Software API References</h2>
-      <div class="api-documentation">
-        <h3>REST API Endpoints</h3>
-        <div class="api-endpoints">
+    <section id="api-hardware">
+      <h2>API References and Hardware</h2>
+      <div class="api-hardware-row">
+        <div class="rest-api-column">
+          <h3>REST API Endpoints</h3>
+          <div class="api-endpoints">
           <div class="api-endpoint">
             <h4>GET /data</h4>
             <p><strong>Description:</strong> Retrieve current sensor data and historical measurements</p>
@@ -1996,44 +2040,45 @@ Error Handle → Retry Logic → CSV Logging → Web Dashboard
               <pre><code>{"status": "success", "message": "Opened logs folder"}</code></pre>
             </div>
           </div>
-        </div>
-
-        <h3>Python API Reference</h3>
-        <div class="python-api">
-          <div>
-            <h4>Sensor Collection (test.py)</h4>
-            <ul>
-              <li><code>read_bme280()</code> - Environmental data</li>
-              <li><code>read_mpu6050()</code> - IMU data</li>
-              <li><code>send_lora_data()</code> - LoRa transmit</li>
-              <li><code>update_web_dashboard()</code> - Web update</li>
-            </ul>
-          </div>
-          <div>
-            <h4>Data Reception (lorareceivertest.py)</h4>
-            <ul>
-              <li><code>receive_lora_data()</code> - LoRa receive</li>
-              <li><code>parse_sensor_data()</code> - Parse data</li>
-              <li><code>log_to_csv()</code> - CSV logging</li>
-              <li><code>calculate_statistics()</code> - Stats</li>
-            </ul>
-          </div>
-          <div>
-            <h4>Web Server (app.py)</h4>
-            <ul>
-              <li><code>update_data_history()</code> - History buffer</li>
-              <li><code>generate_chart_data()</code> - Chart.js data</li>
-              <li><code>serve_log_files()</code> - File downloads</li>
-              <li><code>cleanup_port()</code> - Port cleanup</li>
-            </ul>
           </div>
         </div>
-      </div>
-    </section>
 
-    <section id="hardware">
-      <h2>Hardware Schematics and Wiring Diagrams</h2>
-      <div class="hardware-diagrams">
+        <div class="python-api-column">
+          <h3>Python API Reference</h3>
+          <div class="python-api-list">
+            <div>
+              <h4>Sensor Collection (test.py)</h4>
+              <ul>
+                <li><code>read_bme280()</code> - Environmental data</li>
+                <li><code>read_mpu6050()</code> - IMU data</li>
+                <li><code>send_lora_data()</code> - LoRa transmit</li>
+                <li><code>update_web_dashboard()</code> - Web update</li>
+              </ul>
+            </div>
+            <div>
+              <h4>Data Reception (lorareceivertest.py)</h4>
+              <ul>
+                <li><code>receive_lora_data()</code> - LoRa receive</li>
+                <li><code>parse_sensor_data()</code> - Parse data</li>
+                <li><code>log_to_csv()</code> - CSV logging</li>
+                <li><code>calculate_statistics()</code> - Stats</li>
+              </ul>
+            </div>
+            <div>
+              <h4>Web Server (app.py)</h4>
+              <ul>
+                <li><code>update_data_history()</code> - History buffer</li>
+                <li><code>generate_chart_data()</code> - Chart.js data</li>
+                <li><code>serve_log_files()</code> - File downloads</li>
+                <li><code>cleanup_port()</code> - Port cleanup</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="hardware-column">
+          <h3>Hardware Schematics</h3>
+          <div class="hardware-diagrams">
         <div class="wiring-diagram" id="rpi-wiring">
           <h4>Raspberry Pi Wiring</h4>
           <div class="ascii-diagram"><pre>BME280 (I2C - 0x76)
@@ -2099,6 +2144,8 @@ Life: ~4 hours</pre></div>
 200×100×60mm ABS
 O-ring seals
 Depth: 10m (1 ATM)</pre></div>
+          </div>
+          </div>
         </div>
       </div>
     </section>
@@ -2357,7 +2404,7 @@ Depth: 10m (1 ATM)</pre></div>
     // Compaction Management System
     class CompactionManager {
       constructor() {
-        this.currentCompaction = localStorage.getItem('triton-compaction') || 'ultra-compact';
+        this.currentCompaction = localStorage.getItem('triton-compaction') || 'compact';
         this.dropdown = null;
         this.dropdownBtn = null;
         this.currentSpan = null;
@@ -2376,7 +2423,7 @@ Depth: 10m (1 ATM)</pre></div>
 
       applyCompaction(level) {
         // Remove all compaction classes
-        document.body.classList.remove('ultra-compact', 'compact', 'normal');
+        document.body.classList.remove('compact', 'normal');
         // Add the selected one
         document.body.classList.add(level);
         this.currentCompaction = level;
@@ -2385,7 +2432,6 @@ Depth: 10m (1 ATM)</pre></div>
         // Update dropdown button text
         if (this.currentSpan) {
           const levelNames = {
-            'ultra-compact': 'Ultra Compact',
             'compact': 'Compact',
             'normal': 'Normal'
           };
