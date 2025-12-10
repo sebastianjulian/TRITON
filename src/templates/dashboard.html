@@ -10,6 +10,7 @@
   <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1"></script>
   <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
   <style>
     :root {
       /* Dark Ocean (Default) */
@@ -2387,6 +2388,200 @@
       }
     }
 
+    /* 3D Orientation Visualization Styles */
+    #orientation-3d {
+      background: var(--gradient-card);
+      border-radius: 12px;
+      padding: 20px;
+    }
+
+    .orientation-container {
+      display: grid;
+      grid-template-columns: 1fr 200px;
+      gap: 20px;
+      min-height: 350px;
+    }
+
+    .orientation-canvas-wrapper {
+      position: relative;
+      background: var(--bg-tertiary);
+      border-radius: 10px;
+      border: 1px solid var(--color-border);
+      overflow: hidden;
+      min-height: 300px;
+    }
+
+    .orientation-canvas-wrapper canvas {
+      display: block;
+      width: 100% !important;
+      height: 100% !important;
+    }
+
+    .orientation-controls-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .orientation-readings {
+      background: var(--bg-tertiary);
+      border-radius: 10px;
+      padding: 15px;
+      border: 1px solid var(--color-border);
+    }
+
+    .orientation-readings h4 {
+      margin: 0 0 12px 0;
+      font-size: 0.9em;
+      color: var(--color-text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .orientation-value {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .orientation-value:last-child {
+      border-bottom: none;
+    }
+
+    .orientation-label {
+      font-size: 0.85em;
+      color: var(--color-text-secondary);
+    }
+
+    .orientation-number {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1em;
+      font-weight: 600;
+      color: var(--color-primary);
+      min-width: 80px;
+      text-align: right;
+    }
+
+    .orientation-number.pitch { color: #ff6b6b; }
+    .orientation-number.roll { color: #4ecdc4; }
+    .orientation-number.yaw { color: #ffd93d; }
+
+    .orientation-gyro-readings {
+      background: var(--bg-tertiary);
+      border-radius: 10px;
+      padding: 15px;
+      border: 1px solid var(--color-border);
+    }
+
+    .orientation-gyro-readings h4 {
+      margin: 0 0 12px 0;
+      font-size: 0.9em;
+      color: var(--color-text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .gyro-value {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0;
+      font-size: 0.85em;
+    }
+
+    .gyro-label {
+      color: var(--color-text-secondary);
+    }
+
+    .gyro-number {
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--color-text-primary);
+    }
+
+    .orientation-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .orientation-btn {
+      padding: 10px 15px;
+      background: var(--bg-secondary);
+      color: var(--color-text-primary);
+      border: 1px solid var(--color-border);
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.9em;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .orientation-btn:hover {
+      background: var(--color-primary);
+      border-color: var(--color-primary);
+    }
+
+    .orientation-btn.reset {
+      background: var(--bg-card);
+    }
+
+    .orientation-btn.reset:hover {
+      background: #ef4444;
+      border-color: #ef4444;
+    }
+
+    .orientation-status {
+      background: var(--bg-tertiary);
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 0.8em;
+      color: var(--color-text-muted);
+      text-align: center;
+    }
+
+    .orientation-status.active {
+      background: rgba(0, 170, 255, 0.15);
+      color: var(--color-primary);
+      border: 1px solid rgba(0, 170, 255, 0.3);
+    }
+
+    @media (max-width: 900px) {
+      .orientation-container {
+        grid-template-columns: 1fr;
+        grid-template-rows: 250px auto;
+      }
+
+      .orientation-controls-panel {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+      }
+
+      .orientation-actions {
+        grid-column: 1 / -1;
+        flex-direction: row;
+      }
+
+      .orientation-btn {
+        flex: 1;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .orientation-controls-panel {
+        grid-template-columns: 1fr;
+      }
+
+      .orientation-actions {
+        flex-direction: column;
+      }
+    }
+
     /* Chart Export Styles */
     .chart-export-controls {
       display: flex;
@@ -3489,6 +3684,10 @@
                     <span class="section-toggle-label">Config</span>
                   </label>
                   <label class="section-toggle checked">
+                    <input type="checkbox" data-section="orientation-3d" checked onchange="layoutManager.toggleSection(this)">
+                    <span class="section-toggle-label">3D Orient</span>
+                  </label>
+                  <label class="section-toggle checked">
                     <input type="checkbox" data-section="downloads" checked onchange="layoutManager.toggleSection(this)">
                     <span class="section-toggle-label">Downloads</span>
                   </label>
@@ -3558,6 +3757,10 @@
     <label class="section-toggle-chip active" data-section="configuration">
       <input type="checkbox" checked>
       Config
+    </label>
+    <label class="section-toggle-chip active" data-section="orientation-3d">
+      <input type="checkbox" checked>
+      3D Orient
     </label>
     <label class="section-toggle-chip active" data-section="downloads">
       <input type="checkbox" checked>
@@ -4304,6 +4507,64 @@
     </div>
   </section>
 
+  <!-- 3D Orientation Visualization Section -->
+  <section id="orientation-3d">
+    <h2>3D Orientation Visualization</h2>
+    <p class="chart-controls-hint">Real-time submarine orientation from integrated gyroscope data (Pitch/Roll/Yaw)</p>
+
+    <div class="orientation-container">
+      <div class="orientation-canvas-wrapper" id="orientationCanvasWrapper">
+        <!-- Three.js canvas will be inserted here -->
+      </div>
+
+      <div class="orientation-controls-panel">
+        <div class="orientation-readings">
+          <h4>Orientation Angles</h4>
+          <div class="orientation-value">
+            <span class="orientation-label">Pitch (X)</span>
+            <span class="orientation-number pitch" id="pitchValue">0.0°</span>
+          </div>
+          <div class="orientation-value">
+            <span class="orientation-label">Roll (Y)</span>
+            <span class="orientation-number roll" id="rollValue">0.0°</span>
+          </div>
+          <div class="orientation-value">
+            <span class="orientation-label">Yaw (Z)</span>
+            <span class="orientation-number yaw" id="yawValue">0.0°</span>
+          </div>
+        </div>
+
+        <div class="orientation-gyro-readings">
+          <h4>Gyroscope Rates</h4>
+          <div class="gyro-value">
+            <span class="gyro-label">Gyro X</span>
+            <span class="gyro-number" id="gyroXValue">0.0 °/s</span>
+          </div>
+          <div class="gyro-value">
+            <span class="gyro-label">Gyro Y</span>
+            <span class="gyro-number" id="gyroYValue">0.0 °/s</span>
+          </div>
+          <div class="gyro-value">
+            <span class="gyro-label">Gyro Z</span>
+            <span class="gyro-number" id="gyroZValue">0.0 °/s</span>
+          </div>
+        </div>
+
+        <div class="orientation-actions">
+          <button class="orientation-btn reset" onclick="orientationVis.resetOrientation()">
+            Reset Orientation
+          </button>
+          <button class="orientation-btn" onclick="orientationVis.toggleAutoRotate()">
+            Toggle Auto-Rotate
+          </button>
+        </div>
+
+        <div class="orientation-status" id="orientationStatus">
+          Waiting for sensor data...
+        </div>
+      </div>
+    </div>
+  </section>
 
   <!-- Download Section -->
   <section id="downloads" class="download-controls">
@@ -6385,6 +6646,23 @@
 
       // Update stats meta information
       updateStatsMeta(totalPoints, filteredPoints, elapsed);
+
+      // Update 3D orientation visualization with latest gyro data
+      if (orientationVis && orientationVis.isInitialized) {
+        const gyroX = filteredHistory["Gyro x [°/s]"] || [];
+        const gyroY = filteredHistory["Gyro y [°/s]"] || [];
+        const gyroZ = filteredHistory["Gyro z [°/s]"] || [];
+
+        if (gyroX.length > 0) {
+          // Get the latest gyro values
+          const latestGyroX = gyroX[gyroX.length - 1];
+          const latestGyroY = gyroY[gyroY.length - 1];
+          const latestGyroZ = gyroZ[gyroZ.length - 1];
+
+          // Update the 3D visualization with current gyro rates
+          orientationVis.updateFromGyro(latestGyroX, latestGyroY, latestGyroZ, Date.now());
+        }
+      }
     }
 
     // Export Filter Functions (separate from display filter)
@@ -7134,7 +7412,7 @@
             name: 'Full Dashboard',
             icon: '&#128421;',
             description: 'All sections, 4 columns',
-            sections: ['mission-control', 'bme280', 'mpu6050', 'correlation', 'mission-compare', 'mission-replay', 'statistics', 'configuration', 'downloads'],
+            sections: ['mission-control', 'bme280', 'mpu6050', 'orientation-3d', 'correlation', 'mission-compare', 'mission-replay', 'statistics', 'configuration', 'downloads'],
             gridColumns: 4,
             densityClass: 'layout-ultra-dense'
           },
@@ -7142,7 +7420,7 @@
             name: 'Dense (3 columns)',
             icon: '&#9638;',
             description: '3 charts per row, less scrolling',
-            sections: ['mission-control', 'bme280', 'mpu6050', 'statistics'],
+            sections: ['mission-control', 'bme280', 'mpu6050', 'orientation-3d', 'statistics'],
             gridColumns: 3,
             densityClass: 'layout-dense'
           },
@@ -7150,7 +7428,7 @@
             name: 'Ultra Dense (4 columns)',
             icon: '&#9641;',
             description: '4 charts per row, minimal scrolling',
-            sections: ['bme280', 'mpu6050', 'statistics'],
+            sections: ['bme280', 'mpu6050', 'orientation-3d', 'statistics'],
             gridColumns: 4,
             densityClass: 'layout-ultra-dense'
           },
@@ -7158,7 +7436,7 @@
             name: 'All Sensors (3 col)',
             icon: '&#128200;',
             description: 'All 11 charts in 3 columns',
-            sections: ['bme280', 'mpu6050'],
+            sections: ['bme280', 'mpu6050', 'orientation-3d'],
             gridColumns: 3,
             densityClass: 'layout-dense'
           },
@@ -7166,7 +7444,7 @@
             name: 'Mission Overview',
             icon: '&#128640;',
             description: 'Essential monitoring',
-            sections: ['mission-control', 'bme280', 'mpu6050', 'statistics'],
+            sections: ['mission-control', 'bme280', 'mpu6050', 'orientation-3d', 'statistics'],
             gridColumns: 2,
             densityClass: ''
           },
@@ -7182,7 +7460,7 @@
             name: 'Navigation Focus',
             icon: '&#129517;',
             description: 'MPU6050 inertial data',
-            sections: ['mission-control', 'mpu6050', 'correlation', 'statistics'],
+            sections: ['mission-control', 'mpu6050', 'orientation-3d', 'correlation', 'statistics'],
             gridColumns: 2,
             densityClass: ''
           },
@@ -7206,13 +7484,13 @@
             name: 'Wide Charts',
             icon: '&#128250;',
             description: 'Full-width charts',
-            sections: ['bme280', 'mpu6050'],
+            sections: ['bme280', 'mpu6050', 'orientation-3d'],
             gridColumns: 1,
             densityClass: ''
           }
         };
 
-        this.allSections = ['mission-control', 'bme280', 'mpu6050', 'correlation', 'mission-compare', 'mission-replay', 'statistics', 'configuration', 'downloads'];
+        this.allSections = ['mission-control', 'bme280', 'mpu6050', 'correlation', 'mission-compare', 'mission-replay', 'statistics', 'configuration', 'orientation-3d', 'downloads'];
 
         // Load custom layouts from localStorage
         this.customLayouts = JSON.parse(localStorage.getItem('triton-custom-layouts') || '{}');
@@ -7735,6 +8013,392 @@
       }
     }
 
+    // Gyroscope Integrator - Integrates angular velocities to get orientation angles
+    class GyroIntegrator {
+      constructor() {
+        this.pitch = 0;  // Rotation around X axis (degrees)
+        this.roll = 0;   // Rotation around Y axis (degrees)
+        this.yaw = 0;    // Rotation around Z axis (degrees)
+        this.lastTimestamp = null;
+      }
+
+      // Update orientation based on gyroscope readings
+      // gyroX, gyroY, gyroZ are in degrees per second
+      update(gyroX, gyroY, gyroZ, timestamp = Date.now()) {
+        if (this.lastTimestamp === null) {
+          this.lastTimestamp = timestamp;
+          return { pitch: this.pitch, roll: this.roll, yaw: this.yaw };
+        }
+
+        // Calculate time delta in seconds
+        const dt = (timestamp - this.lastTimestamp) / 1000;
+        this.lastTimestamp = timestamp;
+
+        // Integrate angular velocities to get angle changes
+        // Limit dt to prevent large jumps if there's a gap in data
+        const clampedDt = Math.min(dt, 0.5);
+
+        this.pitch += gyroX * clampedDt;
+        this.roll += gyroY * clampedDt;
+        this.yaw += gyroZ * clampedDt;
+
+        // Normalize angles to -180 to 180 range
+        this.pitch = this.normalizeAngle(this.pitch);
+        this.roll = this.normalizeAngle(this.roll);
+        this.yaw = this.normalizeAngle(this.yaw);
+
+        return { pitch: this.pitch, roll: this.roll, yaw: this.yaw };
+      }
+
+      normalizeAngle(angle) {
+        while (angle > 180) angle -= 360;
+        while (angle < -180) angle += 360;
+        return angle;
+      }
+
+      reset() {
+        this.pitch = 0;
+        this.roll = 0;
+        this.yaw = 0;
+        this.lastTimestamp = null;
+      }
+
+      getOrientation() {
+        return { pitch: this.pitch, roll: this.roll, yaw: this.yaw };
+      }
+    }
+
+    // 3D Orientation Visualization using Three.js
+    class OrientationVisualization {
+      constructor(containerId) {
+        this.container = document.getElementById(containerId);
+        if (!this.container) {
+          console.error('Orientation container not found:', containerId);
+          return;
+        }
+
+        this.gyroIntegrator = new GyroIntegrator();
+        this.scene = null;
+        this.camera = null;
+        this.renderer = null;
+        this.submarine = null;
+        this.autoRotate = false;
+        this.isInitialized = false;
+        this.animationId = null;
+        this.lastGyroData = { x: 0, y: 0, z: 0 };
+
+        this.init();
+      }
+
+      init() {
+        // Check if Three.js is available
+        if (typeof THREE === 'undefined') {
+          console.error('Three.js not loaded');
+          this.updateStatus('Three.js library not loaded');
+          return;
+        }
+
+        try {
+          // Scene setup
+          this.scene = new THREE.Scene();
+          this.scene.background = new THREE.Color(0x0f1f2f);
+
+          // Camera setup
+          const aspect = this.container.clientWidth / this.container.clientHeight;
+          this.camera = new THREE.PerspectiveCamera(60, aspect, 0.1, 1000);
+          this.camera.position.set(4, 3, 5);
+          this.camera.lookAt(0, 0, 0);
+
+          // Renderer setup
+          this.renderer = new THREE.WebGLRenderer({ antialias: true });
+          this.renderer.setSize(this.container.clientWidth, this.container.clientHeight);
+          this.renderer.setPixelRatio(window.devicePixelRatio);
+          this.container.appendChild(this.renderer.domElement);
+
+          // Lighting
+          const ambientLight = new THREE.AmbientLight(0x404040, 0.5);
+          this.scene.add(ambientLight);
+
+          const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+          directionalLight.position.set(5, 5, 5);
+          this.scene.add(directionalLight);
+
+          const backLight = new THREE.DirectionalLight(0x00aaff, 0.3);
+          backLight.position.set(-5, -3, -5);
+          this.scene.add(backLight);
+
+          // Create submarine model
+          this.createSubmarine();
+
+          // Add grid helper for reference
+          const gridHelper = new THREE.GridHelper(10, 10, 0x00aaff, 0x1a2a3a);
+          gridHelper.position.y = -1.5;
+          this.scene.add(gridHelper);
+
+          // Add axis helper
+          const axesHelper = new THREE.AxesHelper(2);
+          this.scene.add(axesHelper);
+
+          // Handle window resize
+          window.addEventListener('resize', () => this.onWindowResize());
+
+          // Mouse drag controls for camera
+          this.setupMouseControls();
+
+          // Start animation loop
+          this.isInitialized = true;
+          this.animate();
+          this.updateStatus('Ready - receiving sensor data');
+
+        } catch (error) {
+          console.error('Error initializing 3D visualization:', error);
+          this.updateStatus('Error initializing 3D view');
+        }
+      }
+
+      createSubmarine() {
+        // Create submarine group
+        this.submarine = new THREE.Group();
+
+        // Hull - main body (elongated capsule shape)
+        const hullGeometry = new THREE.CapsuleGeometry(0.4, 2, 16, 32);
+        const hullMaterial = new THREE.MeshPhongMaterial({
+          color: 0x2a5580,
+          shininess: 80,
+          specular: 0x444444
+        });
+        const hull = new THREE.Mesh(hullGeometry, hullMaterial);
+        hull.rotation.z = Math.PI / 2; // Rotate to horizontal
+        this.submarine.add(hull);
+
+        // Conning tower (sail)
+        const towerGeometry = new THREE.BoxGeometry(0.3, 0.5, 0.6);
+        const towerMaterial = new THREE.MeshPhongMaterial({
+          color: 0x3a6590,
+          shininess: 60
+        });
+        const tower = new THREE.Mesh(towerGeometry, towerMaterial);
+        tower.position.set(0, 0.45, 0);
+        this.submarine.add(tower);
+
+        // Periscope
+        const periscopeGeometry = new THREE.CylinderGeometry(0.03, 0.03, 0.3, 8);
+        const periscopeMaterial = new THREE.MeshPhongMaterial({ color: 0x666666 });
+        const periscope = new THREE.Mesh(periscopeGeometry, periscopeMaterial);
+        periscope.position.set(0.05, 0.85, 0);
+        this.submarine.add(periscope);
+
+        // Propeller cone
+        const propConeGeometry = new THREE.ConeGeometry(0.2, 0.4, 8);
+        const propConeMaterial = new THREE.MeshPhongMaterial({ color: 0x555555 });
+        const propCone = new THREE.Mesh(propConeGeometry, propConeMaterial);
+        propCone.rotation.z = -Math.PI / 2;
+        propCone.position.set(-1.4, 0, 0);
+        this.submarine.add(propCone);
+
+        // Propeller blades
+        const bladeGeometry = new THREE.BoxGeometry(0.02, 0.3, 0.08);
+        const bladeMaterial = new THREE.MeshPhongMaterial({ color: 0x777777 });
+        for (let i = 0; i < 4; i++) {
+          const blade = new THREE.Mesh(bladeGeometry, bladeMaterial);
+          blade.rotation.x = (i * Math.PI) / 2;
+          blade.position.set(-1.5, 0, 0);
+          this.submarine.add(blade);
+        }
+
+        // Bow (front)
+        const bowGeometry = new THREE.SphereGeometry(0.4, 16, 16, 0, Math.PI);
+        const bowMesh = new THREE.Mesh(bowGeometry, hullMaterial);
+        bowMesh.rotation.z = -Math.PI / 2;
+        bowMesh.position.x = 1.0;
+        this.submarine.add(bowMesh);
+
+        // Horizontal fins (dive planes)
+        const finGeometry = new THREE.BoxGeometry(0.1, 0.02, 0.4);
+        const finMaterial = new THREE.MeshPhongMaterial({ color: 0x3a6590 });
+
+        // Front fins
+        const frontFinLeft = new THREE.Mesh(finGeometry, finMaterial);
+        frontFinLeft.position.set(0.7, 0, 0.3);
+        this.submarine.add(frontFinLeft);
+
+        const frontFinRight = new THREE.Mesh(finGeometry, finMaterial);
+        frontFinRight.position.set(0.7, 0, -0.3);
+        this.submarine.add(frontFinRight);
+
+        // Rear fins
+        const rearFinLeft = new THREE.Mesh(finGeometry, finMaterial);
+        rearFinLeft.position.set(-1.1, 0, 0.3);
+        this.submarine.add(rearFinLeft);
+
+        const rearFinRight = new THREE.Mesh(finGeometry, finMaterial);
+        rearFinRight.position.set(-1.1, 0, -0.3);
+        this.submarine.add(rearFinRight);
+
+        // Vertical tail fin
+        const tailFinGeometry = new THREE.BoxGeometry(0.15, 0.4, 0.02);
+        const tailFin = new THREE.Mesh(tailFinGeometry, finMaterial);
+        tailFin.position.set(-1.2, 0.2, 0);
+        this.submarine.add(tailFin);
+
+        // Add lights on sub
+        const lightGeometry = new THREE.SphereGeometry(0.05, 8, 8);
+        const lightMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+        const light1 = new THREE.Mesh(lightGeometry, lightMaterial);
+        light1.position.set(1.15, 0.1, 0);
+        this.submarine.add(light1);
+
+        this.scene.add(this.submarine);
+      }
+
+      setupMouseControls() {
+        let isDragging = false;
+        let previousMousePosition = { x: 0, y: 0 };
+        let cameraAngleX = 0;
+        let cameraAngleY = Math.PI / 6;
+        let cameraDistance = 7;
+
+        this.renderer.domElement.addEventListener('mousedown', (e) => {
+          isDragging = true;
+          previousMousePosition = { x: e.clientX, y: e.clientY };
+        });
+
+        document.addEventListener('mouseup', () => {
+          isDragging = false;
+        });
+
+        document.addEventListener('mousemove', (e) => {
+          if (!isDragging) return;
+
+          const deltaX = e.clientX - previousMousePosition.x;
+          const deltaY = e.clientY - previousMousePosition.y;
+
+          cameraAngleX += deltaX * 0.01;
+          cameraAngleY = Math.max(-Math.PI / 2.5, Math.min(Math.PI / 2.5, cameraAngleY + deltaY * 0.01));
+
+          previousMousePosition = { x: e.clientX, y: e.clientY };
+
+          this.camera.position.x = cameraDistance * Math.sin(cameraAngleX) * Math.cos(cameraAngleY);
+          this.camera.position.y = cameraDistance * Math.sin(cameraAngleY);
+          this.camera.position.z = cameraDistance * Math.cos(cameraAngleX) * Math.cos(cameraAngleY);
+          this.camera.lookAt(0, 0, 0);
+        });
+
+        // Zoom with mouse wheel
+        this.renderer.domElement.addEventListener('wheel', (e) => {
+          e.preventDefault();
+          cameraDistance = Math.max(3, Math.min(15, cameraDistance + e.deltaY * 0.01));
+
+          this.camera.position.x = cameraDistance * Math.sin(cameraAngleX) * Math.cos(cameraAngleY);
+          this.camera.position.y = cameraDistance * Math.sin(cameraAngleY);
+          this.camera.position.z = cameraDistance * Math.cos(cameraAngleX) * Math.cos(cameraAngleY);
+          this.camera.lookAt(0, 0, 0);
+        });
+      }
+
+      animate() {
+        if (!this.isInitialized) return;
+
+        this.animationId = requestAnimationFrame(() => this.animate());
+
+        // Auto-rotate if enabled
+        if (this.autoRotate && this.submarine) {
+          this.submarine.rotation.y += 0.005;
+        }
+
+        this.renderer.render(this.scene, this.camera);
+      }
+
+      // Update orientation from gyroscope data
+      updateFromGyro(gyroX, gyroY, gyroZ, timestamp) {
+        this.lastGyroData = { x: gyroX, y: gyroY, z: gyroZ };
+        const orientation = this.gyroIntegrator.update(gyroX, gyroY, gyroZ, timestamp);
+
+        // Update 3D model rotation
+        if (this.submarine) {
+          // Convert degrees to radians and apply to submarine
+          this.submarine.rotation.x = THREE.MathUtils.degToRad(orientation.pitch);
+          this.submarine.rotation.z = THREE.MathUtils.degToRad(orientation.roll);
+          this.submarine.rotation.y = THREE.MathUtils.degToRad(orientation.yaw);
+        }
+
+        // Update display values
+        this.updateDisplayValues(orientation, { x: gyroX, y: gyroY, z: gyroZ });
+
+        return orientation;
+      }
+
+      updateDisplayValues(orientation, gyroRates) {
+        // Update orientation angles
+        const pitchEl = document.getElementById('pitchValue');
+        const rollEl = document.getElementById('rollValue');
+        const yawEl = document.getElementById('yawValue');
+
+        if (pitchEl) pitchEl.textContent = orientation.pitch.toFixed(1) + '°';
+        if (rollEl) rollEl.textContent = orientation.roll.toFixed(1) + '°';
+        if (yawEl) yawEl.textContent = orientation.yaw.toFixed(1) + '°';
+
+        // Update gyro rates
+        const gyroXEl = document.getElementById('gyroXValue');
+        const gyroYEl = document.getElementById('gyroYValue');
+        const gyroZEl = document.getElementById('gyroZValue');
+
+        if (gyroXEl) gyroXEl.textContent = gyroRates.x.toFixed(2) + ' °/s';
+        if (gyroYEl) gyroYEl.textContent = gyroRates.y.toFixed(2) + ' °/s';
+        if (gyroZEl) gyroZEl.textContent = gyroRates.z.toFixed(2) + ' °/s';
+      }
+
+      updateStatus(message) {
+        const statusEl = document.getElementById('orientationStatus');
+        if (statusEl) {
+          statusEl.textContent = message;
+          statusEl.classList.toggle('active', message.includes('Ready') || message.includes('receiving'));
+        }
+      }
+
+      resetOrientation() {
+        this.gyroIntegrator.reset();
+        if (this.submarine) {
+          this.submarine.rotation.set(0, 0, 0);
+        }
+        this.updateDisplayValues({ pitch: 0, roll: 0, yaw: 0 }, { x: 0, y: 0, z: 0 });
+        this.updateStatus('Orientation reset');
+        setTimeout(() => this.updateStatus('Ready - receiving sensor data'), 1500);
+      }
+
+      toggleAutoRotate() {
+        this.autoRotate = !this.autoRotate;
+        this.updateStatus(this.autoRotate ? 'Auto-rotate enabled' : 'Auto-rotate disabled');
+        setTimeout(() => this.updateStatus('Ready - receiving sensor data'), 1500);
+      }
+
+      onWindowResize() {
+        if (!this.container || !this.camera || !this.renderer) return;
+
+        const width = this.container.clientWidth;
+        const height = this.container.clientHeight;
+
+        this.camera.aspect = width / height;
+        this.camera.updateProjectionMatrix();
+        this.renderer.setSize(width, height);
+      }
+
+      destroy() {
+        if (this.animationId) {
+          cancelAnimationFrame(this.animationId);
+        }
+        if (this.renderer) {
+          this.renderer.dispose();
+          if (this.container && this.renderer.domElement) {
+            this.container.removeChild(this.renderer.domElement);
+          }
+        }
+      }
+    }
+
+    // Global orientation visualization instance
+    let orientationVis = null;
+
     // Sticky Navigation Handler
     class StickyNavHandler {
       constructor() {
@@ -7762,6 +8426,8 @@
       layoutManager = new LayoutManager();
       // Initialize sticky navigation
       new StickyNavHandler();
+      // Initialize 3D orientation visualization
+      orientationVis = new OrientationVisualization('orientationCanvasWrapper');
       // Initialize correlation dropdowns
       initCorrelationDropdowns();
       // Initialize mission comparison

@@ -28,10 +28,11 @@
 | 4 | 8 | Multi-Metric Correlation | Medium | ✅ Completed |
 | 5 | 16 | Mission Comparison | Medium | ✅ Completed |
 | 6 | 17 | Mission Replay | Medium | ✅ Completed |
-| 7 | 13 | 3D Orientation | Medium | ⬜ Not Started |
+| 7 | 13 | 3D Orientation | Medium | ✅ Completed |
 | 8 | 10 | Configuration UI | Medium | ✅ Completed |
 | 9 | 12 | Export Formats | Medium | ⬜ Not Started |
 | 10 | 15 | Alerts System | High | ⬜ Not Started |
+| 11 | 18 | Layout Presets | Medium | ✅ Completed |
 
 ---
 
@@ -233,6 +234,71 @@ pip install openpyxl reportlab
 
 ---
 
+### Feature 18: Dashboard Layout Presets
+**File**: `src/templates/dashboard.html`
+
+**Overview**: Add a layout preset selector that allows users to quickly switch between predefined layouts optimized for different mission scenarios, plus custom layout saving.
+
+**Predefined Presets**:
+
+| Preset | Description | Visible Sections | Grid |
+|--------|-------------|------------------|------|
+| **Full Dashboard** | All sections (default) | All 9 sections | 2-col |
+| **Mission Overview** | Essential monitoring | mission-control, bme280, mpu6050, statistics | 2-col |
+| **Environmental Focus** | BME280 deep dive for depth/pressure | mission-control, bme280, correlation, statistics | 2-col |
+| **Navigation Focus** | MPU6050 inertial navigation | mission-control, mpu6050, correlation, statistics | 2-col |
+| **Analysis Mode** | Post-mission review | mission-compare, mission-replay, statistics, downloads | 2-col |
+| **Compact** | Minimal live monitoring | mission-control, statistics | 1-col |
+| **Wide Charts** | Full-width charts for presentations | bme280, mpu6050 | 1-col |
+
+**Implementation Steps**:
+
+1. **CSS Styles** (after theme selector styles ~line 801):
+   - `.layout-selector` - Fixed position dropdown (right: 170px, next to theme selector)
+   - `.layout-dropdown`, `.layout-dropdown-btn`, `.layout-options` - Mirror theme selector pattern
+   - `.layout-button` with `.active` state
+   - `section.hidden-section` - Smooth hide with opacity/max-height transitions
+   - `.grid-1col`, `.grid-3col` - Additional grid classes
+   - Mobile responsive adjustments
+
+2. **HTML Structure** (inside `.main-nav` after theme-selector ~line 2189):
+   ```html
+   <div class="layout-selector">
+     <div class="layout-dropdown">
+       <button class="layout-dropdown-btn">
+         <span class="layout-current">Full Dashboard</span>
+         <span class="layout-dropdown-arrow">&#9660;</span>
+       </button>
+       <div class="layout-options">
+         <!-- 7 layout buttons with data-layout attributes -->
+         <!-- Custom layouts section with save/delete controls -->
+       </div>
+     </div>
+   </div>
+   ```
+
+3. **LayoutManager JavaScript Class** (after ThemeManager ~line 5683):
+   - Store preset definitions with sections, gridColumns, chartAspectRatio
+   - `applyLayout(layoutName)` - Show/hide sections, update grid, resize charts
+   - `updateNavLinks()` - Hide nav links for hidden sections
+   - LocalStorage persistence (`triton-layout` key)
+   - Dropdown toggle and click-outside-to-close behavior
+
+4. **Custom Layout Saving**:
+   - `saveCustomLayout(name)` - Save current visible sections as custom layout
+   - `deleteCustomLayout(layoutKey)` - Remove custom layout
+   - Store in localStorage (`triton-custom-layouts` key)
+   - Custom layouts appear in dropdown with star icon
+
+5. **Initialize in window.onload** (~line 5704):
+   - Add `new LayoutManager()` after ThemeManager initialization
+
+**localStorage Keys**:
+- `triton-layout` - Current layout preset name
+- `triton-custom-layouts` - JSON object of custom layout definitions
+
+---
+
 ## Dependencies Summary
 
 ### Python Packages
@@ -300,8 +366,9 @@ Update this section as features are completed:
 [x] Feature 17: Mission Replay (Completed Dec 2024)
 [x] Feature 10: Configuration UI (Completed Dec 2024)
 [ ] Feature 12: Export Formats
-[ ] Feature 13: 3D Orientation
+[x] Feature 13: 3D Orientation (Completed Dec 2024)
 [ ] Feature 15: Alerts System
+[x] Feature 18: Layout Presets (Completed Dec 2024)
 ```
 
 ---
