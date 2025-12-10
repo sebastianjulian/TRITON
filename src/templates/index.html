@@ -202,6 +202,7 @@
       box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
       display: block;
       visibility: visible;
+      overflow: visible;
     }
 
     .header-nav.scrolled {
@@ -226,6 +227,30 @@
       background: rgba(122, 198, 235, 0.98);
     }
 
+    [data-theme="nature"] .header-nav {
+      background: rgba(20, 36, 20, 0.95);
+    }
+
+    [data-theme="nature"] .header-nav.scrolled {
+      background: rgba(20, 36, 20, 0.98);
+    }
+
+    [data-theme="retro"] .header-nav {
+      background: rgba(20, 10, 36, 0.95);
+    }
+
+    [data-theme="retro"] .header-nav.scrolled {
+      background: rgba(20, 10, 36, 0.98);
+    }
+
+    [data-theme="futuristic"] .header-nav {
+      background: rgba(8, 8, 12, 0.95);
+    }
+
+    [data-theme="futuristic"] .header-nav.scrolled {
+      background: rgba(8, 8, 12, 0.98);
+    }
+
     .main-nav {
       display: flex;
       justify-content: center;
@@ -235,6 +260,7 @@
       max-width: 1200px;
       margin: 0 auto;
       padding: 0 20px;
+      overflow: visible;
     }
 
     .main-nav a {
@@ -307,6 +333,8 @@
 
     section {
       padding: 15px 0;
+      position: relative;
+      z-index: 1;
     }
 
     h2 {
@@ -352,6 +380,7 @@
       text-align: center;
       position: relative;
       overflow: hidden;
+      z-index: 1;
     }
 
     .hero-section::before {
@@ -975,14 +1004,16 @@
       backdrop-filter: blur(10px);
       transition: all 0.3s ease;
       width: 140px;
+      overflow: visible;
     }
-    
+
     .theme-selector:hover {
       box-shadow: var(--glow-accent), 0 6px 20px rgba(0, 0, 0, 0.5);
     }
-    
+
     .theme-dropdown {
       position: relative;
+      overflow: visible;
     }
     
     .theme-dropdown-btn {
@@ -1022,16 +1053,19 @@
       top: 100%;
       left: 0;
       right: 0;
-      background: var(--gradient-card);
+      background: var(--bg-card);
       border: 1px solid var(--color-border);
       border-radius: 8px;
       margin-top: 4px;
       opacity: 0;
       visibility: hidden;
       transform: translateY(-10px);
-      transition: all 0.3s ease;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-      z-index: 1000;
+      transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.3s ease;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+      z-index: 99999;
+      overflow: visible;
+      max-height: none;
+      isolation: isolate;
     }
     
     .theme-dropdown.open .theme-options {
@@ -1449,47 +1483,49 @@
   </style>
 </head>
 <body>
+  <!-- Navigation moved outside header to escape stacking context -->
+  <div class="header-nav">
+    <nav class="main-nav">
+      <a href="#overview">Overview</a>
+      <a href="#architecture">Architecture</a>
+      <a href="#documentation">Documentation</a>
+      <a href="#api">API</a>
+      <a href="#hardware">Hardware</a>
+      <a href="#usage">Usage</a>
+      <!-- Compaction Selector -->
+      <div class="compaction-selector">
+        <div class="compaction-dropdown">
+          <button class="compaction-dropdown-btn">
+            <span class="compaction-current">Compact</span>
+            <span class="compaction-dropdown-arrow">▼</span>
+          </button>
+          <div class="compaction-options">
+            <div class="compaction-button active" data-compaction="compact">Compact</div>
+            <div class="compaction-button" data-compaction="normal">Normal</div>
+          </div>
+        </div>
+      </div>
+      <!-- Theme Selector -->
+      <div class="theme-selector">
+        <div class="theme-dropdown">
+          <button class="theme-dropdown-btn">
+            <span class="theme-current">Dark Ocean</span>
+            <span class="theme-dropdown-arrow">▼</span>
+          </button>
+          <div class="theme-options">
+            <div class="theme-button active" data-theme="dark-ocean">Dark Ocean</div>
+            <div class="theme-button" data-theme="night">Night</div>
+            <div class="theme-button" data-theme="light-ocean">Light Ocean</div>
+            <div class="theme-button" data-theme="nature">Nature</div>
+            <div class="theme-button" data-theme="retro">Retro</div>
+            <div class="theme-button" data-theme="futuristic">Futuristic</div>
+          </div>
+        </div>
+      </div>
+    </nav>
+  </div>
+
   <header>
-    <div class="header-nav">
-      <nav class="main-nav">
-        <a href="#overview">Overview</a>
-        <a href="#architecture">Architecture</a>
-        <a href="#documentation">Documentation</a>
-        <a href="#api">API</a>
-        <a href="#hardware">Hardware</a>
-        <a href="#usage">Usage</a>
-        <!-- Compaction Selector -->
-        <div class="compaction-selector">
-          <div class="compaction-dropdown">
-            <button class="compaction-dropdown-btn">
-              <span class="compaction-current">Compact</span>
-              <span class="compaction-dropdown-arrow">▼</span>
-            </button>
-            <div class="compaction-options">
-              <div class="compaction-button active" data-compaction="compact">Compact</div>
-              <div class="compaction-button" data-compaction="normal">Normal</div>
-            </div>
-          </div>
-        </div>
-        <!-- Theme Selector -->
-        <div class="theme-selector">
-          <div class="theme-dropdown">
-            <button class="theme-dropdown-btn">
-              <span class="theme-current">Dark Ocean</span>
-              <span class="theme-dropdown-arrow">▼</span>
-            </button>
-            <div class="theme-options">
-              <div class="theme-button active" data-theme="dark-ocean">Dark Ocean</div>
-              <div class="theme-button" data-theme="night">Night</div>
-              <div class="theme-button" data-theme="light-ocean">Light Ocean</div>
-              <div class="theme-button" data-theme="nature">Nature</div>
-              <div class="theme-button" data-theme="retro">Retro</div>
-              <div class="theme-button" data-theme="futuristic">Futuristic</div>
-            </div>
-          </div>
-        </div>
-      </nav>
-    </div>
     <h1>TRITON</h1>
     <div class="subtitle">Autonomous Submarine Navigation System</div>
   </header>
