@@ -180,7 +180,7 @@
 
     header {
       background: var(--bg-header);
-      padding: 70px 20px 40px 20px;
+      padding: 50px 20px 15px 20px;
       text-align: center;
       border-bottom: 2px solid var(--color-border-accent);
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
@@ -282,8 +282,8 @@
     }
 
     header h1 {
-      margin: 60px 0 0 0;
-      font-size: 3.5em;
+      margin: 35px 0 0 0;
+      font-size: 2em;
       color: var(--color-text-primary);
       font-weight: 700;
       letter-spacing: 0.1em;
@@ -292,39 +292,39 @@
     }
 
     header .subtitle {
-      margin: 10px 0 0 0;
-      font-size: 1.3em;
+      margin: 3px 0 0 0;
+      font-size: 0.95em;
       color: var(--color-primary);
       font-weight: 300;
       text-shadow: var(--glow-accent);
     }
 
     .container {
-      max-width: 1200px;
+      max-width: 1600px;
       margin: 0 auto;
-      padding: 0 20px;
+      padding: 0 30px;
     }
 
     section {
-      padding: 40px 0;
+      padding: 15px 0;
     }
 
     h2 {
       color: var(--color-text-primary);
-      font-size: 2em;
-      margin-bottom: 25px;
-      border-left: 4px solid var(--color-primary);
-      padding-left: 20px;
+      font-size: 1.3em;
+      margin-bottom: 10px;
+      border-left: 3px solid var(--color-primary);
+      padding-left: 12px;
       text-shadow: var(--glow-accent);
       position: relative;
     }
-    
+
     h2::before {
       content: '';
       position: absolute;
-      left: -4px;
+      left: -3px;
       top: 0;
-      width: 4px;
+      width: 3px;
       height: 100%;
       background: var(--color-primary);
       box-shadow: var(--glow-primary);
@@ -332,28 +332,28 @@
 
     h3 {
       color: var(--color-text-primary);
-      font-size: 1.4em;
-      margin-top: 30px;
-      margin-bottom: 15px;
+      font-size: 1.1em;
+      margin-top: 15px;
+      margin-bottom: 8px;
       font-weight: 600;
     }
 
     p {
       color: var(--color-text-secondary);
-      font-size: 1.1em;
-      margin-bottom: 20px;
+      font-size: 0.9em;
+      margin-bottom: 10px;
       text-align: justify;
-      line-height: 1.7;
+      line-height: 1.5;
     }
 
     .hero-section {
       background: var(--gradient-card);
-      padding: 60px 0;
+      padding: 20px 0;
       text-align: center;
       position: relative;
       overflow: hidden;
     }
-    
+
     .hero-section::before {
       content: '';
       position: absolute;
@@ -366,15 +366,15 @@
     }
 
     .hero-content {
-      max-width: 800px;
+      max-width: 1400px;
       margin: 0 auto;
     }
 
     .hero-description {
-      font-size: 1.4em;
+      font-size: 1em;
       color: var(--color-text-muted);
-      margin: 30px 0 40px 0;
-      line-height: 1.8;
+      margin: 10px 0 15px 0;
+      line-height: 1.5;
       font-weight: 400;
     }
 
@@ -382,20 +382,20 @@
       display: inline-block;
       background: var(--color-primary);
       color: var(--bg-primary);
-      padding: 18px 40px;
-      font-size: 1.3em;
+      padding: 10px 25px;
+      font-size: 1em;
       font-weight: 600;
       text-decoration: none;
-      border-radius: 12px;
+      border-radius: 8px;
       transition: all 0.3s ease;
-      margin: 20px;
-      box-shadow: var(--glow-primary), 0 8px 25px rgba(0, 0, 0, 0.3);
+      margin: 8px;
+      box-shadow: var(--glow-primary), 0 4px 15px rgba(0, 0, 0, 0.3);
       border: 1px solid var(--color-primary);
       backdrop-filter: blur(10px);
       position: relative;
       overflow: hidden;
     }
-    
+
     .cta-button::before {
       content: '';
       position: absolute;
@@ -410,33 +410,33 @@
     .cta-button:hover {
       background: var(--color-accent);
       color: var(--bg-primary);
-      transform: translateY(-3px);
-      box-shadow: var(--glow-accent), 0 12px 35px rgba(0, 0, 0, 0.4);
+      transform: translateY(-2px);
+      box-shadow: var(--glow-accent), 0 6px 20px rgba(0, 0, 0, 0.4);
     }
-    
+
     .cta-button:hover::before {
       left: 100%;
     }
 
     .features-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 30px;
-      margin: 40px 0;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+      margin: 15px 0;
     }
 
     .feature-card {
       background: var(--gradient-card);
-      padding: 30px;
-      border-radius: 16px;
+      padding: 14px;
+      border-radius: 10px;
       border: 1px solid var(--color-border);
-      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1);
       backdrop-filter: blur(10px);
       transition: all 0.3s ease;
       position: relative;
       overflow: hidden;
     }
-    
+
     .feature-card::before {
       content: '';
       position: absolute;
@@ -456,8 +456,8 @@
 
     .feature-card h4 {
       color: var(--color-primary);
-      font-size: 1.3em;
-      margin-bottom: 15px;
+      font-size: 0.95em;
+      margin-bottom: 6px;
       font-weight: 600;
       text-shadow: var(--glow-accent);
     }
@@ -466,20 +466,21 @@
       color: var(--color-text-muted);
       margin-bottom: 0;
       text-align: left;
-      line-height: 1.6;
+      line-height: 1.4;
+      font-size: 0.8em;
     }
 
     .tech-specs {
       background: var(--gradient-card);
-      padding: 40px;
-      border-radius: 16px;
-      margin: 40px 0;
+      padding: 18px;
+      border-radius: 10px;
+      margin: 15px 0;
       border: 1px solid var(--color-border);
-      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1);
       backdrop-filter: blur(10px);
       position: relative;
     }
-    
+
     .tech-specs::before {
       content: '';
       position: absolute;
@@ -493,51 +494,50 @@
 
     .specs-list {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 20px;
-      margin-top: 20px;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 8px;
+      margin-top: 10px;
     }
 
     .spec-item {
       display: flex;
-      align-items: flex-start;
+      align-items: center;
       justify-content: space-between;
-      padding: 18px;
+      padding: 8px 10px;
       background: var(--bg-card);
-      border-radius: 12px;
-      border-left: 4px solid var(--color-primary);
-      min-height: 60px;
-      gap: 15px;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+      border-radius: 6px;
+      border-left: 3px solid var(--color-primary);
+      min-height: 30px;
+      gap: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
       transition: all 0.3s ease;
       position: relative;
     }
-    
+
     .spec-item::before {
       content: '';
       position: absolute;
-      left: -4px;
+      left: -3px;
       top: 0;
-      width: 4px;
+      width: 3px;
       height: 100%;
       background: var(--color-primary);
       box-shadow: var(--glow-primary);
       border-radius: 0 2px 2px 0;
     }
-    
+
     .spec-item:hover {
       background: var(--bg-tertiary);
-      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4), var(--glow-accent);
+      box-shadow: 0 3px 12px rgba(0, 0, 0, 0.3), var(--glow-accent);
     }
 
     .spec-label {
       font-weight: 600;
       color: var(--color-text-primary);
-      min-width: 120px;
+      min-width: 80px;
       flex-shrink: 0;
-      word-wrap: break-word;
-      line-height: 1.4;
-      padding-top: 2px;
+      font-size: 0.8em;
+      line-height: 1.3;
     }
 
     .spec-value {
@@ -545,11 +545,8 @@
       font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
       text-align: right;
       flex: 1;
-      word-wrap: break-word;
-      word-break: break-word;
-      overflow-wrap: break-word;
-      hyphens: auto;
-      line-height: 1.4;
+      font-size: 0.8em;
+      line-height: 1.3;
       max-width: 60%;
       font-weight: 500;
       text-shadow: var(--glow-accent);
@@ -557,16 +554,16 @@
 
     .mission-overview {
       text-align: center;
-      padding: 60px 0;
+      padding: 20px 0;
       background: var(--gradient-card);
       position: relative;
       overflow: hidden;
     }
 
     .mission-overview .container {
-      margin-bottom: 40px;
+      margin-bottom: 15px;
     }
-    
+
     .mission-overview::before {
       content: '';
       position: absolute;
@@ -582,28 +579,28 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin: 40px auto;
+      margin: 15px auto;
       flex-wrap: wrap;
-      gap: 20px;
-      max-width: 1200px;
+      gap: 10px;
+      max-width: 1600px;
       padding: 0 20px;
     }
 
     .flow-step {
       background: var(--gradient-card);
-      padding: 25px;
-      border-radius: 16px;
+      padding: 12px;
+      border-radius: 8px;
       text-align: center;
       flex: 1;
-      min-width: 200px;
+      min-width: 140px;
       border: 1px solid var(--color-primary);
-      box-shadow: var(--glow-primary), 0 6px 20px rgba(0, 0, 0, 0.3);
+      box-shadow: var(--glow-primary), 0 3px 10px rgba(0, 0, 0, 0.3);
       backdrop-filter: blur(10px);
       transition: all 0.3s ease;
       position: relative;
       overflow: hidden;
     }
-    
+
     .flow-step::before {
       content: '';
       position: absolute;
@@ -614,24 +611,24 @@
       background: radial-gradient(circle at center, var(--color-primary)08, transparent 60%);
       pointer-events: none;
     }
-    
+
     .flow-step:hover {
-      transform: translateY(-3px);
-      box-shadow: var(--glow-accent), 0 10px 30px rgba(0, 0, 0, 0.4);
+      transform: translateY(-2px);
+      box-shadow: var(--glow-accent), 0 5px 15px rgba(0, 0, 0, 0.4);
     }
 
     .flow-arrow {
-      font-size: 2em;
+      font-size: 1.3em;
       color: var(--color-primary);
-      margin: 0 10px;
+      margin: 0 5px;
       text-shadow: var(--glow-primary);
       filter: drop-shadow(var(--glow-primary));
     }
 
     .flow-step h4 {
       color: var(--color-primary);
-      margin: 0 0 10px 0;
-      font-size: 1.1em;
+      margin: 0 0 4px 0;
+      font-size: 0.85em;
       font-weight: 600;
       text-shadow: var(--glow-accent);
     }
@@ -639,21 +636,21 @@
     .flow-step p {
       color: var(--color-text-muted);
       margin: 0;
-      font-size: 0.9em;
+      font-size: 0.75em;
       text-align: center;
-      line-height: 1.5;
+      line-height: 1.3;
     }
 
     footer {
       background: var(--bg-header);
-      padding: 40px 0;
+      padding: 20px 0;
       text-align: center;
       border-top: 2px solid var(--color-border-accent);
-      margin-top: 60px;
+      margin-top: 20px;
       position: relative;
       backdrop-filter: blur(10px);
     }
-    
+
     footer::before {
       content: '';
       position: absolute;
@@ -667,18 +664,22 @@
 
     .footer-content {
       color: var(--color-text-muted);
-      font-size: 0.9em;
+      font-size: 0.8em;
+    }
+
+    .footer-content p {
+      margin: 3px 0;
     }
 
     .github-link {
       display: inline-block;
       background: var(--color-primary);
       color: var(--bg-primary);
-      padding: 12px 24px;
+      padding: 8px 16px;
       text-decoration: none;
-      border-radius: 8px;
+      border-radius: 6px;
       font-weight: 600;
-      font-size: 1em;
+      font-size: 0.85em;
       transition: all 0.3s ease;
       box-shadow: var(--glow-primary);
       border: 1px solid var(--color-primary);
@@ -750,148 +751,162 @@
     /* Documentation Specific Styles */
     .ascii-diagram {
       background: var(--bg-tertiary);
-      border-radius: 8px;
-      margin: 15px 0;
+      border-radius: 6px;
+      margin: 8px 0;
       overflow-x: auto;
     }
 
     .ascii-diagram pre {
       margin: 0;
-      padding: 20px;
+      padding: 10px;
       font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
-      font-size: 0.85em;
-      line-height: 1.4;
+      font-size: 0.7em;
+      line-height: 1.25;
       color: var(--color-text-secondary);
       white-space: pre;
       overflow-x: auto;
     }
 
     .subsystem-docs ul {
-      margin: 15px 0;
-      padding-left: 20px;
-    }
-
-    .subsystem-docs li {
       margin: 8px 0;
-      color: var(--color-text-secondary);
-      line-height: 1.6;
-    }
-
-    .subsystem-docs ul ul {
-      margin: 5px 0;
       padding-left: 15px;
     }
 
-    .subsystem-docs ul ul li {
+    .subsystem-docs li {
       margin: 4px 0;
+      color: var(--color-text-secondary);
+      line-height: 1.4;
+      font-size: 0.8em;
+    }
+
+    .subsystem-docs ul ul {
+      margin: 3px 0;
+      padding-left: 12px;
+    }
+
+    .subsystem-docs ul ul li {
+      margin: 2px 0;
       font-size: 0.95em;
       color: var(--color-text-muted);
     }
 
     .feature-updates h5, .hardware-history h5 {
       color: var(--color-primary);
-      font-size: 1.1em;
-      margin: 20px 0 10px 0;
+      font-size: 0.9em;
+      margin: 10px 0 5px 0;
       text-shadow: var(--glow-accent);
       border-bottom: 1px solid var(--color-border);
-      padding-bottom: 5px;
+      padding-bottom: 3px;
     }
 
     .feature-updates ul, .hardware-history ul {
-      margin: 10px 0 20px 0;
-      padding-left: 20px;
+      margin: 5px 0 10px 0;
+      padding-left: 15px;
     }
 
     .feature-updates li, .hardware-history li {
-      margin: 6px 0;
+      margin: 3px 0;
       color: var(--color-text-secondary);
-      line-height: 1.5;
+      line-height: 1.4;
+      font-size: 0.8em;
     }
 
     /* API Documentation Styles */
     .api-endpoints {
       display: flex;
       flex-direction: column;
-      gap: 25px;
-      margin: 20px 0;
+      gap: 10px;
+      margin: 10px 0;
     }
 
     .api-endpoint {
       background: var(--bg-card);
-      padding: 25px;
-      border-radius: 12px;
-      border-left: 4px solid var(--color-primary);
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+      padding: 12px;
+      border-radius: 8px;
+      border-left: 3px solid var(--color-primary);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
     }
 
     .api-endpoint h4 {
-      margin: 0 0 10px 0;
+      margin: 0 0 4px 0;
       color: var(--color-primary);
       font-family: 'JetBrains Mono', monospace;
-      font-size: 1.2em;
+      font-size: 0.9em;
       text-shadow: var(--glow-accent);
     }
 
     .api-endpoint p {
-      margin: 10px 0;
+      margin: 4px 0;
       color: var(--color-text-secondary);
+      font-size: 0.8em;
     }
 
     .api-details {
-      margin-top: 15px;
+      margin-top: 8px;
     }
 
     .api-details h5 {
       color: var(--color-text-primary);
-      font-size: 1em;
-      margin: 15px 0 8px 0;
+      font-size: 0.85em;
+      margin: 8px 0 4px 0;
       font-weight: 600;
     }
 
     .api-details pre {
       background: var(--bg-tertiary);
       border: 1px solid var(--color-border);
-      border-radius: 8px;
-      padding: 15px;
+      border-radius: 6px;
+      padding: 8px;
       font-family: 'JetBrains Mono', monospace;
-      font-size: 0.85em;
-      line-height: 1.4;
+      font-size: 0.7em;
+      line-height: 1.3;
       color: var(--color-text-secondary);
       overflow-x: auto;
-      margin: 10px 0;
+      margin: 5px 0;
     }
 
     .api-details code {
       background: var(--bg-tertiary);
-      padding: 2px 6px;
-      border-radius: 4px;
+      padding: 1px 4px;
+      border-radius: 3px;
       font-family: 'JetBrains Mono', monospace;
-      font-size: 0.9em;
+      font-size: 0.85em;
       color: var(--color-primary);
     }
 
     .python-api {
-      margin-top: 30px;
+      margin-top: 10px;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 8px;
+    }
+
+    .python-api > div {
+      background: var(--bg-card);
+      padding: 8px;
+      border-radius: 6px;
+      border-left: 2px solid var(--color-primary);
     }
 
     .python-api h4 {
       color: var(--color-primary);
-      font-size: 1.3em;
-      margin: 25px 0 15px 0;
+      font-size: 0.85em;
+      margin: 0 0 6px 0;
       border-bottom: 1px solid var(--color-border);
-      padding-bottom: 8px;
+      padding-bottom: 4px;
       text-shadow: var(--glow-accent);
     }
 
     .python-api ul {
-      margin: 10px 0;
-      padding-left: 20px;
+      margin: 4px 0;
+      padding-left: 12px;
+      font-size: 0.75em;
     }
 
     .python-api li {
-      margin: 8px 0;
+      margin: 2px 0;
       color: var(--color-text-secondary);
-      line-height: 1.6;
+      line-height: 1.3;
     }
 
     /* Hardware Diagrams Styles */
@@ -1063,28 +1078,328 @@
       header {
         padding: 60px 20px 40px 20px;
       }
-      
+
       .header-nav {
         padding: 8px 0;
       }
-      
+
       .theme-selector {
         width: 120px;
         padding: 8px;
       }
-      
+
       .theme-options {
         min-width: 120px;
       }
-      
+
       .theme-dropdown-btn {
         font-size: 0.8em;
         padding: 8px 10px;
       }
-      
+
       .theme-button {
         font-size: 0.8em;
         padding: 6px 10px;
+      }
+    }
+
+    /* Compaction Dropdown */
+    .compaction-selector {
+      display: inline-block;
+      background: var(--gradient-card);
+      border: 1px solid var(--color-border);
+      border-radius: 8px;
+      box-shadow: var(--glow-primary), 0 4px 15px rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(10px);
+      transition: all 0.3s ease;
+      width: 130px;
+    }
+
+    .compaction-dropdown {
+      position: relative;
+    }
+
+    .compaction-dropdown-btn {
+      width: 100%;
+      padding: 8px 10px;
+      background: var(--bg-card);
+      color: var(--color-text-primary);
+      border: 1px solid var(--color-border);
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.8em;
+      font-weight: 500;
+      text-align: left;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: all 0.3s ease;
+    }
+
+    .compaction-dropdown-btn:hover {
+      border-color: var(--color-primary);
+      box-shadow: var(--glow-primary);
+    }
+
+    .compaction-dropdown-arrow {
+      font-size: 0.7em;
+      transition: transform 0.3s ease;
+      color: var(--color-primary);
+    }
+
+    .compaction-dropdown.open .compaction-dropdown-arrow {
+      transform: rotate(180deg);
+    }
+
+    .compaction-options {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: var(--gradient-card);
+      border: 1px solid var(--color-border);
+      border-radius: 8px;
+      margin-top: 4px;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-10px);
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+      z-index: 1000;
+    }
+
+    .compaction-dropdown.open .compaction-options {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+
+    .compaction-button {
+      width: 100%;
+      padding: 6px 10px;
+      border: none;
+      background: transparent;
+      color: #ffffff !important;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 0.8em;
+      font-weight: 500;
+      text-align: left;
+      border-radius: 6px;
+      margin: 2px 0;
+    }
+
+    .compaction-button:hover {
+      background: var(--bg-tertiary);
+    }
+
+    .compaction-button.active {
+      background: var(--color-primary);
+      color: #000000 !important;
+      font-weight: 600;
+    }
+
+    /* API Endpoints in 3-column grid */
+    .api-endpoints {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .hardware-diagrams {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      align-items: start;
+    }
+
+    .hardware-diagrams > h3 {
+      display: none;
+    }
+
+    .wiring-diagram,
+    .power-diagram,
+    .mechanical-diagram {
+      background: var(--bg-card);
+      border-radius: 8px;
+      padding: 10px;
+      border: 1px solid var(--color-border);
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .wiring-diagram h4,
+    .power-diagram h4,
+    .mechanical-diagram h4 {
+      color: var(--color-primary);
+      font-size: 0.85em;
+      margin: 0 0 8px 0;
+      padding-bottom: 5px;
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    /* Ultra Compact Mode (Default) */
+    body.ultra-compact .api-endpoint {
+      padding: 8px;
+      border-radius: 6px;
+    }
+
+    body.ultra-compact .api-endpoint h4 {
+      font-size: 0.8em;
+      margin-bottom: 2px;
+    }
+
+    body.ultra-compact .api-endpoint p {
+      font-size: 0.7em;
+      margin: 2px 0;
+    }
+
+    body.ultra-compact .api-details {
+      margin-top: 4px;
+    }
+
+    body.ultra-compact .api-details h5 {
+      font-size: 0.75em;
+      margin: 4px 0 2px 0;
+    }
+
+    body.ultra-compact .api-details pre {
+      padding: 5px;
+      font-size: 0.6em;
+      line-height: 1.2;
+      margin: 3px 0;
+    }
+
+    body.ultra-compact .api-details ul {
+      margin: 3px 0;
+      padding-left: 12px;
+    }
+
+    body.ultra-compact .api-details li {
+      font-size: 0.7em;
+      margin: 1px 0;
+      line-height: 1.3;
+    }
+
+    body.ultra-compact .python-api {
+      gap: 5px;
+    }
+
+    body.ultra-compact .python-api > div {
+      padding: 5px;
+    }
+
+    body.ultra-compact .python-api h4 {
+      font-size: 0.75em;
+      margin: 0 0 3px 0;
+      padding-bottom: 2px;
+    }
+
+    body.ultra-compact .python-api ul {
+      font-size: 0.65em;
+      padding-left: 10px;
+    }
+
+    body.ultra-compact .python-api li {
+      margin: 1px 0;
+    }
+
+    body.ultra-compact .hardware-diagrams h3 {
+      font-size: 0.9em;
+      margin: 8px 0 5px 0;
+      padding-bottom: 4px;
+    }
+
+    body.ultra-compact .wiring-diagram h4,
+    body.ultra-compact .power-diagram h4,
+    body.ultra-compact .mechanical-diagram h4 {
+      font-size: 0.8em;
+      margin: 6px 0 4px 0;
+    }
+
+    body.ultra-compact .ascii-diagram {
+      margin: 4px 0;
+    }
+
+    body.ultra-compact .ascii-diagram pre {
+      padding: 6px;
+      font-size: 0.58em;
+      line-height: 1.15;
+    }
+
+    body.ultra-compact h2 {
+      font-size: 1.1em;
+      margin-bottom: 8px;
+    }
+
+    body.ultra-compact h3 {
+      font-size: 0.95em;
+      margin-top: 10px;
+      margin-bottom: 5px;
+    }
+
+    /* Compact Mode */
+    body.compact .api-endpoint {
+      padding: 10px;
+    }
+
+    body.compact .api-endpoint h4 {
+      font-size: 0.85em;
+    }
+
+    body.compact .api-endpoint p {
+      font-size: 0.75em;
+    }
+
+    body.compact .api-details pre {
+      font-size: 0.65em;
+      padding: 6px;
+    }
+
+    body.compact .api-details li {
+      font-size: 0.75em;
+    }
+
+    body.compact .ascii-diagram pre {
+      font-size: 0.65em;
+      padding: 8px;
+    }
+
+    /* Normal Mode - single column layouts */
+    body.normal .api-endpoints {
+      grid-template-columns: 1fr;
+    }
+
+    body.normal .hardware-diagrams {
+      grid-template-columns: 1fr;
+    }
+
+    body.normal .python-api {
+      grid-template-columns: 1fr;
+    }
+
+    @media (max-width: 1400px) {
+      .api-endpoints {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .hardware-diagrams {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 1000px) {
+      .api-endpoints {
+        grid-template-columns: 1fr;
+      }
+      .python-api {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media (max-width: 700px) {
+      .python-api {
+        grid-template-columns: 1fr;
       }
     }
   </style>
@@ -1099,6 +1414,20 @@
         <a href="#api">API</a>
         <a href="#hardware">Hardware</a>
         <a href="#usage">Usage</a>
+        <!-- Compaction Selector -->
+        <div class="compaction-selector">
+          <div class="compaction-dropdown">
+            <button class="compaction-dropdown-btn">
+              <span class="compaction-current">Ultra Compact</span>
+              <span class="compaction-dropdown-arrow">▼</span>
+            </button>
+            <div class="compaction-options">
+              <div class="compaction-button active" data-compaction="ultra-compact">Ultra Compact</div>
+              <div class="compaction-button" data-compaction="compact">Compact</div>
+              <div class="compaction-button" data-compaction="normal">Normal</div>
+            </div>
+          </div>
+        </div>
         <!-- Theme Selector -->
         <div class="theme-selector">
           <div class="theme-dropdown">
@@ -1671,48 +2000,31 @@ Error Handle → Retry Logic → CSV Logging → Web Dashboard
 
         <h3>Python API Reference</h3>
         <div class="python-api">
-          <h4>Sensor Collection Module (test.py)</h4>
-          <div class="api-details">
-            <h5>Key Functions:</h5>
+          <div>
+            <h4>Sensor Collection (test.py)</h4>
             <ul>
-              <li><code>read_bme280()</code> - Read environmental sensor data</li>
-              <li><code>read_mpu6050()</code> - Read inertial measurement data</li>
-              <li><code>send_lora_data(data)</code> - Transmit data via LoRa</li>
-              <li><code>update_web_dashboard(data)</code> - Send data to web server</li>
-              <li><code>should_transmit(current, previous)</code> - Check transmission thresholds</li>
-            </ul>
-            <h5>Data Thresholds:</h5>
-            <ul>
-              <li>Temperature BME280: 0.25°C</li>
-              <li>Humidity: 1.0%</li>
-              <li>Pressure: 0.5 hPa</li>
-              <li>Altitude: 0.5m</li>
-              <li>Acceleration (all axes): 0.25 m/s²</li>
-              <li>Gyroscope (all axes): 5.0°/s</li>
-              <li>Temperature MPU: 0.25°C</li>
+              <li><code>read_bme280()</code> - Environmental data</li>
+              <li><code>read_mpu6050()</code> - IMU data</li>
+              <li><code>send_lora_data()</code> - LoRa transmit</li>
+              <li><code>update_web_dashboard()</code> - Web update</li>
             </ul>
           </div>
-
-          <h4>Data Reception Module (lorareceivertest.py)</h4>
-          <div class="api-details">
-            <h5>Key Functions:</h5>
+          <div>
+            <h4>Data Reception (lorareceivertest.py)</h4>
             <ul>
-              <li><code>receive_lora_data()</code> - Receive LoRa transmissions</li>
-              <li><code>parse_sensor_data(raw_data)</code> - Parse received data</li>
-              <li><code>log_to_csv(data)</code> - Write data to CSV file</li>
-              <li><code>calculate_statistics(data_history)</code> - Compute min/max/avg</li>
-              <li><code>archive_old_logs()</code> - Manage log file rotation</li>
+              <li><code>receive_lora_data()</code> - LoRa receive</li>
+              <li><code>parse_sensor_data()</code> - Parse data</li>
+              <li><code>log_to_csv()</code> - CSV logging</li>
+              <li><code>calculate_statistics()</code> - Stats</li>
             </ul>
           </div>
-
-          <h4>Web Server Module (app.py)</h4>
-          <div class="api-details">
-            <h5>Key Functions:</h5>
+          <div>
+            <h4>Web Server (app.py)</h4>
             <ul>
-              <li><code>update_data_history(new_data)</code> - Add data to history buffer</li>
-              <li><code>generate_chart_data()</code> - Format data for Chart.js</li>
-              <li><code>serve_log_files()</code> - Handle file downloads</li>
-              <li><code>cleanup_port(port)</code> - Port management utility</li>
+              <li><code>update_data_history()</code> - History buffer</li>
+              <li><code>generate_chart_data()</code> - Chart.js data</li>
+              <li><code>serve_log_files()</code> - File downloads</li>
+              <li><code>cleanup_port()</code> - Port cleanup</li>
             </ul>
           </div>
         </div>
@@ -1722,133 +2034,71 @@ Error Handle → Retry Logic → CSV Logging → Web Dashboard
     <section id="hardware">
       <h2>Hardware Schematics and Wiring Diagrams</h2>
       <div class="hardware-diagrams">
-        <h3>Raspberry Pi Wiring Diagram</h3>
-        <div class="wiring-diagram">
-          <h4>BME280 Connections (I2C)</h4>
-          <div class="ascii-diagram">
-            <pre>
-Raspberry Pi Zero 2 W          BME280 Sensor
-┌─────────────────┐            ┌─────────────┐
-│ Pin 1  (3.3V)   │─────────── │ VCC         │
-│ Pin 3  (SDA)    │─────────── │ SDA         │
-│ Pin 5  (SCL)    │─────────── │ SCL         │
-│ Pin 9  (GND)    │─────────── │ GND         │
-└─────────────────┘            └─────────────┘
+        <div class="wiring-diagram" id="rpi-wiring">
+          <h4>Raspberry Pi Wiring</h4>
+          <div class="ascii-diagram"><pre>BME280 (I2C - 0x76)
+Pi Pin 1 (3.3V) → VCC
+Pi Pin 3 (SDA)  → SDA
+Pi Pin 5 (SCL)  → SCL
+Pi Pin 9 (GND)  → GND
 
-I2C Address: 0x76
-Pull-up resistors: 4.7kΩ (built-in on Pi)
-            </pre>
-          </div>
+MPU6050 (I2C - 0x68)
+Pi Pin 1 (3.3V) → VCC
+Pi Pin 3 (SDA)  → SDA
+Pi Pin 5 (SCL)  → SCL
+Pi Pin 9 (GND)  → GND
 
-          <h4>MPU6050 Connections (I2C)</h4>
-          <div class="ascii-diagram">
-            <pre>
-Raspberry Pi Zero 2 W          MPU6050 IMU
-┌─────────────────┐            ┌─────────────┐
-│ Pin 1  (3.3V)   │─────────── │ VCC         │
-│ Pin 3  (SDA)    │─────────── │ SDA         │
-│ Pin 5  (SCL)    │─────────── │ SCL         │
-│ Pin 9  (GND)    │─────────── │ GND         │
-│ Pin 11 (GPIO17) │─────────── │ INT         │
-└─────────────────┘            └─────────────┘
-
-I2C Address: 0x68
-Interrupt pin: GPIO17 (optional)
-            </pre>
-          </div>
-
-          <h4>LoRa Module Connections (UART)</h4>
-          <div class="ascii-diagram">
-            <pre>
-Raspberry Pi Zero 2 W          LoRa Module
-┌─────────────────┐            ┌─────────────┐
-│ Pin 2  (5V)     │─────────── │ VCC         │
-│ Pin 6  (GND)    │─────────── │ GND         │
-│ Pin 8  (TXD)    │─────────── │ RXD         │
-│ Pin 10 (RXD)    │─────────── │ TXD         │
-└─────────────────┘            └─────────────┘
-
-UART: /dev/ttyUSB0 (via USB adapter)
-Baud Rate: 9600
-Flow Control: None
-            </pre>
-          </div>
+LoRa (UART - 9600)
+Pi Pin 2 (5V)   → VCC
+Pi Pin 6 (GND)  → GND
+Pi Pin 8 (TXD)  → RXD
+Pi Pin 10 (RXD) → TXD</pre></div>
         </div>
 
-        <h3>PC Station Wiring</h3>
-        <div class="wiring-diagram">
-          <h4>LoRa Receiver Setup</h4>
-          <div class="ascii-diagram">
-            <pre>
-PC (Windows/Linux)             LoRa Module
-┌─────────────────┐            ┌─────────────┐
-│ USB Port        │──USB───────│ USB-Serial  │
-│                 │  Cable     │ Adapter     │
-└─────────────────┘            └─────────────┘
-                                       │
-                               ┌─────────────┐
-                               │ LoRa Module │
-                               │ (Receiver)  │
-                               └─────────────┘
+        <div class="wiring-diagram" id="pc-wiring">
+          <h4>PC Station Wiring</h4>
+          <div class="ascii-diagram"><pre>PC ──USB──┬── USB-Serial
+          │   Adapter
+          │   (FTDI/CP2102)
+          │
+          └── LoRa Module
+              (Receiver)
 
-Connection: COM8 (Windows) / /dev/ttyUSB0 (Linux)
-USB-Serial Chip: FTDI FT232RL or CP2102
-            </pre>
-          </div>
+Port: COM8 (Win)
+      /dev/ttyUSB0 (Linux)
+Baud: 9600</pre></div>
         </div>
 
-        <h3>Power System Diagram</h3>
         <div class="power-diagram">
-          <h4>Submarine Power Distribution</h4>
-          <div class="ascii-diagram">
-            <pre>
-┌─────────────────┐
-│ Battery Pack    │ 7.4V Li-Po
-│ (2S 2200mAh)    │
-└─────────┬───────┘
-          │
-┌─────────▼───────┐
-│ Buck Converter  │ 7.4V → 5V
-│ (Efficiency 95%) │
-└─────────┬───────┘
-          │
-    ┌─────▼─────┬─────────┬─────────┐
-    │           │         │         │
-┌───▼────┐ ┌───▼────┐ ┌──▼────┐ ┌──▼─────┐
-│ RPi    │ │ BME280 │ │MPU6050│ │ LoRa   │
-│ 5V     │ │ 3.3V   │ │ 3.3V  │ │ 3.3V   │
-│ 500mA  │ │ 3mA    │ │ 4mA   │ │ 45mA   │
-└────────┘ └────────┘ └───────┘ └────────┘
+          <h4>Power System</h4>
+          <div class="ascii-diagram"><pre>Battery 7.4V Li-Po
+    (2S 2200mAh)
+         │
+    Buck Conv 95%
+    (7.4V → 5V)
+         │
+    ┌────┼────┬────┐
+    │    │    │    │
+   RPi BME  MPU LoRa
+   5V  3.3V 3.3V 3.3V
+  500mA 3mA 4mA 45mA
 
-Total Current: ~550mA @ 5V
-Battery Life: ~4 hours continuous operation
-            </pre>
-          </div>
+Total: ~550mA @ 5V
+Life: ~4 hours</pre></div>
         </div>
 
-        <h3>Mechanical Assembly</h3>
         <div class="mechanical-diagram">
-          <h4>Submarine Enclosure Layout</h4>
-          <div class="ascii-diagram">
-            <pre>
-Side View:
-┌─────────────────────────────────────────┐
-│                                         │ ← Waterproof Seal
-│  ┌─────┐  ┌─────┐  ┌─────┐  ┌─────┐   │
-│  │ RPi │  │BME  │  │MPU  │  │LoRa │   │ ← Components
-│  │     │  │280  │  │6050 │  │     │   │
-│  └─────┘  └─────┘  └─────┘  └─────┘   │
-│                                         │
-│  ┌─────────────────────────────────┐   │
-│  │ Battery Pack (7.4V Li-Po)      │   │ ← Power System
-│  └─────────────────────────────────┘   │
-└─────────────────────────────────────────┘
-
-Dimensions: 200mm x 100mm x 60mm
-Material: ABS Plastic with O-ring seals
-Depth Rating: 10 meters (1 ATM overpressure)
-            </pre>
-          </div>
+          <h4>Mechanical Assembly</h4>
+          <div class="ascii-diagram"><pre>Submarine Enclosure
+┌───────────────────┐
+│ [RPi][BME][MPU]   │
+│      [LoRa]       │
+│                   │
+│ [Battery 7.4V]    │
+└───────────────────┘
+200×100×60mm ABS
+O-ring seals
+Depth: 10m (1 ATM)</pre></div>
         </div>
       </div>
     </section>
@@ -2104,6 +2354,88 @@ Depth Rating: 10 meters (1 ATM overpressure)
   </footer>
 
   <script>
+    // Compaction Management System
+    class CompactionManager {
+      constructor() {
+        this.currentCompaction = localStorage.getItem('triton-compaction') || 'ultra-compact';
+        this.dropdown = null;
+        this.dropdownBtn = null;
+        this.currentSpan = null;
+        this.init();
+      }
+
+      init() {
+        this.dropdown = document.querySelector('.compaction-dropdown');
+        this.dropdownBtn = document.querySelector('.compaction-dropdown-btn');
+        this.currentSpan = document.querySelector('.compaction-current');
+
+        this.applyCompaction(this.currentCompaction);
+        this.setupEventListeners();
+        this.updateActiveButton();
+      }
+
+      applyCompaction(level) {
+        // Remove all compaction classes
+        document.body.classList.remove('ultra-compact', 'compact', 'normal');
+        // Add the selected one
+        document.body.classList.add(level);
+        this.currentCompaction = level;
+        localStorage.setItem('triton-compaction', level);
+
+        // Update dropdown button text
+        if (this.currentSpan) {
+          const levelNames = {
+            'ultra-compact': 'Ultra Compact',
+            'compact': 'Compact',
+            'normal': 'Normal'
+          };
+          this.currentSpan.textContent = levelNames[level] || level;
+        }
+      }
+
+      setupEventListeners() {
+        // Dropdown toggle
+        if (this.dropdownBtn) {
+          this.dropdownBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.dropdown.classList.toggle('open');
+            // Close theme dropdown if open
+            const themeDropdown = document.querySelector('.theme-dropdown');
+            if (themeDropdown) themeDropdown.classList.remove('open');
+          });
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', () => {
+          if (this.dropdown) {
+            this.dropdown.classList.remove('open');
+          }
+        });
+
+        // Compaction option clicks
+        const compactionOptions = document.querySelectorAll('.compaction-button');
+        compactionOptions.forEach(option => {
+          option.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const level = option.getAttribute('data-compaction');
+            this.applyCompaction(level);
+            this.updateActiveButton();
+            this.dropdown.classList.remove('open');
+          });
+        });
+      }
+
+      updateActiveButton() {
+        const compactionOptions = document.querySelectorAll('.compaction-button');
+        compactionOptions.forEach(option => {
+          option.classList.remove('active');
+          if (option.getAttribute('data-compaction') === this.currentCompaction) {
+            option.classList.add('active');
+          }
+        });
+      }
+    }
+
     // Theme Management System
     class ThemeManager {
       constructor() {
@@ -2149,6 +2481,9 @@ Depth Rating: 10 meters (1 ATM overpressure)
           this.dropdownBtn.addEventListener('click', (e) => {
             e.stopPropagation();
             this.dropdown.classList.toggle('open');
+            // Close compaction dropdown if open
+            const compactionDropdown = document.querySelector('.compaction-dropdown');
+            if (compactionDropdown) compactionDropdown.classList.remove('open');
           });
         }
         
@@ -2217,8 +2552,9 @@ Depth Rating: 10 meters (1 ATM overpressure)
       }
     }
     
-    // Initialize theme management and sticky nav when page loads
+    // Initialize compaction, theme management and sticky nav when page loads
     document.addEventListener('DOMContentLoaded', () => {
+      new CompactionManager();
       new ThemeManager();
       new StickyNavHandler();
     });
