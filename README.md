@@ -144,6 +144,72 @@ pip install flask pyserial requests pytz numpy
 # macOS: ls /dev/tty.usb*
 ```
 
+## Raspberry Pi Auto-Start Setup (systemd)
+
+To run TRITON automatically on boot, create a systemd service:
+
+### Step 1: Create the Service File
+
+```bash
+sudo nano /etc/systemd/system/triton-sensors.service
+```
+
+Add this content (adjust `User` and paths as needed):
+
+```ini
+[Unit]
+Description=TRITON Sensor & Motor Control
+After=network.target
+
+[Service]
+Type=simple
+User=az
+WorkingDirectory=/home/az/TRITON/TRITON
+ExecStart=/usr/bin/python3 /home/az/TRITON/TRITON/src/test.py
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+```
+
+### Step 2: Enable and Start
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable triton-sensors
+sudo systemctl start triton-sensors
+```
+
+### Service Management Commands
+
+| Command | Description |
+|---------|-------------|
+| `sudo systemctl status triton-sensors` | Check service status |
+| `sudo systemctl start triton-sensors` | Start the service |
+| `sudo systemctl stop triton-sensors` | Stop the service |
+| `sudo systemctl restart triton-sensors` | Restart the service |
+| `sudo systemctl enable triton-sensors` | Enable auto-start on boot |
+| `sudo systemctl disable triton-sensors` | Disable auto-start |
+| `journalctl -u triton-sensors -f` | View live logs |
+
+### Removing a Service
+
+```bash
+sudo systemctl stop triton-sensors
+sudo systemctl disable triton-sensors
+sudo rm /etc/systemd/system/triton-sensors.service
+sudo systemctl daemon-reload
+```
+
+### Common systemd Errors
+
+| Error Code | Meaning | Solution |
+|------------|---------|----------|
+| `status=217/USER` | User doesn't exist | Check username with `whoami`, update `User=` line |
+| `status=200/CHDIR` | Directory doesn't exist | Verify `WorkingDirectory` path exists |
+| `status=203/EXEC` | Executable not found | Check `ExecStart` path is correct |
+
 ## Quick Start
 
 ### PC Side
@@ -189,6 +255,17 @@ python src/pi_motor_receiver.py
 | **Raspberry Pi** | `src/test.py` | Sensor data collection + LoRa transmission |
 | **Raspberry Pi** | `src/pi_motor_receiver.py` | Motor/ESC control via LoRa commands |
 
+### Unified Script (Recommended)
+
+As of the latest update, `test.py` now handles **both** sensor collection AND motor control in a single script. This eliminates serial port conflicts and simplifies deployment:
+
+```bash
+# Single command for everything on Raspberry Pi
+python src/test.py
+```
+
+> **Note:** The separate `pi_motor_receiver.py` has been moved to `src/legacy/` for reference. The unified approach is now recommended.
+
 ## System Architecture
 
 ```
@@ -207,6 +284,56 @@ python src/pi_motor_receiver.py
    Collection                                 Real-time Visualization
 ```
 
+### Unified Architecture (Current)
+
+The system now uses a unified script on the Raspberry Pi that handles everything:
+
+```
+                    ┌─────────────────────────────────────┐
+                    │         Raspberry Pi                │
+                    │  ┌─────────────────────────────┐    │
+                    │  │         test.py             │    │
+                    │  │  - Sensor collection        │    │
+                    │  │  - LoRa TX (sensor data)    │    │
+                    │  │  - LoRa RX (motor commands) │    │
+                    │  │  - Motor/ESC control (PWM)  │    │
+                    │  └─────────────────────────────┘    │
+                    │              │ LoRa                 │
+                    └──────────────┼──────────────────────┘
+                                   │
+                    ┌──────────────┼──────────────────────┐
+                    │              │ LoRa                 │
+                    │         PC / Laptop                 │
+                    │  ┌───────────▼─────────────────┐    │
+                    │  │         app.py              │    │
+                    │  │  - Web dashboard            │    │
+                    │  │  - LoRa RX (sensor data)    │    │
+                    │  │  - LoRa TX (motor commands) │    │
+                    │  │  - Continuous TX thread     │    │
+                    │  └─────────────────────────────┘    │
+                    │              │ HTTP :5000           │
+                    │  ┌───────────▼─────────────────┐    │
+                    │  │      Web Browser            │    │
+                    │  │  - Dashboard UI             │    │
+                    │  │  - Motor controls           │    │
+                    │  └─────────────────────────────┘    │
+                    └─────────────────────────────────────┘
+```
+
+### Motor Control Protocol
+
+The system uses a **continuous transmission protocol** for reliable motor control over half-duplex LoRa:
+
+**Command Format:** `CMD:<type>:<value>\n`
+- `CMD:THROTTLE:50` - Set throttle to 50%
+- `CMD:STOP:0` - Stop motor
+- `CMD:ESTOP:0` - Emergency stop
+
+**ACK Format:** `ACK:<type>:<actual_value>:<OK|FAIL>`
+- `ACK:THROTTLE:50:OK` - Confirmed motor at 50%
+
+The PC continuously transmits the target throttle every 150ms until the Pi confirms the motor has reached the desired state. This ensures reliable command delivery even with LoRa timing issues.
+
 ### Data Flow
 1. **Raspberry Pi** (`test.py`) collects sensor data and transmits via LoRa
 2. **PC** (`lorareceivertest.py`) receives LoRa data and logs to CSV
@@ -219,13 +346,14 @@ python src/pi_motor_receiver.py
 
 | File | Platform | Purpose |
 |------|----------|---------|
-| `src/app.py` | PC | Flask web server with dashboard + motor control API |
-| `src/test.py` | Raspberry Pi | Main sensor collection with LoRa transmission |
-| `src/pi_motor_receiver.py` | Raspberry Pi | Motor/ESC control via LoRa commands |
+| `src/app.py` | PC | Flask web server with dashboard + motor control API + continuous LoRa TX |
+| `src/test.py` | Raspberry Pi | **Unified script**: sensor collection + LoRa TX/RX + motor control |
 | `src/motor_control.py` | Raspberry Pi | Motor control library (PWM for ESC) |
 | `src/lorareceivertest.py` | PC | LoRa data reception and CSV logging |
 | `src/lorasendertest.py` | Raspberry Pi | LoRa transmission testing |
 | `src/web_server.py` | PC | Alternative web server implementation |
+
+> **Note:** `pi_motor_receiver.py` has been moved to `src/legacy/` - motor control is now integrated into `test.py`
 
 ### Running Individual Components
 
@@ -297,6 +425,28 @@ LORA_PORT = "/dev/ttyUSB0"  # Linux
 # Common settings
 BAUD_RATE = 9600
 TIMEOUT = 1.0
+```
+
+### Motor/ESC Configuration
+```python
+# GPIO and PWM settings
+ESC_GPIO_PIN = 18           # GPIO pin for PWM output (Pin 12)
+PWM_FREQUENCY = 50          # Standard servo frequency (50Hz = 20ms period)
+
+# PWM pulse widths (microseconds)
+PWM_MIN_US = 1000           # Full reverse/brake
+PWM_NEUTRAL_US = 1500       # Neutral/Stop
+PWM_MAX_US = 2000           # Full forward
+
+# Safety limits
+MAX_THROTTLE_PERCENT = 75   # Maximum allowed throttle (safety limit)
+PWM_REFRESH_RATE = 50       # How often to refresh PWM signal (Hz)
+```
+
+### Continuous Transmission Settings
+```python
+# PC-side motor command transmission
+MOTOR_TX_INTERVAL = 0.15    # Send commands every 150ms (like RC controllers)
 ```
 
 ### Data Transmission Thresholds
@@ -411,6 +561,43 @@ sudo killall pigpiod
 sudo pigpiod
 ```
 
+### Motor Control Troubleshooting
+
+**Motor doesn't respond to web commands:**
+
+This was a common issue caused by serial port conflicts. Originally, two scripts (`test.py` and `pi_motor_receiver.py`) tried to use the same serial port (`/dev/ttyUSB0`). Only one process can hold a serial port at a time.
+
+**Solution:** Use the unified `test.py` which handles both sensors AND motor control.
+
+---
+
+**Commands work sometimes but not reliably:**
+
+This is caused by LoRa modules being **half-duplex** - they cannot receive while transmitting.
+
+**Failed Approaches:**
+1. Simple send-and-wait: Commands often arrived while Pi was transmitting sensor data
+2. ACK-based retry: Still unreliable due to timing
+
+**Working Solution:** The PC now uses continuous transmission - sending the target throttle every 150ms until confirmed. This works like RC controllers.
+
+---
+
+**Ramp test skips commands:**
+
+The ramp test sends many throttle values in sequence. With unreliable delivery, some values were skipped.
+
+**Solution:** The continuous transmission protocol ensures each command is received before moving to the next. The PC waits for ACK confirmation that the motor reached the target state.
+
+---
+
+**systemd service runs but motor doesn't work:**
+
+Check for these issues:
+1. Wrong user in service file - verify with `whoami`
+2. pigpiod not starting - the script auto-starts it, but may need sudo
+3. Wrong working directory path
+
 For more detailed troubleshooting, see [TROUBLESHOOTING.md](TROUBLESHOOTING.md).
 
 ## Project Structure
@@ -418,10 +605,9 @@ For more detailed troubleshooting, see [TROUBLESHOOTING.md](TROUBLESHOOTING.md).
 ```
 TRITON/
 ├── src/
-│   ├── test.py                    # Main Raspberry Pi sensor collection
+│   ├── test.py                    # Main Raspberry Pi: sensors + LoRa + motor control (unified)
+│   ├── app.py                    # Flask web dashboard + motor control API + continuous TX
 │   ├── lorareceivertest.py       # PC LoRa receiver and logger
-│   ├── app.py                    # Flask web dashboard server (includes motor control API)
-│   ├── pi_motor_receiver.py      # Raspberry Pi motor/ESC control via LoRa
 │   ├── motor_control.py          # Motor control library (PWM for ESC)
 │   ├── lorasendertest.py         # LoRa transmission testing
 │   ├── web_server.py             # Alternative web server
@@ -431,6 +617,9 @@ TRITON/
 │   ├── logs/                     # CSV data logs
 │   │   └── previous_data/        # Archived log files
 │   └── legacy/                   # Obsolete/reference files
+│       └── pi_motor_receiver.py  # Legacy standalone motor receiver (now in test.py)
+├── config/                       # Configuration files
+│   └── triton_config.json        # Dashboard and sensor configuration
 ├── README.md                     # This file
 ├── CLAUDE.md                     # Development instructions
 ├── TROUBLESHOOTING.md            # Detailed troubleshooting guide
