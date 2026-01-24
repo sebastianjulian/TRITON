@@ -1188,7 +1188,326 @@ def export_pdf():
     )
 
 
+# ==================== Motor Control API Endpoints ====================
+
+import serial
+import threading
+
+# Motor control state
+motor_state = {
+    "throttle": 0,
+    "status": "disconnected",
+    "last_command_time": None,
+    "last_ack_time": None
+}
+motor_lock = threading.Lock()
+
+# LoRa serial connection for commands (shared with receiver)
+lora_serial = None
+lora_lock = threading.Lock()
+
+LORA_COM_PORT = 'COM8'
+LORA_BAUD_RATE = 9600
+
+
+def init_lora_serial():
+    """Initialize LoRa serial connection for sending commands."""
+    global lora_serial
+    try:
+        if lora_serial is None or not lora_serial.is_open:
+            lora_serial = serial.Serial(LORA_COM_PORT, LORA_BAUD_RATE, timeout=1)
+            print(f"[INFO] LoRa serial initialized on {LORA_COM_PORT}")
+            return True
+    except Exception as e:
+        print(f"[WARN] Could not initialize LoRa serial: {e}")
+        return False
+    return True
+
+
+def send_motor_command(command_type, value=0):
+    """Send motor command via LoRa.
+
+    Command format: CMD:<type>:<value>\n
+    Types: THROTTLE, STOP, ESTOP
+    """
+    global motor_state
+
+    if not init_lora_serial():
+        return False, "LoRa not connected"
+
+    command = f"CMD:{command_type}:{value}\n"
+
+    try:
+        with lora_lock:
+            lora_serial.write(command.encode())
+            lora_serial.flush()
+
+        with motor_lock:
+            motor_state["last_command_time"] = datetime.now().isoformat()
+            if command_type == "THROTTLE":
+                motor_state["throttle"] = value
+                motor_state["status"] = "running" if value > 0 else "stopped"
+            elif command_type in ["STOP", "ESTOP"]:
+                motor_state["throttle"] = 0
+                motor_state["status"] = "stopped" if command_type == "STOP" else "emergency_stop"
+
+        print(f"[MOTOR] Sent command: {command.strip()}")
+        return True, "Command sent"
+
+    except Exception as e:
+        print(f"[ERROR] Failed to send motor command: {e}")
+        return False, str(e)
+
+
+@app.route('/motor/status', methods=['GET'])
+def get_motor_status():
+    """Get current motor status."""
+    with motor_lock:
+        return jsonify(motor_state)
+
+
+@app.route('/motor/throttle', methods=['POST'])
+def set_motor_throttle():
+    """Set motor throttle (0-100%)."""
+    try:
+        data = request.json
+        throttle = int(data.get('throttle', 0))
+
+        # Clamp throttle to valid range
+        throttle = max(0, min(100, throttle))
+
+        success, message = send_motor_command("THROTTLE", throttle)
+
+        if success:
+            return jsonify({"status": "success", "throttle": throttle, "message": message})
+        else:
+            return jsonify({"status": "error", "message": message}), 500
+
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+
+@app.route('/motor/stop', methods=['POST'])
+def stop_motor():
+    """Stop the motor (set throttle to 0)."""
+    success, message = send_motor_command("STOP", 0)
+
+    if success:
+        return jsonify({"status": "success", "message": "Motor stopped"})
+    else:
+        return jsonify({"status": "error", "message": message}), 500
+
+
+@app.route('/motor/emergency_stop', methods=['POST'])
+def emergency_stop_motor():
+    """Emergency stop - immediately cuts motor power."""
+    success, message = send_motor_command("ESTOP", 0)
+
+    if success:
+        return jsonify({"status": "success", "message": "Emergency stop activated"})
+    else:
+        return jsonify({"status": "error", "message": message}), 500
+
+
+@app.route('/motor/preset/<int:percent>', methods=['POST'])
+def set_motor_preset(percent):
+    """Set motor to preset throttle value."""
+    # Validate preset
+    if percent not in [0, 25, 50, 75, 100]:
+        return jsonify({"status": "error", "message": "Invalid preset. Use 0, 25, 50, 75, or 100"}), 400
+
+    success, message = send_motor_command("THROTTLE", percent)
+
+    if success:
+        return jsonify({"status": "success", "throttle": percent, "message": message})
+    else:
+        return jsonify({"status": "error", "message": message}), 500
+
+
+# ==================== LoRa Receiver Thread ====================
+
+LABELS = [
+    "Elapsed [s]",
+    "Temp_BME280 [°C]", "Hum [%]", "Press [hPa]", "Alt [m]",
+    "Acc x [m/s²]", "Acc y [m/s²]", "Acc z [m/s²]",
+    "Gyro x [°/s]", "Gyro y [°/s]", "Gyro z [°/s]",
+    "Temp_MPU [°C]"
+]
+MIN_COLUMNS = len(LABELS) + 1
+
+lora_receiver_running = False
+lora_receiver_thread = None
+
+
+def process_sensor_data(line):
+    """Process incoming sensor data from Pi."""
+    global latest_data, history
+
+    fields = line.split(",")
+    if len(fields) < MIN_COLUMNS:
+        return False
+
+    timestamp_str = fields[0]
+    values = fields[1:]
+
+    try:
+        # Update latest_data
+        data_dict = {}
+        for i, label in enumerate(LABELS):
+            if i < len(values):
+                try:
+                    data_dict[label] = float(values[i])
+                except ValueError:
+                    data_dict[label] = values[i]
+
+        latest_data["timestamp"] = timestamp_str
+        latest_data["data"] = data_dict
+
+        # Update history for charts
+        elapsed = float(values[0]) if values else 0
+        history["Elapsed [s]"].append(elapsed)
+
+        for key in history:
+            if key != "Elapsed [s]":
+                try:
+                    idx = LABELS.index(key)
+                    if idx < len(values):
+                        history[key].append(float(values[idx]))
+                    else:
+                        history[key].append(None)
+                except (ValueError, IndexError):
+                    history[key].append(None)
+
+        return True
+
+    except Exception as e:
+        print(f"[LORA-RX] Error processing sensor data: {e}")
+        return False
+
+
+def process_ack(line):
+    """Process acknowledgment from Pi motor controller."""
+    global motor_state
+
+    # Format: ACK:<type>:<value>:<status>
+    parts = line.split(":")
+    if len(parts) >= 4:
+        cmd_type = parts[1]
+        value = parts[2]
+        status = parts[3]
+
+        with motor_lock:
+            motor_state["last_ack_time"] = datetime.now().isoformat()
+
+            if status == "OK":
+                print(f"[LORA-RX] ACK received: {cmd_type}={value} OK")
+            else:
+                print(f"[LORA-RX] ACK received: {cmd_type}={value} FAILED")
+
+
+def lora_receiver_loop():
+    """Background thread that receives data from LoRa."""
+    global lora_receiver_running, motor_state
+
+    print("[LORA-RX] Receiver thread started")
+
+    while lora_receiver_running:
+        try:
+            if not init_lora_serial():
+                time.sleep(2)
+                continue
+
+            with lora_lock:
+                if lora_serial and lora_serial.is_open and lora_serial.in_waiting:
+                    line = lora_serial.readline().decode(errors='ignore').strip()
+                else:
+                    line = None
+
+            if line:
+                print(f"[LORA-RX] {line}")
+
+                # Check if it's an acknowledgment
+                if line.startswith("ACK:"):
+                    process_ack(line)
+
+                # Check if it's sensor data (starts with timestamp)
+                elif "," in line and not line.startswith("CMD:"):
+                    if process_sensor_data(line):
+                        with motor_lock:
+                            if motor_state["status"] == "disconnected":
+                                motor_state["status"] = "connected"
+
+            time.sleep(0.05)  # Small delay to prevent CPU hogging
+
+        except Exception as e:
+            print(f"[LORA-RX] Error: {e}")
+            time.sleep(1)
+
+    print("[LORA-RX] Receiver thread stopped")
+
+
+def start_lora_receiver():
+    """Start the LoRa receiver background thread."""
+    global lora_receiver_running, lora_receiver_thread
+
+    if lora_receiver_thread and lora_receiver_thread.is_alive():
+        print("[LORA-RX] Receiver already running")
+        return
+
+    lora_receiver_running = True
+    lora_receiver_thread = threading.Thread(target=lora_receiver_loop, daemon=True)
+    lora_receiver_thread.start()
+    print("[LORA-RX] Started LoRa receiver thread")
+
+
+def stop_lora_receiver():
+    """Stop the LoRa receiver background thread."""
+    global lora_receiver_running
+
+    lora_receiver_running = False
+    print("[LORA-RX] Stopping receiver thread...")
+
+
+@app.route('/lora/status', methods=['GET'])
+def get_lora_status():
+    """Get LoRa connection status."""
+    connected = lora_serial is not None and lora_serial.is_open
+    return jsonify({
+        "connected": connected,
+        "port": LORA_COM_PORT,
+        "baud": LORA_BAUD_RATE,
+        "receiver_running": lora_receiver_running
+    })
+
+
+@app.route('/lora/start', methods=['POST'])
+def start_lora():
+    """Start LoRa receiver."""
+    start_lora_receiver()
+    return jsonify({"status": "success", "message": "LoRa receiver started"})
+
+
+@app.route('/lora/stop', methods=['POST'])
+def stop_lora():
+    """Stop LoRa receiver."""
+    stop_lora_receiver()
+    return jsonify({"status": "success", "message": "LoRa receiver stopped"})
+
+
 def cleanup():
+    global lora_serial
+
+    # Stop LoRa receiver thread
+    stop_lora_receiver()
+
+    # Close LoRa serial if open
+    try:
+        if lora_serial and lora_serial.is_open:
+            lora_serial.close()
+            print("[INFO] LoRa serial closed")
+    except Exception as e:
+        print(f"[WARN] Error closing LoRa serial: {e}")
+
     try:
         if platform.system() == "Windows":
             # Windows cleanup
@@ -1221,6 +1540,10 @@ if __name__ == "__main__":
     import logging
     log = logging.getLogger('werkzeug')
     log.setLevel(logging.ERROR)  # Or use logging.CRITICAL to suppress all output
+
+    # Start LoRa receiver thread for sensor data and motor acknowledgments
+    print("[INFO] Starting LoRa receiver for motor control and sensor data...")
+    start_lora_receiver()
 
     try:
         app.run(debug=False, host="0.0.0.0", use_reloader=False)

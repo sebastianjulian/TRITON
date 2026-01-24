@@ -527,6 +527,286 @@
       box-shadow: var(--glow-accent);
     }
 
+    /* ==================== Motor Control Styles ==================== */
+    .motor-control-section {
+      padding: 20px 40px;
+      margin-top: 20px;
+    }
+
+    .motor-nav-link {
+      background: rgba(255, 100, 100, 0.15) !important;
+      border: 1px solid #ff6b6b !important;
+    }
+
+    .motor-nav-link:hover {
+      background: rgba(255, 100, 100, 0.3) !important;
+      box-shadow: 0 0 15px rgba(255, 100, 100, 0.4) !important;
+    }
+
+    .emergency-stop-container {
+      display: flex;
+      align-items: center;
+      gap: 30px;
+      margin-bottom: 25px;
+      padding: 20px;
+      background: linear-gradient(145deg, rgba(255, 50, 50, 0.1), rgba(200, 0, 0, 0.05));
+      border-radius: 12px;
+      border: 2px solid rgba(255, 100, 100, 0.3);
+    }
+
+    .emergency-stop-btn {
+      background: linear-gradient(145deg, #ff3333, #cc0000);
+      color: white;
+      font-size: 1.4em;
+      font-weight: 800;
+      padding: 20px 50px;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      box-shadow: 0 6px 20px rgba(255, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+      transition: all 0.15s ease;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    .emergency-stop-btn:hover {
+      background: linear-gradient(145deg, #ff4444, #dd0000);
+      transform: scale(1.02);
+      box-shadow: 0 8px 30px rgba(255, 0, 0, 0.6);
+    }
+
+    .emergency-stop-btn:active {
+      transform: scale(0.98);
+      box-shadow: 0 2px 10px rgba(255, 0, 0, 0.4);
+    }
+
+    .motor-status-display {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .motor-status-label {
+      font-size: 0.85em;
+      color: var(--color-text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .motor-status-value {
+      font-size: 1.3em;
+      font-weight: 600;
+      color: var(--color-text-primary);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .motor-status-value.status-running {
+      color: #4ade80;
+    }
+
+    .motor-status-value.status-stopped {
+      color: #fbbf24;
+    }
+
+    .motor-status-value.status-emergency {
+      color: #ef4444;
+      animation: pulse-red 1s infinite;
+    }
+
+    .motor-status-value.status-disconnected {
+      color: #6b7280;
+    }
+
+    @keyframes pulse-red {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .motor-controls-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+    }
+
+    .motor-control-panel {
+      background: var(--gradient-card);
+      padding: 20px;
+      border-radius: 12px;
+      border: 1px solid var(--color-border);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    .motor-control-panel h3 {
+      margin: 0 0 15px 0;
+      color: var(--color-text-primary);
+      font-size: 1em;
+      text-align: center;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .throttle-slider-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 15px;
+    }
+
+    .throttle-slider {
+      width: 100%;
+      height: 12px;
+      -webkit-appearance: none;
+      appearance: none;
+      background: linear-gradient(90deg, var(--color-accent) 0%, var(--color-primary) 50%, #ff6b6b 100%);
+      border-radius: 6px;
+      outline: none;
+      cursor: pointer;
+    }
+
+    .throttle-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 28px;
+      height: 28px;
+      background: var(--color-text-primary);
+      border-radius: 50%;
+      cursor: pointer;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+      transition: transform 0.2s ease;
+    }
+
+    .throttle-slider::-webkit-slider-thumb:hover {
+      transform: scale(1.1);
+    }
+
+    .throttle-slider::-moz-range-thumb {
+      width: 28px;
+      height: 28px;
+      background: var(--color-text-primary);
+      border-radius: 50%;
+      cursor: pointer;
+      border: none;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    }
+
+    .throttle-value-display {
+      font-size: 2.5em;
+      font-weight: 700;
+      color: var(--color-primary);
+      font-family: 'JetBrains Mono', monospace;
+      text-shadow: var(--glow-primary);
+    }
+
+    .throttle-apply-btn {
+      width: 100%;
+      padding: 12px;
+      background: var(--color-primary);
+      color: var(--bg-primary);
+      border: none;
+      border-radius: 8px;
+      font-size: 1em;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: var(--glow-primary);
+    }
+
+    .throttle-apply-btn:hover {
+      background: var(--color-accent);
+      transform: translateY(-2px);
+    }
+
+    .preset-buttons-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+
+    .preset-btn {
+      padding: 18px 10px;
+      font-size: 1.1em;
+      font-weight: 700;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-transform: uppercase;
+    }
+
+    .preset-btn.preset-stop {
+      background: linear-gradient(145deg, #fbbf24, #d97706);
+      color: #1a1a1a;
+      grid-column: span 2;
+    }
+
+    .preset-btn.preset-25 {
+      background: linear-gradient(145deg, #4ade80, #22c55e);
+      color: #1a1a1a;
+    }
+
+    .preset-btn.preset-50 {
+      background: linear-gradient(145deg, #60a5fa, #3b82f6);
+      color: white;
+    }
+
+    .preset-btn.preset-75 {
+      background: linear-gradient(145deg, #f472b6, #ec4899);
+      color: white;
+      grid-column: span 2;
+    }
+
+    .preset-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    .preset-btn:active {
+      transform: translateY(0);
+    }
+
+    .motor-info-panel {
+      background: var(--bg-tertiary);
+    }
+
+    .motor-info-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .motor-info-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 12px;
+      background: var(--bg-secondary);
+      border-radius: 6px;
+    }
+
+    .motor-info-label {
+      font-size: 0.85em;
+      color: var(--color-text-muted);
+    }
+
+    .motor-info-value {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 600;
+      color: var(--color-text-primary);
+    }
+
+    /* Motor section toggle chip */
+    .section-toggle-chip[data-section="motor-control"] {
+      background: rgba(255, 100, 100, 0.15);
+      border-color: rgba(255, 100, 100, 0.3);
+    }
+
+    .section-toggle-chip[data-section="motor-control"].active {
+      background: rgba(255, 100, 100, 0.25);
+      border-color: #ff6b6b;
+    }
+
     /* Time Range Filter Styles */
     .time-filter-section {
       background: var(--gradient-card);
@@ -3609,6 +3889,7 @@
     <div class="header-nav">
       <nav class="main-nav">
         <a href="/">← Back to Homepage</a>
+        <a href="#motor-control" class="motor-nav-link">Motor Control</a>
         <a href="#mission-control">Mission Control</a>
         <a href="#bme280">BME280 Data</a>
         <a href="#mpu6050">MPU6050 Data</a>
@@ -3797,6 +4078,10 @@
     <button class="toggle-all-btn" onclick="layoutManager.selectAllSections()">All</button>
     <button class="toggle-all-btn" onclick="layoutManager.deselectAllSections()">None</button>
     <div class="toggle-bar-divider"></div>
+    <label class="section-toggle-chip active" data-section="motor-control">
+      <input type="checkbox" checked>
+      Motor
+    </label>
     <label class="section-toggle-chip active" data-section="mission-control">
       <input type="checkbox" checked>
       Control
@@ -3846,6 +4131,66 @@
       <span class="grid-col-chip active" data-cols="4">4</span>
     </div>
   </div>
+
+  <!-- Motor Control Section -->
+  <section id="motor-control" class="motor-control-section">
+    <h2>Motor Control</h2>
+
+    <!-- Emergency Stop Button - Always Visible -->
+    <div class="emergency-stop-container">
+      <button id="emergencyStopBtn" class="emergency-stop-btn" onclick="emergencyStop()">
+        EMERGENCY STOP
+      </button>
+      <div class="motor-status-display">
+        <span class="motor-status-label">Status:</span>
+        <span id="motorStatusText" class="motor-status-value">Disconnected</span>
+      </div>
+    </div>
+
+    <div class="motor-controls-grid">
+      <!-- Throttle Slider -->
+      <div class="motor-control-panel">
+        <h3>Throttle Control</h3>
+        <div class="throttle-slider-container">
+          <input type="range" id="throttleSlider" class="throttle-slider" min="0" max="100" value="0" oninput="updateThrottleDisplay(this.value)">
+          <div class="throttle-value-display">
+            <span id="throttleValue">0</span>%
+          </div>
+        </div>
+        <button class="throttle-apply-btn" onclick="applyThrottle()">Apply Throttle</button>
+      </div>
+
+      <!-- Preset Buttons -->
+      <div class="motor-control-panel">
+        <h3>Quick Presets</h3>
+        <div class="preset-buttons-grid">
+          <button class="preset-btn preset-stop" onclick="setMotorPreset(0)">STOP</button>
+          <button class="preset-btn preset-25" onclick="setMotorPreset(25)">25%</button>
+          <button class="preset-btn preset-50" onclick="setMotorPreset(50)">50%</button>
+          <button class="preset-btn preset-75" onclick="setMotorPreset(75)">75%</button>
+        </div>
+      </div>
+
+      <!-- Motor Info -->
+      <div class="motor-control-panel motor-info-panel">
+        <h3>Motor Information</h3>
+        <div class="motor-info-grid">
+          <div class="motor-info-item">
+            <span class="motor-info-label">Current Throttle:</span>
+            <span id="currentThrottle" class="motor-info-value">0%</span>
+          </div>
+          <div class="motor-info-item">
+            <span class="motor-info-label">Last Command:</span>
+            <span id="lastCommandTime" class="motor-info-value">-</span>
+          </div>
+          <div class="motor-info-item">
+            <span class="motor-info-label">Connection:</span>
+            <span id="loraConnection" class="motor-info-value">Checking...</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 
   <!-- Mission Control Section -->
   <section id="mission-control" class="download-controls">
@@ -7222,6 +7567,152 @@
         clearBtn.textContent = "Clear Data";
       }
     }
+
+    // ==================== Motor Control Functions ====================
+
+    // Update throttle display when slider moves
+    function updateThrottleDisplay(value) {
+      document.getElementById('throttleValue').textContent = value;
+    }
+
+    // Apply throttle from slider
+    async function applyThrottle() {
+      const throttle = parseInt(document.getElementById('throttleSlider').value);
+      await sendMotorCommand('throttle', throttle);
+    }
+
+    // Set motor to preset value
+    async function setMotorPreset(percent) {
+      document.getElementById('throttleSlider').value = percent;
+      document.getElementById('throttleValue').textContent = percent;
+      await sendMotorCommand('preset', percent);
+    }
+
+    // Emergency stop
+    async function emergencyStop() {
+      document.getElementById('throttleSlider').value = 0;
+      document.getElementById('throttleValue').textContent = 0;
+      await sendMotorCommand('emergency_stop');
+    }
+
+    // Send motor command to server
+    async function sendMotorCommand(type, value = 0) {
+      const statusText = document.getElementById('motorStatusText');
+      const currentThrottle = document.getElementById('currentThrottle');
+      const lastCommandTime = document.getElementById('lastCommandTime');
+
+      try {
+        let endpoint = '/motor/';
+        let body = {};
+
+        switch(type) {
+          case 'throttle':
+            endpoint += 'throttle';
+            body = { throttle: value };
+            break;
+          case 'preset':
+            endpoint += `preset/${value}`;
+            break;
+          case 'stop':
+            endpoint += 'stop';
+            break;
+          case 'emergency_stop':
+            endpoint += 'emergency_stop';
+            break;
+          default:
+            throw new Error('Unknown command type');
+        }
+
+        const response = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: type === 'throttle' ? JSON.stringify(body) : undefined
+        });
+
+        const result = await response.json();
+
+        if (result.status === 'success') {
+          // Update UI
+          if (type === 'emergency_stop') {
+            statusText.textContent = 'EMERGENCY STOP';
+            statusText.className = 'motor-status-value status-emergency';
+            currentThrottle.textContent = '0%';
+          } else if (type === 'stop' || value === 0) {
+            statusText.textContent = 'Stopped';
+            statusText.className = 'motor-status-value status-stopped';
+            currentThrottle.textContent = '0%';
+          } else {
+            statusText.textContent = `Running (${value}%)`;
+            statusText.className = 'motor-status-value status-running';
+            currentThrottle.textContent = `${value}%`;
+          }
+
+          // Update last command time
+          const now = new Date();
+          lastCommandTime.textContent = now.toLocaleTimeString();
+
+        } else {
+          throw new Error(result.message || 'Command failed');
+        }
+
+      } catch (error) {
+        console.error('Motor command error:', error);
+        statusText.textContent = 'Error: ' + error.message;
+        statusText.className = 'motor-status-value status-disconnected';
+      }
+    }
+
+    // Poll motor status
+    async function pollMotorStatus() {
+      try {
+        const response = await fetch('/motor/status');
+        const status = await response.json();
+
+        const statusText = document.getElementById('motorStatusText');
+        const currentThrottle = document.getElementById('currentThrottle');
+        const loraConnection = document.getElementById('loraConnection');
+
+        currentThrottle.textContent = `${status.throttle}%`;
+
+        // Update status display
+        switch(status.status) {
+          case 'running':
+            statusText.textContent = `Running (${status.throttle}%)`;
+            statusText.className = 'motor-status-value status-running';
+            loraConnection.textContent = 'Connected';
+            loraConnection.style.color = '#4ade80';
+            break;
+          case 'stopped':
+            statusText.textContent = 'Stopped';
+            statusText.className = 'motor-status-value status-stopped';
+            loraConnection.textContent = 'Connected';
+            loraConnection.style.color = '#4ade80';
+            break;
+          case 'emergency_stop':
+            statusText.textContent = 'EMERGENCY STOP';
+            statusText.className = 'motor-status-value status-emergency';
+            loraConnection.textContent = 'Connected';
+            loraConnection.style.color = '#4ade80';
+            break;
+          default:
+            statusText.textContent = 'Disconnected';
+            statusText.className = 'motor-status-value status-disconnected';
+            loraConnection.textContent = 'Not connected';
+            loraConnection.style.color = '#6b7280';
+        }
+
+      } catch (error) {
+        const loraConnection = document.getElementById('loraConnection');
+        loraConnection.textContent = 'Error';
+        loraConnection.style.color = '#ef4444';
+      }
+    }
+
+    // Start polling motor status every 2 seconds
+    setInterval(pollMotorStatus, 2000);
+
+    // Initial status check
+    pollMotorStatus();
 
     // ==================== Configuration Management System ====================
 
