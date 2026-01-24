@@ -11,6 +11,7 @@
 - **Multi-Sensor Data Collection**: BME280 environmental sensor + MPU6050 inertial measurement unit
 - **Dual-Platform Architecture**: Raspberry Pi for data collection, PC for monitoring and logging
 - **Wireless Communication**: LoRa long-range radio transmission between platforms
+- **Motor Control**: Web-based brushless motor control via LoRa with throttle presets and ramp testing
 - **Real-Time Web Dashboard**: Live sensor visualization with Chart.js graphs
 - **Data Logging**: Automatic CSV logging with timestamp and statistical analysis
 - **Threshold-Based Transmission**: Intelligent data filtering to reduce network overhead
@@ -60,10 +61,28 @@
 - USB cable for LoRa module connection
 
 ### Wiring
+
+#### Sensors (I2C)
 - BME280: Connect via I2C (SDA/SCL pins)
 - MPU6050: Connect via I2C (SDA/SCL pins)
 - LoRa modules: UART/Serial connection
-- Ensure proper power supply and ground connections
+
+#### Motor ESC (Hobbywing Quicrun WP10BL120)
+
+**ESC to Motor wiring** (left to right when viewing ESC connector):
+| Position | Wire Color | Connection |
+|----------|------------|------------|
+| Left     | Black      | Motor wire 1 |
+| Middle   | Yellow     | Motor wire 2 |
+| Right    | Red        | Motor wire 3 |
+
+**ESC to Raspberry Pi wiring:**
+| ESC Wire | Raspberry Pi Pin | Description |
+|----------|------------------|-------------|
+| White (Signal) | Pin 12 (GPIO18) | PWM signal |
+| Black (Ground) | Pin 39 (GND)    | Ground |
+
+> **Note:** Do NOT connect the red wire from ESC to Raspberry Pi - the ESC is powered separately.
 
 ## Software Dependencies
 
@@ -127,23 +146,48 @@ pip install flask pyserial requests pytz numpy
 
 ## Quick Start
 
-### 1. Start Data Collection (Raspberry Pi)
-```bash
-python src/test.py
-```
+### PC Side
 
-### 2. Start Data Reception (PC)
-```bash
-python src/lorareceivertest.py
-```
-
-### 3. Launch Web Dashboard (PC)
+Start the Flask web server (includes LoRa receiver for motor control and sensor data):
 ```bash
 python src/app.py
 ```
 
-### 4. Access Dashboard
-Open browser to: `http://localhost:5000`
+Access the dashboard at: `http://localhost:5000`
+
+### Raspberry Pi Side
+
+**For sensor data collection:**
+```bash
+python src/test.py
+```
+
+**For motor/ESC control:**
+```bash
+# Start pigpio daemon first (required for PWM)
+sudo pigpiod
+
+# Start motor command receiver
+python src/pi_motor_receiver.py
+```
+
+**For both sensors AND motor control** (run in separate terminals):
+```bash
+# Terminal 1: Sensor collection
+python src/test.py
+
+# Terminal 2: Motor control (start pigpiod first)
+sudo pigpiod
+python src/pi_motor_receiver.py
+```
+
+### Summary Table
+
+| Platform | File | Purpose |
+|----------|------|---------|
+| **PC** | `src/app.py` | Web dashboard + LoRa motor commands + sensor reception |
+| **Raspberry Pi** | `src/test.py` | Sensor data collection + LoRa transmission |
+| **Raspberry Pi** | `src/pi_motor_receiver.py` | Motor/ESC control via LoRa commands |
 
 ## System Architecture
 
@@ -175,9 +219,11 @@ Open browser to: `http://localhost:5000`
 
 | File | Platform | Purpose |
 |------|----------|---------|
+| `src/app.py` | PC | Flask web server with dashboard + motor control API |
 | `src/test.py` | Raspberry Pi | Main sensor collection with LoRa transmission |
+| `src/pi_motor_receiver.py` | Raspberry Pi | Motor/ESC control via LoRa commands |
+| `src/motor_control.py` | Raspberry Pi | Motor control library (PWM for ESC) |
 | `src/lorareceivertest.py` | PC | LoRa data reception and CSV logging |
-| `src/app.py` | PC | Flask web server with real-time dashboard |
 | `src/lorasendertest.py` | Raspberry Pi | LoRa transmission testing |
 | `src/web_server.py` | PC | Alternative web server implementation |
 
@@ -340,6 +386,31 @@ sudo ufw allow 5000
 - `MPU6050 error`: Verify power supply and I2C wiring
 - `LoRa timeout`: Check serial connection and baud rate
 
+**Motor/ESC Not Responding:**
+
+If the ESC is not responding to commands or behaving erratically, perform this reset sequence:
+
+1. Turn ESC **OFF**
+2. Unplug the **red cable** from the ESC
+3. Turn ESC **ON**
+4. Plug the **red cable** back in
+5. Turn ESC **OFF**
+6. Turn ESC **ON**
+7. ESC should now respond correctly
+
+**pigpio Daemon Not Running:**
+```bash
+# Check if pigpiod is running
+pgrep pigpiod
+
+# Start the daemon
+sudo pigpiod
+
+# If it fails, check for existing instances
+sudo killall pigpiod
+sudo pigpiod
+```
+
 For more detailed troubleshooting, see [TROUBLESHOOTING.md](TROUBLESHOOTING.md).
 
 ## Project Structure
@@ -349,11 +420,13 @@ TRITON/
 ├── src/
 │   ├── test.py                    # Main Raspberry Pi sensor collection
 │   ├── lorareceivertest.py       # PC LoRa receiver and logger
-│   ├── app.py                    # Flask web dashboard server
+│   ├── app.py                    # Flask web dashboard server (includes motor control API)
+│   ├── pi_motor_receiver.py      # Raspberry Pi motor/ESC control via LoRa
+│   ├── motor_control.py          # Motor control library (PWM for ESC)
 │   ├── lorasendertest.py         # LoRa transmission testing
 │   ├── web_server.py             # Alternative web server
 │   ├── templates/
-│   │   ├── dashboard.html        # Real-time dashboard template
+│   │   ├── dashboard.html        # Real-time dashboard template (with motor control UI)
 │   │   └── index.html            # Landing page template
 │   ├── logs/                     # CSV data logs
 │   │   └── previous_data/        # Archived log files
