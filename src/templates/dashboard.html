@@ -757,6 +757,23 @@
       grid-column: span 2;
     }
 
+    .preset-btn.preset-ramp {
+      background: linear-gradient(145deg, #a855f7, #7c3aed);
+      color: white;
+      grid-column: span 2;
+      margin-top: 5px;
+    }
+
+    .preset-btn.preset-ramp.running {
+      background: linear-gradient(145deg, #ef4444, #dc2626);
+      animation: pulse-ramp 1s infinite;
+    }
+
+    @keyframes pulse-ramp {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.7; }
+    }
+
     .preset-btn:hover {
       transform: translateY(-2px);
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
@@ -4168,6 +4185,7 @@
           <button class="preset-btn preset-25" onclick="setMotorPreset(25)">25%</button>
           <button class="preset-btn preset-50" onclick="setMotorPreset(50)">50%</button>
           <button class="preset-btn preset-75" onclick="setMotorPreset(75)">75%</button>
+          <button id="rampTestBtn" class="preset-btn preset-ramp" onclick="runRampTest()">RAMP TEST</button>
         </div>
       </div>
 
@@ -7593,6 +7611,84 @@
       document.getElementById('throttleSlider').value = 0;
       document.getElementById('throttleValue').textContent = 0;
       await sendMotorCommand('emergency_stop');
+    }
+
+    // Ramp test state
+    let rampTestRunning = false;
+    let rampTestAborted = false;
+
+    // Run ramp test: 0 -> 100% -> hold 3s -> 0%
+    async function runRampTest() {
+      const rampBtn = document.getElementById('rampTestBtn');
+
+      // If already running, abort
+      if (rampTestRunning) {
+        rampTestAborted = true;
+        rampBtn.textContent = 'STOPPING...';
+        return;
+      }
+
+      rampTestRunning = true;
+      rampTestAborted = false;
+      rampBtn.classList.add('running');
+      rampBtn.textContent = 'STOP TEST';
+
+      const slider = document.getElementById('throttleSlider');
+      const throttleDisplay = document.getElementById('throttleValue');
+
+      const rampDuration = 3000; // 3 seconds to ramp up/down
+      const holdDuration = 3000; // 3 seconds hold at 100%
+      const stepInterval = 50;   // Update every 50ms
+      const steps = rampDuration / stepInterval;
+      const stepSize = 100 / steps;
+
+      try {
+        // Ramp up: 0% -> 100%
+        rampBtn.textContent = 'RAMPING UP...';
+        for (let throttle = 0; throttle <= 100 && !rampTestAborted; throttle += stepSize) {
+          const value = Math.min(100, Math.round(throttle));
+          slider.value = value;
+          throttleDisplay.textContent = value;
+          await sendMotorCommand('throttle', value);
+          await new Promise(r => setTimeout(r, stepInterval));
+        }
+
+        // Hold at 100% for 3 seconds
+        if (!rampTestAborted) {
+          rampBtn.textContent = 'HOLDING 100%...';
+          slider.value = 100;
+          throttleDisplay.textContent = 100;
+          await sendMotorCommand('throttle', 100);
+
+          // Wait in small increments to allow abort
+          for (let i = 0; i < holdDuration / 100 && !rampTestAborted; i++) {
+            await new Promise(r => setTimeout(r, 100));
+          }
+        }
+
+        // Ramp down: 100% -> 0%
+        rampBtn.textContent = 'RAMPING DOWN...';
+        for (let throttle = 100; throttle >= 0 && !rampTestAborted; throttle -= stepSize) {
+          const value = Math.max(0, Math.round(throttle));
+          slider.value = value;
+          throttleDisplay.textContent = value;
+          await sendMotorCommand('throttle', value);
+          await new Promise(r => setTimeout(r, stepInterval));
+        }
+
+        // Ensure we end at 0
+        slider.value = 0;
+        throttleDisplay.textContent = 0;
+        await sendMotorCommand('throttle', 0);
+
+      } catch (error) {
+        console.error('Ramp test error:', error);
+      } finally {
+        rampTestRunning = false;
+        rampTestAborted = false;
+        rampBtn.classList.remove('running');
+        rampBtn.textContent = 'RAMP TEST';
+      }
     }
 
     // Send motor command to server
