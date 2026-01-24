@@ -1224,11 +1224,14 @@ def init_lora_serial():
     return True
 
 
-def send_motor_command(command_type, value=0):
-    """Send motor command via LoRa.
+def send_motor_command(command_type, value=0, wait_for_ack=True, max_retries=3, ack_timeout=2.0):
+    """Send motor command via LoRa and wait for acknowledgment.
 
     Command format: CMD:<type>:<value>\n
+    ACK format: ACK:<type>:<value>:<OK|FAIL>
     Types: THROTTLE, STOP, ESTOP
+
+    Uses stop-and-wait protocol: waits for ACK before returning.
     """
     global motor_state
 
@@ -1236,12 +1239,63 @@ def send_motor_command(command_type, value=0):
         return False, "LoRa not connected"
 
     command = f"CMD:{command_type}:{value}\n"
+    expected_ack_prefix = f"ACK:{command_type}:{value}:"
 
-    try:
-        with lora_lock:
-            lora_serial.write(command.encode())
-            lora_serial.flush()
+    for attempt in range(max_retries):
+        try:
+            with lora_lock:
+                # Clear any pending data in buffer
+                if lora_serial.in_waiting:
+                    lora_serial.read(lora_serial.in_waiting)
 
+                # Send command
+                lora_serial.write(command.encode())
+                lora_serial.flush()
+                print(f"[MOTOR] Sent command: {command.strip()} (attempt {attempt + 1}/{max_retries})")
+
+                if not wait_for_ack:
+                    break
+
+                # Wait for ACK
+                start_time = time.time()
+                while (time.time() - start_time) < ack_timeout:
+                    if lora_serial.in_waiting:
+                        line = lora_serial.readline().decode(errors='ignore').strip()
+                        if line:
+                            print(f"[MOTOR] Received: {line}")
+
+                            # Check if this is our ACK
+                            if line.startswith(expected_ack_prefix):
+                                status = line.split(":")[-1]
+                                if status == "OK":
+                                    # Update motor state
+                                    with motor_lock:
+                                        motor_state["last_command_time"] = datetime.now().isoformat()
+                                        motor_state["last_ack_time"] = datetime.now().isoformat()
+                                        if command_type == "THROTTLE":
+                                            motor_state["throttle"] = value
+                                            motor_state["status"] = "running" if value > 0 else "stopped"
+                                        elif command_type in ["STOP", "ESTOP"]:
+                                            motor_state["throttle"] = 0
+                                            motor_state["status"] = "stopped" if command_type == "STOP" else "emergency_stop"
+
+                                    print(f"[MOTOR] ACK received: {line}")
+                                    return True, "Command acknowledged"
+                                else:
+                                    print(f"[MOTOR] Command failed: {line}")
+                                    return False, f"Command failed: {status}"
+
+                    time.sleep(0.05)
+
+                print(f"[MOTOR] No ACK received (attempt {attempt + 1}/{max_retries})")
+
+        except Exception as e:
+            print(f"[ERROR] Failed to send motor command: {e}")
+            if attempt == max_retries - 1:
+                return False, str(e)
+
+    # If we get here without ACK but wait_for_ack was False, update state anyway
+    if not wait_for_ack:
         with motor_lock:
             motor_state["last_command_time"] = datetime.now().isoformat()
             if command_type == "THROTTLE":
@@ -1250,13 +1304,9 @@ def send_motor_command(command_type, value=0):
             elif command_type in ["STOP", "ESTOP"]:
                 motor_state["throttle"] = 0
                 motor_state["status"] = "stopped" if command_type == "STOP" else "emergency_stop"
+        return True, "Command sent (no ACK requested)"
 
-        print(f"[MOTOR] Sent command: {command.strip()}")
-        return True, "Command sent"
-
-    except Exception as e:
-        print(f"[ERROR] Failed to send motor command: {e}")
-        return False, str(e)
+    return False, "No acknowledgment received after retries"
 
 
 @app.route('/motor/status', methods=['GET'])
