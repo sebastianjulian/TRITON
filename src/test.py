@@ -451,6 +451,39 @@ def main():
                         lora_line = now_str + "," + ",".join(str(x) for x in data) + "\n"
                         lora_serial.write(lora_line.encode())
                         lora_serial.flush()
+
+                        # IMPORTANT: Wait for transmission to complete, then listen for commands
+                        # LoRa is half-duplex - can't receive while transmitting
+                        time.sleep(0.1)  # Allow module to switch to receive mode
+
+                        # Check for incoming commands after transmission
+                        for _ in range(10):  # Check multiple times over 500ms
+                            if lora_serial.in_waiting:
+                                try:
+                                    cmd_line = lora_serial.readline().decode(errors='ignore').strip()
+                                    if cmd_line:
+                                        print(f"[LORA-RX] {cmd_line}")
+                                        cmd_type, value = parse_motor_command(cmd_line)
+                                        if cmd_type is not None:
+                                            success = False
+                                            response = ""
+                                            if cmd_type == "THROTTLE":
+                                                success = motor.set_throttle(value)
+                                                response = f"ACK:THROTTLE:{value}:{'OK' if success else 'FAIL'}"
+                                            elif cmd_type == "STOP":
+                                                success = motor.stop()
+                                                response = f"ACK:STOP:0:{'OK' if success else 'FAIL'}"
+                                            elif cmd_type == "ESTOP":
+                                                success = motor.emergency_stop()
+                                                response = f"ACK:ESTOP:0:{'OK' if success else 'FAIL'}"
+                                            if response:
+                                                lora_serial.write((response + "\n").encode())
+                                                lora_serial.flush()
+                                                print(f"[LORA-TX] {response}")
+                                except Exception as e:
+                                    print(f"[LORA-RX] Error: {e}")
+                            time.sleep(0.05)
+
                     except Exception as e:
                         print(f"[LORA-TX] Send failed: {e}")
 
