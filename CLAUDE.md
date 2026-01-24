@@ -33,13 +33,13 @@ The system includes data logging, real-time web visualization, LoRa communicatio
 
 ### Currently Used Files
 
-**Raspberry Pi (Data Collection & Transmission):**
-- `test.py` - Main sensor data collection script with LoRa transmission and web updates
+**Raspberry Pi (Data Collection, Motor Control & Transmission):**
+- `test.py` - **Main unified script**: sensor collection, LoRa transmission, motor command reception, and ESC control
 - `lorasendertest.py` - LoRa transmission testing and basic functionality
 
-**PC (Data Reception & Dashboard):**
+**PC (Data Reception, Motor Commands & Dashboard):**
+- `app.py` - Flask web server with dashboard, motor control UI, and continuous LoRa command transmission
 - `lorareceivertest.py` - LoRa data reception with logging, statistics, and web integration
-- `app.py` - Flask web server with real-time dashboard and data visualization
 - `web_server.py` - Alternative Flask server implementation with CSV download functionality
 
 **Templates:**
@@ -53,6 +53,7 @@ All legacy/obsolete files have been moved to `src/legacy/` for reference:
 - Previous communication modules (`lora.py`, `lorav5.py`, etc.)
 - Development utilities (`Stopwatch.py`, `performance.py`, etc.)
 - Test files (`combitest.py`, `packtest.py`, etc.)
+- `pi_motor_receiver.py` - Standalone motor receiver (now merged into `test.py`)
 
 ## Common Commands
 
@@ -174,6 +175,268 @@ python src/web_server.py        # alternative web server
 
 **Verification**: Theme dropdowns are visible in top navigation bar on both pages with white font text
 
+## Motor Control System
+
+### Overview
+
+TRITON includes brushless motor control via ESC (Electronic Speed Controller) for propulsion. The system uses LoRa for bidirectional communication between the PC (web dashboard) and Raspberry Pi (motor controller).
+
+**Components:**
+- **Quicrun ESC**: Electronic speed controller for brushless motor
+- **pigpio**: GPIO library for precise PWM signal generation
+- **LoRa modules**: Half-duplex wireless communication
+
+### Motor Control Architecture
+
+```
+[Web Dashboard] --HTTP--> [PC app.py] --LoRa--> [Pi test.py] --PWM--> [ESC] --> [Motor]
+                                       <--ACK--
+```
+
+**Command Format:** `CMD:<type>:<value>\n`
+- `CMD:THROTTLE:50` - Set throttle to 50%
+- `CMD:STOP:0` - Stop motor
+- `CMD:ESTOP:0` - Emergency stop
+
+**ACK Format:** `ACK:<type>:<actual_value>:<OK|FAIL>`
+- `ACK:THROTTLE:50:OK` - Confirmed motor at 50%
+
+### ESC/PWM Configuration
+
+```python
+ESC_GPIO_PIN = 18           # GPIO pin for PWM output
+PWM_FREQUENCY = 50          # Standard servo frequency (50Hz)
+PWM_MIN_US = 1000           # Full reverse/brake (1000 microseconds)
+PWM_NEUTRAL_US = 1500       # Neutral/Stop (1500 microseconds)
+PWM_MAX_US = 2000           # Full forward (2000 microseconds)
+MAX_THROTTLE_PERCENT = 75   # Safety limit
+```
+
+### Continuous Transmission Protocol
+
+The PC continuously transmits the target throttle every 150ms (like RC controllers). This ensures reliable command delivery despite LoRa timing issues.
+
+**How it works:**
+1. User sets throttle via web dashboard
+2. PC updates `target_throttle` state
+3. Background thread continuously sends `CMD:THROTTLE:<target>`
+4. Pi receives and applies command, sends ACK with actual state
+5. PC confirms when `actual == target`
+
+## Raspberry Pi Auto-Start Setup (systemd)
+
+### Creating the Service File
+
+The Raspberry Pi runs `test.py` automatically on boot using systemd.
+
+**Step 1: Create the service file**
+```bash
+sudo nano /etc/systemd/system/triton-sensors.service
+```
+
+**Step 2: Add this content** (adjust User and paths as needed):
+```ini
+[Unit]
+Description=TRITON Sensor & Motor Control
+After=network.target
+
+[Service]
+Type=simple
+User=az
+WorkingDirectory=/home/az/TRITON/TRITON
+ExecStart=/usr/bin/python3 /home/az/TRITON/TRITON/src/test.py
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+```
+
+**Step 3: Enable and start the service**
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable triton-sensors
+sudo systemctl start triton-sensors
+```
+
+### Service Management Commands
+
+| Command | Description |
+|---------|-------------|
+| `sudo systemctl status triton-sensors` | Check service status |
+| `sudo systemctl start triton-sensors` | Start the service |
+| `sudo systemctl stop triton-sensors` | Stop the service |
+| `sudo systemctl restart triton-sensors` | Restart the service |
+| `sudo systemctl enable triton-sensors` | Enable auto-start on boot |
+| `sudo systemctl disable triton-sensors` | Disable auto-start |
+| `journalctl -u triton-sensors -f` | View live logs |
+
+### Removing a Service
+
+```bash
+sudo systemctl stop triton-sensors
+sudo systemctl disable triton-sensors
+sudo rm /etc/systemd/system/triton-sensors.service
+sudo systemctl daemon-reload
+```
+
+### Common systemd Errors
+
+| Error Code | Meaning | Solution |
+|------------|---------|----------|
+| `status=217/USER` | User doesn't exist | Check username with `whoami`, update `User=` line |
+| `status=200/CHDIR` | Directory doesn't exist | Verify `WorkingDirectory` path exists |
+| `status=203/EXEC` | Executable not found | Check `ExecStart` path is correct |
+
+## Troubleshooting Guide
+
+### Motor Control Issues
+
+#### Problem: Motor doesn't respond to web commands
+
+**Symptoms:** Clicking throttle buttons on dashboard has no effect.
+
+**Root Cause:** Originally, two separate scripts (`test.py` for sensors, `pi_motor_receiver.py` for motor) tried to use the same serial port (`/dev/ttyUSB0`). Only one process can hold a serial port.
+
+**Solution:** Combined both scripts into single `test.py` that handles sensors AND motor commands. Now only one service is needed.
+
+---
+
+#### Problem: Motor commands work manually but not via systemd service
+
+**Symptoms:** Running `python3 test.py` manually works, but the systemd service doesn't control the motor.
+
+**Possible Causes:**
+1. Wrong user in service file (check with `whoami`)
+2. Wrong working directory path
+3. pigpiod daemon not starting (needs sudo)
+
+**Solution:** Verify service file has correct `User=` and `WorkingDirectory=`. The script auto-starts pigpiod.
+
+---
+
+#### Problem: LoRa commands not received by Pi
+
+**Symptoms:** PC shows "Sent command" but Pi logs show no `[LORA-RX]` messages.
+
+**Root Cause:** LoRa modules are **half-duplex** - they cannot receive while transmitting. The Pi was transmitting sensor data continuously, leaving no window to receive commands.
+
+**Failed Approaches:**
+1. **Simple send-and-wait:** PC sends command, waits for ACK. Failed because command often arrived while Pi was transmitting.
+2. **ACK-based retry:** PC retries if no ACK. Still unreliable due to timing.
+
+**Working Solution:** Added explicit receive window after each sensor transmission:
+```python
+# After transmitting sensor data, listen for 500ms
+time.sleep(0.1)  # Allow module to switch to receive mode
+for _ in range(10):
+    if lora_serial.in_waiting:
+        # Process incoming command
+    time.sleep(0.05)
+```
+
+---
+
+#### Problem: Ramp test skips commands
+
+**Symptoms:** Ramp test (gradual throttle increase) skips values or ends at wrong throttle.
+
+**Root Cause:** Send-and-wait protocol moved to next command before confirming previous command executed.
+
+**Failed Approaches:**
+1. **Wait for ACK before next command:** Still had timing issues with half-duplex LoRa.
+2. **Verify actual vs requested state:** Better, but single commands still unreliable.
+
+**Working Solution:** Continuous transmission protocol - PC keeps sending target throttle every 150ms until confirmed:
+```python
+MOTOR_TX_INTERVAL = 0.15  # 150ms
+
+def motor_transmit_loop():
+    while motor_tx_running:
+        command = f"CMD:THROTTLE:{target}\n"
+        lora_serial.write(command.encode())
+        # Check for ACK...
+        time.sleep(MOTOR_TX_INTERVAL)
+```
+
+---
+
+#### Problem: pigpiod not running
+
+**Symptoms:** Motor control fails with "Failed to connect to pigpio daemon"
+
+**Solution:** The script auto-starts pigpiod, but you can manually start it:
+```bash
+sudo pigpiod
+```
+
+To check if running:
+```bash
+pgrep -x pigpiod
+```
+
+### Sensor Issues
+
+#### Problem: BME280/MPU6050 not detected
+
+**Symptoms:** Script shows "init failed" for sensors.
+
+**Solutions:**
+1. Enable I2C: `sudo raspi-config` → Interface Options → I2C → Enable
+2. Check wiring (SDA to GPIO2, SCL to GPIO3)
+3. Verify I2C addresses: `i2cdetect -y 1` (should show 0x76 for BME280, 0x68 for MPU6050)
+
+### LoRa Issues
+
+#### Problem: Serial port not found
+
+**Symptoms:** "Could not open /dev/ttyUSB0"
+
+**Solutions:**
+1. Check USB connection
+2. Verify port: `ls /dev/ttyUSB*`
+3. Check permissions: `sudo usermod -a -G dialout $USER` (then logout/login)
+
+## System Architecture (Updated)
+
+**Single Script Architecture:**
+- `test.py` now handles BOTH sensor collection AND motor control
+- Eliminates serial port conflicts
+- Single systemd service manages everything
+
+**Data Flow:**
+```
+                    ┌─────────────────────────────────────┐
+                    │         Raspberry Pi                │
+                    │  ┌─────────────────────────────┐    │
+                    │  │         test.py             │    │
+                    │  │  - Sensor collection        │    │
+                    │  │  - LoRa TX (sensor data)    │    │
+                    │  │  - LoRa RX (motor commands) │    │
+                    │  │  - Motor/ESC control        │    │
+                    │  └─────────────────────────────┘    │
+                    │              │ LoRa                 │
+                    └──────────────┼──────────────────────┘
+                                   │
+                    ┌──────────────┼──────────────────────┐
+                    │              │ LoRa                 │
+                    │         PC / Laptop                 │
+                    │  ┌───────────▼─────────────────┐    │
+                    │  │         app.py              │    │
+                    │  │  - Web dashboard            │    │
+                    │  │  - LoRa RX (sensor data)    │    │
+                    │  │  - LoRa TX (motor commands) │    │
+                    │  │  - Continuous TX thread     │    │
+                    │  └─────────────────────────────┘    │
+                    │              │ HTTP :5000           │
+                    │  ┌───────────▼─────────────────┐    │
+                    │  │      Web Browser            │    │
+                    │  │  - Dashboard UI             │    │
+                    │  │  - Motor controls           │    │
+                    │  └─────────────────────────────┘    │
+                    └─────────────────────────────────────┘
+```
+
 ## TRITON Mission Notes
 
 The TRITON system is designed for autonomous submarine operations with:
@@ -182,3 +445,4 @@ The TRITON system is designed for autonomous submarine operations with:
 - Wireless data transmission for real-time monitoring
 - Comprehensive data logging for post-mission analysis
 - Web-based mission control interface
+- **Brushless motor control via LoRa** with reliable continuous transmission protocol
