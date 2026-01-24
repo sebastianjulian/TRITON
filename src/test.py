@@ -365,15 +365,18 @@ def main():
 
                             if cmd_type == "THROTTLE":
                                 success = motor.set_throttle(value)
-                                response = f"ACK:THROTTLE:{value}:{'OK' if success else 'FAIL'}"
+                                actual = motor.get_status()["throttle"]
+                                response = f"ACK:THROTTLE:{actual}:{'OK' if success else 'FAIL'}"
 
                             elif cmd_type == "STOP":
                                 success = motor.stop()
-                                response = f"ACK:STOP:0:{'OK' if success else 'FAIL'}"
+                                actual = motor.get_status()["throttle"]
+                                response = f"ACK:STOP:{actual}:{'OK' if success else 'FAIL'}"
 
                             elif cmd_type == "ESTOP":
                                 success = motor.emergency_stop()
-                                response = f"ACK:ESTOP:0:{'OK' if success else 'FAIL'}"
+                                actual = motor.get_status()["throttle"]
+                                response = f"ACK:ESTOP:{actual}:{'OK' if success else 'FAIL'}"
 
                             else:
                                 print(f"[WARN] Unknown command: {cmd_type}")
@@ -469,13 +472,16 @@ def main():
                                             response = ""
                                             if cmd_type == "THROTTLE":
                                                 success = motor.set_throttle(value)
-                                                response = f"ACK:THROTTLE:{value}:{'OK' if success else 'FAIL'}"
+                                                actual = motor.get_status()["throttle"]
+                                                response = f"ACK:THROTTLE:{actual}:{'OK' if success else 'FAIL'}"
                                             elif cmd_type == "STOP":
                                                 success = motor.stop()
-                                                response = f"ACK:STOP:0:{'OK' if success else 'FAIL'}"
+                                                actual = motor.get_status()["throttle"]
+                                                response = f"ACK:STOP:{actual}:{'OK' if success else 'FAIL'}"
                                             elif cmd_type == "ESTOP":
                                                 success = motor.emergency_stop()
-                                                response = f"ACK:ESTOP:0:{'OK' if success else 'FAIL'}"
+                                                actual = motor.get_status()["throttle"]
+                                                response = f"ACK:ESTOP:{actual}:{'OK' if success else 'FAIL'}"
                                             if response:
                                                 lora_serial.write((response + "\n").encode())
                                                 lora_serial.flush()

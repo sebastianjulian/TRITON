@@ -1224,14 +1224,14 @@ def init_lora_serial():
     return True
 
 
-def send_motor_command(command_type, value=0, wait_for_ack=True, max_retries=3, ack_timeout=2.0):
-    """Send motor command via LoRa and wait for acknowledgment.
+def send_motor_command(command_type, value=0, wait_for_ack=True, max_retries=10, ack_timeout=2.0):
+    """Send motor command via LoRa and wait for acknowledgment with actual state verification.
 
     Command format: CMD:<type>:<value>\n
-    ACK format: ACK:<type>:<value>:<OK|FAIL>
+    ACK format: ACK:<type>:<actual_value>:<OK|FAIL>
     Types: THROTTLE, STOP, ESTOP
 
-    Uses stop-and-wait protocol: waits for ACK before returning.
+    Uses stop-and-wait protocol: keeps sending until motor reports correct actual state.
     """
     global motor_state
 
@@ -1239,7 +1239,7 @@ def send_motor_command(command_type, value=0, wait_for_ack=True, max_retries=3, 
         return False, "LoRa not connected"
 
     command = f"CMD:{command_type}:{value}\n"
-    expected_ack_prefix = f"ACK:{command_type}:{value}:"
+    expected_ack_type = f"ACK:{command_type}:"
 
     for attempt in range(max_retries):
         try:
@@ -1264,30 +1264,36 @@ def send_motor_command(command_type, value=0, wait_for_ack=True, max_retries=3, 
                         if line:
                             print(f"[MOTOR] Received: {line}")
 
-                            # Check if this is our ACK
-                            if line.startswith(expected_ack_prefix):
-                                status = line.split(":")[-1]
-                                if status == "OK":
-                                    # Update motor state
-                                    with motor_lock:
-                                        motor_state["last_command_time"] = datetime.now().isoformat()
-                                        motor_state["last_ack_time"] = datetime.now().isoformat()
-                                        if command_type == "THROTTLE":
-                                            motor_state["throttle"] = value
-                                            motor_state["status"] = "running" if value > 0 else "stopped"
-                                        elif command_type in ["STOP", "ESTOP"]:
-                                            motor_state["throttle"] = 0
-                                            motor_state["status"] = "stopped" if command_type == "STOP" else "emergency_stop"
+                            # Check if this is an ACK for our command type
+                            if line.startswith(expected_ack_type):
+                                parts = line.split(":")
+                                if len(parts) >= 4:
+                                    actual_value = int(parts[2])
+                                    status = parts[3]
 
-                                    print(f"[MOTOR] ACK received: {line}")
-                                    return True, "Command acknowledged"
-                                else:
-                                    print(f"[MOTOR] Command failed: {line}")
-                                    return False, f"Command failed: {status}"
+                                    if status == "OK":
+                                        # Update motor state with ACTUAL value
+                                        with motor_lock:
+                                            motor_state["last_command_time"] = datetime.now().isoformat()
+                                            motor_state["last_ack_time"] = datetime.now().isoformat()
+                                            motor_state["throttle"] = actual_value
+                                            motor_state["status"] = "running" if actual_value > 0 else "stopped"
+
+                                        # Check if actual matches requested
+                                        if actual_value == value:
+                                            print(f"[MOTOR] Command confirmed: actual={actual_value}, requested={value}")
+                                            return True, "Command confirmed"
+                                        else:
+                                            # Actual doesn't match - will retry
+                                            print(f"[MOTOR] Mismatch: actual={actual_value}, requested={value} - retrying...")
+                                            break  # Break inner loop to retry sending
+                                    else:
+                                        print(f"[MOTOR] Command failed: {line}")
+                                        # Don't return, keep trying
 
                     time.sleep(0.05)
 
-                print(f"[MOTOR] No ACK received (attempt {attempt + 1}/{max_retries})")
+                print(f"[MOTOR] No matching ACK (attempt {attempt + 1}/{max_retries})")
 
         except Exception as e:
             print(f"[ERROR] Failed to send motor command: {e}")
@@ -1306,7 +1312,7 @@ def send_motor_command(command_type, value=0, wait_for_ack=True, max_retries=3, 
                 motor_state["status"] = "stopped" if command_type == "STOP" else "emergency_stop"
         return True, "Command sent (no ACK requested)"
 
-    return False, "No acknowledgment received after retries"
+    return False, "Motor did not reach target state after retries"
 
 
 @app.route('/motor/status', methods=['GET'])
