@@ -1193,10 +1193,6 @@ def export_pdf():
 import serial
 import threading
 
-# Operating modes
-MODE_PASSIVE = "passive"  # Autonomous navigation on Pi, PC mostly receives sensor data
-MODE_ACTIVE = "active"    # Manual control from PC, motor commands are priority
-
 # Motor control state
 motor_state = {
     "throttle": 0,
@@ -1204,11 +1200,7 @@ motor_state = {
     "confirmed_throttle": 0,  # What the motor confirmed it's at
     "status": "disconnected",
     "last_command_time": None,
-    "last_ack_time": None,
-    "mode": MODE_ACTIVE,  # Current operating mode
-    "estop_active": False,  # Emergency stop flag
-    "estop_confirmed": False,  # Whether Pi has acknowledged ESTOP
-    "estop_clearing": False  # Whether we're trying to clear ESTOP
+    "last_ack_time": None
 }
 motor_lock = threading.Lock()
 
@@ -1222,14 +1214,9 @@ motor_tx_running = False
 
 LORA_COM_PORT = 'COM8'
 LORA_BAUD_RATE = 9600
-
-# Timing constants for different modes
-MOTOR_TX_INTERVAL_FAST = 0.15    # Active mode: fast when changing throttle
-MOTOR_TX_INTERVAL_SLOW = 2.0     # Active mode: slow when stable
-MOTOR_ACTIVE_DURATION = 3.0      # Stay in fast mode for 3 seconds after throttle change
-PASSIVE_LISTEN_INTERVAL = 0.1    # Passive mode: check for data frequently
-PASSIVE_CMD_RETRY_INTERVAL = 0.5 # Passive mode: retry commands every 500ms if needed
-ESTOP_RETRY_INTERVAL = 0.05      # ESTOP: retry every 50ms until confirmed
+MOTOR_TX_INTERVAL_FAST = 0.15  # When actively changing throttle
+MOTOR_TX_INTERVAL_SLOW = 2.0   # When throttle is stable (allow sensor data through)
+MOTOR_ACTIVE_DURATION = 3.0    # Stay in fast mode for 3 seconds after throttle change
 
 
 def init_lora_serial():
@@ -1249,259 +1236,80 @@ def init_lora_serial():
         return False
 
 
-def process_lora_line(line):
-    """Process a received LoRa line (ACK or sensor data)."""
-    global motor_state
-
-    if not line:
-        return
-
-    print(f"[LORA-RAW] {line}", flush=True)
-
-    # Check for ESTOP acknowledgment (highest priority)
-    if line.startswith("ACK:ESTOP:"):
-        with motor_lock:
-            motor_state["estop_confirmed"] = True
-            motor_state["throttle"] = 0
-            motor_state["confirmed_throttle"] = 0
-            motor_state["status"] = "estop"
-        print("[ESTOP] Emergency stop confirmed by Pi", flush=True)
-        return
-
-    # Check for MODE acknowledgment
-    if line.startswith("ACK:MODE:"):
-        parts = line.split(":")
-        if len(parts) >= 3:
-            mode = parts[2].lower()
-            print(f"[MODE] Mode change to {mode} confirmed by Pi", flush=True)
-        return
-
-    # Check for motor ACK (may have piggybacked sensor data)
-    if line.startswith("ACK:"):
-        # Check for piggybacked sensor data: ACK:THROTTLE:50:OK|sensor,data,here
-        if "|" in line:
-            ack_part, sensor_part = line.split("|", 1)
-            process_ack(ack_part)
-            process_sensor_data(sensor_part)
-        else:
-            process_ack(line)
-        return
-
-    # Check for sensor data (contains comma, doesn't start with CMD)
-    if "," in line and not line.startswith("CMD:"):
-        print(f"[LORA-RX] Sensor data received", flush=True)
-        process_sensor_data(line)
-        with motor_lock:
-            if motor_state["status"] == "disconnected":
-                motor_state["status"] = "connected"
-
-
-def process_ack(ack_line):
-    """Process a motor ACK line."""
-    global motor_state
-    parts = ack_line.split(":")
-    if len(parts) >= 4:
-        try:
-            cmd_type = parts[1]
-            actual_str = parts[2]
-            status = parts[3]
-
-            # Handle ESTOP ACK
-            if cmd_type == "ESTOP":
-                with motor_lock:
-                    motor_state["estop_confirmed"] = True
-                    motor_state["confirmed_throttle"] = 0
-                    motor_state["throttle"] = 0
-                    motor_state["status"] = "ESTOP"
-                    motor_state["last_ack_time"] = datetime.now().isoformat()
-                print(f"[ACK] ESTOP confirmed by Pi", flush=True)
-                return
-
-            # Handle ESTOP_CLEAR ACK
-            if cmd_type == "ESTOP_CLEAR":
-                with motor_lock:
-                    motor_state["estop_active"] = False
-                    motor_state["estop_confirmed"] = False
-                    motor_state["estop_clearing"] = False  # Stop sending clear commands
-                    motor_state["confirmed_throttle"] = 0
-                    motor_state["throttle"] = 0
-                    motor_state["target_throttle"] = 0
-                    motor_state["status"] = "stopped"
-                    motor_state["last_ack_time"] = datetime.now().isoformat()
-                print(f"[ACK] ESTOP_CLEAR confirmed by Pi - ready for commands", flush=True)
-                return
-
-            # Handle ESTOP_ACTIVE status (Pi rejected command because it's in ESTOP)
-            if status == "ESTOP_ACTIVE":
-                with motor_lock:
-                    # Pi is in ESTOP mode - sync our state
-                    if not motor_state["estop_active"]:
-                        print(f"[ACK] Pi reports ESTOP_ACTIVE - syncing state", flush=True)
-                        motor_state["estop_active"] = True
-                        motor_state["estop_confirmed"] = True
-                        motor_state["status"] = "ESTOP"
-                return
-
-            # Normal throttle/stop ACK
-            actual = int(actual_str)
-            with motor_lock:
-                motor_state["confirmed_throttle"] = actual
-                motor_state["throttle"] = actual
-                motor_state["last_ack_time"] = datetime.now().isoformat()
-                if not motor_state["estop_active"]:
-                    motor_state["status"] = "running" if actual > 0 else "stopped"
-            print(f"[ACK] {cmd_type}={actual}% status={status} -> motor_state updated", flush=True)
-        except ValueError:
-            print(f"[ACK] Parse error: {ack_line}", flush=True)
-
-
 def motor_transmit_loop():
-    """Background thread that handles LoRa communication based on operating mode."""
+    """Background thread that transmits throttle and receives sensor data."""
     global motor_state, motor_tx_running, lora_serial
 
-    print("[LORA] Communication thread started", flush=True)
+    print("[MOTOR-TX] Transmission thread started", flush=True)
 
     last_throttle_change = 0
-    last_confirmed_target = -1  # Track what Pi has confirmed
+    last_target = 0
 
     while motor_tx_running:
         try:
-            if not init_lora_serial():
-                time.sleep(0.5)
-                continue
+            if init_lora_serial():
+                with motor_lock:
+                    target = motor_state["target_throttle"]
+                    last_change_time = motor_state.get("last_command_time")
 
-            # Get current state
-            with motor_lock:
-                current_mode = motor_state["mode"]
-                estop_active = motor_state["estop_active"]
-                estop_confirmed = motor_state["estop_confirmed"]
-                estop_clearing = motor_state["estop_clearing"]
-                target = motor_state["target_throttle"]
-                confirmed = motor_state["confirmed_throttle"]
+                # Detect throttle changes
+                if target != last_target:
+                    last_throttle_change = time.time()
+                    last_target = target
 
-            # ============ ESTOP CLEAR HANDLING (when user requests clear) ============
-            if estop_clearing:
-                with lora_lock:
-                    command = "CMD:ESTOP:CLEAR\n"
-                    lora_serial.write(command.encode())
-                    lora_serial.flush()
-                    print("[ESTOP] Sending ESTOP:CLEAR command...", flush=True)
-
-                    # Listen for ACK - Pi sends 3x with 100ms gaps after 150ms delay
-                    time.sleep(0.03)
-                    listen_end = time.time() + 0.6  # 600ms to catch multi-ACK
-                    while time.time() < listen_end:
-                        while lora_serial.in_waiting:
-                            line = lora_serial.readline().decode(errors='ignore').strip()
-                            if line:
-                                process_lora_line(line)
-                        time.sleep(0.02)
-
-                time.sleep(0.2)  # Retry interval
-                continue  # Keep sending until estop_clearing is set to False by ACK handler
-
-            # ============ ESTOP HANDLING (Highest Priority) ============
-            if estop_active and not estop_confirmed:
-                with lora_lock:
-                    # Send ESTOP continuously until confirmed
-                    command = "CMD:ESTOP:0\n"
-                    lora_serial.write(command.encode())
-                    lora_serial.flush()
-                    print("[ESTOP] Sending emergency stop command...", flush=True)
-
-                    # Listen for ACK - Pi delays 150ms then sends 3x with 100ms gaps
-                    time.sleep(0.03)  # Small delay after send
-                    listen_end = time.time() + 0.6  # 600ms listen window to catch multi-ACK
-                    while time.time() < listen_end:
-                        # Drain entire buffer
-                        while lora_serial.in_waiting:
-                            line = lora_serial.readline().decode(errors='ignore').strip()
-                            if line:
-                                process_lora_line(line)
-                        time.sleep(0.02)
-
-                time.sleep(ESTOP_RETRY_INTERVAL)
-                continue  # Skip normal operation until ESTOP confirmed
-
-            # Check if target matches confirmed (command was successful)
-            command_pending = (target != confirmed)
-
-            # Detect throttle changes
-            if target != last_confirmed_target and confirmed == target:
-                last_confirmed_target = target
-                last_throttle_change = time.time()
-
-            # ============ PASSIVE MODE (Pi autonomous, PC monitors) ============
-            if current_mode == MODE_PASSIVE:
-                with lora_lock:
-                    # If command is pending, send it repeatedly until confirmed
-                    if command_pending:
-                        command = f"CMD:THROTTLE:{target}\n"
-                        lora_serial.write(command.encode())
-                        lora_serial.flush()
-                        print(f"[PASSIVE] Sending CMD:THROTTLE:{target} (pending, confirmed={confirmed})", flush=True)
-
-                        # Pi delays 150ms before sending ACK, so listen longer
-                        time.sleep(0.03)
-
-                        # Drain ALL available data - extended window for delayed ACK
-                        listen_end = time.time() + 0.35
-                        while time.time() < listen_end:
-                            while lora_serial.in_waiting:
-                                line = lora_serial.readline().decode(errors='ignore').strip()
-                                if line:
-                                    process_lora_line(line)
-                            time.sleep(0.02)
-
-                        time.sleep(0.2)  # Retry interval when command pending
-                    else:
-                        # No pending command - just listen for sensor data
-                        listen_end = time.time() + 0.5  # 500ms listen window
-                        while time.time() < listen_end:
-                            while lora_serial.in_waiting:
-                                line = lora_serial.readline().decode(errors='ignore').strip()
-                                if line:
-                                    process_lora_line(line)
-                            time.sleep(0.02)
-
-                        time.sleep(PASSIVE_LISTEN_INTERVAL)
-
-            # ============ ACTIVE MODE (PC controls motor) ============
-            else:  # MODE_ACTIVE
+                # Determine if we're in active mode (recent throttle change)
                 time_since_change = time.time() - last_throttle_change
-                # Stay in fast mode if command is pending OR recently changed
-                is_actively_changing = command_pending or (time_since_change < MOTOR_ACTIVE_DURATION)
+                is_active = time_since_change < MOTOR_ACTIVE_DURATION
 
                 with lora_lock:
-                    # Send motor command (frequently when changing/pending, periodically when stable)
-                    if is_actively_changing or time_since_change % MOTOR_TX_INTERVAL_SLOW < 0.2:
+                    # Only send command if in active mode OR as periodic heartbeat
+                    if is_active or time_since_change % MOTOR_TX_INTERVAL_SLOW < 0.2:
                         command = f"CMD:THROTTLE:{target}\n"
                         lora_serial.write(command.encode())
                         lora_serial.flush()
-                        if command_pending:
-                            print(f"[TX] Sending CMD:THROTTLE:{target} (pending, confirmed={confirmed})", flush=True)
 
-                    # Give Pi time to receive command (transmission takes ~20ms at 9600 baud)
-                    time.sleep(0.03)
-
-                    # Listen for ACKs and sensor data - Pi delays 150ms before ACK, so listen longer
-                    listen_time = 0.35 if is_actively_changing else 0.5  # 350ms when active
+                    # Listen for incoming data (sensor data + ACKs)
+                    # Longer listen window when not actively sending
+                    listen_time = 0.1 if is_active else 0.5
                     listen_end = time.time() + listen_time
 
                     while time.time() < listen_end:
-                        # Drain entire buffer
-                        while lora_serial.in_waiting:
+                        if lora_serial.in_waiting:
                             line = lora_serial.readline().decode(errors='ignore').strip()
-                            if line:
-                                process_lora_line(line)
-                        time.sleep(0.02)
+                            if not line:
+                                continue
 
-                # Adaptive sleep interval
-                sleep_time = MOTOR_TX_INTERVAL_FAST if is_actively_changing else MOTOR_TX_INTERVAL_SLOW
+                            print(f"[LORA-RAW] {line}", flush=True)
+
+                            if line.startswith("ACK:"):
+                                # Process motor acknowledgment
+                                parts = line.split(":")
+                                if len(parts) >= 4:
+                                    try:
+                                        actual = int(parts[2])
+                                        with motor_lock:
+                                            motor_state["confirmed_throttle"] = actual
+                                            motor_state["throttle"] = actual
+                                            motor_state["last_ack_time"] = datetime.now().isoformat()
+                                            motor_state["status"] = "running" if actual > 0 else "stopped"
+                                    except ValueError:
+                                        pass
+                            elif "," in line and not line.startswith("CMD:"):
+                                # Process sensor data
+                                print(f"[LORA-RX] Sensor data received", flush=True)
+                                process_sensor_data(line)
+                                with motor_lock:
+                                    if motor_state["status"] == "disconnected":
+                                        motor_state["status"] = "connected"
+                        else:
+                            time.sleep(0.02)  # Brief sleep if no data
+
+                # Sleep interval depends on mode
+                sleep_time = MOTOR_TX_INTERVAL_FAST if is_active else MOTOR_TX_INTERVAL_SLOW
                 time.sleep(sleep_time)
 
         except Exception as e:
-            print(f"[LORA] Error: {e}", flush=True)
+            print(f"[MOTOR-TX] Error: {e}")
             # Reset serial connection on error
             with lora_lock:
                 try:
@@ -1512,7 +1320,7 @@ def motor_transmit_loop():
                 lora_serial = None
             time.sleep(0.5)
 
-    print("[LORA] Communication thread stopped", flush=True)
+    print("[MOTOR-TX] Continuous transmission thread stopped")
 
 
 def start_motor_tx_thread():
@@ -1553,80 +1361,10 @@ def send_motor_command(command_type, value=0, wait_for_ack=True, max_retries=10,
     if command_type == "THROTTLE":
         set_target_throttle(value)
         return True, "Target set"
-    elif command_type == "STOP":
+    elif command_type in ["STOP", "ESTOP"]:
         set_target_throttle(0)
         return True, "Stop commanded"
-    elif command_type == "ESTOP":
-        trigger_estop()
-        return True, "Emergency stop triggered"
     return False, "Unknown command"
-
-
-def set_operating_mode(mode):
-    """Switch between PASSIVE and ACTIVE operating modes."""
-    global motor_state
-
-    if mode not in [MODE_PASSIVE, MODE_ACTIVE]:
-        return False, f"Invalid mode: {mode}"
-
-    with motor_lock:
-        old_mode = motor_state["mode"]
-        motor_state["mode"] = mode
-
-    # Send mode change command to Pi
-    if init_lora_serial():
-        with lora_lock:
-            command = f"CMD:MODE:{mode.upper()}\n"
-            lora_serial.write(command.encode())
-            lora_serial.flush()
-
-    print(f"[MODE] Switched from {old_mode} to {mode}", flush=True)
-    return True, f"Mode changed to {mode}"
-
-
-ESTOP_TIMEOUT = 30.0  # Allow force-clear after 30 seconds
-
-def trigger_estop():
-    """Trigger emergency stop - blocks all other operations until confirmed."""
-    global motor_state
-
-    with motor_lock:
-        motor_state["estop_active"] = True
-        motor_state["estop_confirmed"] = False
-        motor_state["estop_triggered_time"] = time.time()
-        motor_state["target_throttle"] = 0
-
-    print("[ESTOP] Emergency stop triggered!", flush=True)
-    return True
-
-
-def clear_estop(force=False):
-    """Clear emergency stop state (only after confirmed or force after timeout)."""
-    global motor_state
-
-    with motor_lock:
-        if motor_state["estop_confirmed"] or force:
-            # Set clearing flag - transmit loop will send ESTOP:CLEAR continuously
-            motor_state["estop_clearing"] = True
-            motor_state["target_throttle"] = 0
-            motor_state["status"] = "clearing"
-
-            if force:
-                # Force clear: also reset estop_active immediately
-                motor_state["estop_active"] = False
-                motor_state["estop_confirmed"] = False
-                print("[ESTOP] FORCE CLEAR initiated - sending ESTOP:CLEAR to Pi", flush=True)
-                return True, "ESTOP force clear initiated"
-            else:
-                print("[ESTOP] Clear initiated - sending ESTOP:CLEAR to Pi", flush=True)
-                return True, "ESTOP clear initiated"
-        else:
-            # Check if timeout exceeded
-            triggered_time = motor_state.get("estop_triggered_time", 0)
-            elapsed = time.time() - triggered_time
-            if elapsed > ESTOP_TIMEOUT:
-                return False, f"ESTOP not confirmed after {int(elapsed)}s. Use force-clear if needed."
-            return False, f"ESTOP not yet confirmed by Pi ({int(elapsed)}s elapsed)"
 
 
 # Start continuous transmission on module load
@@ -1698,65 +1436,6 @@ def set_motor_preset(percent):
         return jsonify({"status": "error", "message": message}), 500
 
 
-@app.route('/motor/mode', methods=['GET'])
-def get_motor_mode():
-    """Get current operating mode."""
-    with motor_lock:
-        return jsonify({
-            "mode": motor_state["mode"],
-            "estop_active": motor_state["estop_active"],
-            "estop_confirmed": motor_state["estop_confirmed"]
-        })
-
-
-@app.route('/motor/mode/<mode>', methods=['POST'])
-def set_motor_mode(mode):
-    """Set operating mode (passive or active)."""
-    mode = mode.lower()
-    if mode not in [MODE_PASSIVE, MODE_ACTIVE]:
-        return jsonify({"status": "error", "message": f"Invalid mode. Use '{MODE_PASSIVE}' or '{MODE_ACTIVE}'"}), 400
-
-    success, message = set_operating_mode(mode)
-
-    if success:
-        return jsonify({"status": "success", "mode": mode, "message": message})
-    else:
-        return jsonify({"status": "error", "message": message}), 500
-
-
-@app.route('/motor/estop', methods=['POST'])
-def trigger_emergency_stop():
-    """Trigger emergency stop - highest priority, blocks everything until confirmed."""
-    trigger_estop()
-    return jsonify({
-        "status": "success",
-        "message": "Emergency stop triggered - waiting for Pi confirmation",
-        "estop_active": True
-    })
-
-
-@app.route('/motor/estop/clear', methods=['POST'])
-def clear_emergency_stop():
-    """Clear emergency stop (only works after Pi has confirmed)."""
-    success, message = clear_estop()
-
-    if success:
-        return jsonify({"status": "success", "message": message})
-    else:
-        return jsonify({"status": "error", "message": message}), 400
-
-
-@app.route('/motor/estop/force-clear', methods=['POST'])
-def force_clear_emergency_stop():
-    """Force clear emergency stop even if Pi hasn't confirmed. USE WITH CAUTION."""
-    success, message = clear_estop(force=True)
-
-    if success:
-        return jsonify({"status": "success", "message": message})
-    else:
-        return jsonify({"status": "error", "message": message}), 400
-
-
 # ==================== LoRa Receiver Thread ====================
 
 LABELS = [
@@ -1816,6 +1495,26 @@ def process_sensor_data(line):
     except Exception as e:
         print(f"[LORA-RX] Error processing sensor data: {e}")
         return False
+
+
+def process_ack(line):
+    """Process acknowledgment from Pi motor controller."""
+    global motor_state
+
+    # Format: ACK:<type>:<value>:<status>
+    parts = line.split(":")
+    if len(parts) >= 4:
+        cmd_type = parts[1]
+        value = parts[2]
+        status = parts[3]
+
+        with motor_lock:
+            motor_state["last_ack_time"] = datetime.now().isoformat()
+
+            if status == "OK":
+                print(f"[LORA-RX] ACK received: {cmd_type}={value} OK")
+            else:
+                print(f"[LORA-RX] ACK received: {cmd_type}={value} FAILED")
 
 
 def lora_receiver_loop():
@@ -1962,9 +1661,9 @@ if __name__ == "__main__":
     log = logging.getLogger('werkzeug')
     log.setLevel(logging.ERROR)  # Or use logging.CRITICAL to suppress all output
 
-    # NOTE: motor_transmit_loop handles ALL LoRa communication (send + receive)
-    # Do NOT start a separate lora_receiver_loop - it would cause a race condition
-    print("[INFO] LoRa communication handled by motor_transmit_loop")
+    # Start LoRa receiver thread for sensor data and motor acknowledgments
+    print("[INFO] Starting LoRa receiver for motor control and sensor data...")
+    start_lora_receiver()
 
     try:
         app.run(debug=False, host="0.0.0.0", use_reloader=False)

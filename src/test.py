@@ -57,10 +57,6 @@ PWM_MAX_US = 2000           # Full forward (2000 microseconds)
 MAX_THROTTLE_PERCENT = 75   # Safety limit
 PWM_REFRESH_RATE = 50       # How often to refresh PWM signal (Hz)
 
-# Operating Modes
-MODE_PASSIVE = "PASSIVE"    # Autonomous navigation on Pi
-MODE_ACTIVE = "ACTIVE"      # Manual control from PC
-
 # Sensor Labels
 LABELS = [
     "Elapsed [s]",
@@ -265,77 +261,9 @@ def parse_motor_command(line):
         try:
             value = int(parts[2])
         except ValueError:
-            # For MODE command, value is a string
-            value = parts[2].upper()
+            value = 0
 
     return command_type, value
-
-
-def process_command(motor, cmd_type, value, current_mode, estop_active):
-    """
-    Process a motor command and return the response.
-
-    Returns: (response_string, new_mode, new_estop_active)
-    """
-    success = False
-    response = ""
-    new_mode = current_mode
-    new_estop = estop_active
-
-    # ESTOP CLEAR - check FIRST before ESTOP trigger
-    if cmd_type == "ESTOP" and str(value).upper() == "CLEAR":
-        new_estop = False
-        motor.stop()
-        actual = motor.get_status()["throttle"]
-        response = f"ACK:ESTOP_CLEAR:{actual}:OK"
-        print("[ESTOP] Emergency stop CLEARED via ESTOP:CLEAR")
-
-    # ESTOP trigger
-    elif cmd_type == "ESTOP":
-        success = motor.emergency_stop()
-        actual = motor.get_status()["throttle"]
-        response = f"ACK:ESTOP:{actual}:{'OK' if success else 'FAIL'}"
-        new_estop = True
-        print("[ESTOP] !!! EMERGENCY STOP ACTIVATED !!!")
-
-    # If ESTOP is active, only allow clear commands
-    elif estop_active:
-        if cmd_type == "THROTTLE" and value == 0:
-            # Throttle 0 also clears ESTOP (safe to resume)
-            new_estop = False
-            motor.stop()
-            actual = motor.get_status()["throttle"]
-            response = f"ACK:THROTTLE:{actual}:OK"
-            print("[ESTOP] Emergency stop cleared via THROTTLE:0")
-        else:
-            print(f"[WARN] ESTOP active - ignoring {cmd_type} command")
-            response = f"ACK:{cmd_type}:0:ESTOP_ACTIVE"
-
-    elif cmd_type == "THROTTLE":
-        success = motor.set_throttle(value)
-        actual = motor.get_status()["throttle"]
-        response = f"ACK:THROTTLE:{actual}:{'OK' if success else 'FAIL'}"
-
-    elif cmd_type == "STOP":
-        success = motor.stop()
-        actual = motor.get_status()["throttle"]
-        response = f"ACK:STOP:{actual}:{'OK' if success else 'FAIL'}"
-
-    elif cmd_type == "MODE":
-        mode_str = str(value).upper()
-        if mode_str in [MODE_PASSIVE, MODE_ACTIVE]:
-            new_mode = mode_str
-            response = f"ACK:MODE:{new_mode}:OK"
-            print(f"[MODE] Operating mode changed to: {new_mode}")
-        else:
-            response = f"ACK:MODE:{current_mode}:INVALID"
-            print(f"[WARN] Invalid mode: {value}")
-
-    else:
-        print(f"[WARN] Unknown command: {cmd_type}")
-        response = f"ACK:{cmd_type}:0:UNKNOWN"
-
-    return response, new_mode, new_estop
 
 
 # ==================== MAIN ====================
@@ -404,10 +332,6 @@ def main():
     min_data = [float('inf')] * len(LABELS)
     max_data = [float('-inf')] * len(LABELS)
 
-    # ───── OPERATING STATE ─────
-    current_mode = MODE_ACTIVE  # Start in active (manual control) mode
-    estop_active = False        # Emergency stop state
-
     # ───── MAIN LOOP ─────
     start_time = time.perf_counter()
     last_log_time = start_time
@@ -436,30 +360,37 @@ def main():
                         cmd_type, value = parse_motor_command(line)
 
                         if cmd_type is not None:
-                            response, current_mode, estop_active = process_command(
-                                motor, cmd_type, value, current_mode, estop_active
-                            )
+                            success = False
+                            response = ""
 
-                            # Send acknowledgment with delay to ensure PC is listening
+                            if cmd_type == "THROTTLE":
+                                success = motor.set_throttle(value)
+                                actual = motor.get_status()["throttle"]
+                                response = f"ACK:THROTTLE:{actual}:{'OK' if success else 'FAIL'}"
+
+                            elif cmd_type == "STOP":
+                                success = motor.stop()
+                                actual = motor.get_status()["throttle"]
+                                response = f"ACK:STOP:{actual}:{'OK' if success else 'FAIL'}"
+
+                            elif cmd_type == "ESTOP":
+                                success = motor.emergency_stop()
+                                actual = motor.get_status()["throttle"]
+                                response = f"ACK:ESTOP:{actual}:{'OK' if success else 'FAIL'}"
+
+                            else:
+                                print(f"[WARN] Unknown command: {cmd_type}")
+                                response = f"ACK:{cmd_type}:0:UNKNOWN"
+
+                            # Send acknowledgment
                             if response:
-                                # Wait for PC to switch to receive mode
-                                time.sleep(0.15)  # 150ms delay before ACK
-
-                                # Critical commands (ESTOP) - send ACK multiple times for reliability
-                                if "ESTOP" in response:
-                                    for i in range(3):
-                                        lora_serial.write((response + "\n").encode())
-                                        lora_serial.flush()
-                                        print(f"[LORA-TX] {response} (attempt {i+1}/3)")
-                                        time.sleep(0.1)
-                                else:
-                                    lora_serial.write((response + "\n").encode())
-                                    lora_serial.flush()
-                                    print(f"[LORA-TX] {response}")
+                                lora_serial.write((response + "\n").encode())
+                                lora_serial.flush()
+                                print(f"[LORA-TX] {response}")
 
                             # Print motor status
                             status = motor.get_status()
-                            print(f"[MOTOR] Throttle: {status['throttle']}% | PWM: {status['pulse_width']}us | Mode: {current_mode}")
+                            print(f"[MOTOR] Throttle: {status['throttle']}% | PWM: {status['pulse_width']}us")
 
                 except Exception as e:
                     print(f"[LORA-RX] Error: {e}")
@@ -537,24 +468,24 @@ def main():
                                         print(f"[LORA-RX] {cmd_line}")
                                         cmd_type, value = parse_motor_command(cmd_line)
                                         if cmd_type is not None:
-                                            response, current_mode, estop_active = process_command(
-                                                motor, cmd_type, value, current_mode, estop_active
-                                            )
+                                            success = False
+                                            response = ""
+                                            if cmd_type == "THROTTLE":
+                                                success = motor.set_throttle(value)
+                                                actual = motor.get_status()["throttle"]
+                                                response = f"ACK:THROTTLE:{actual}:{'OK' if success else 'FAIL'}"
+                                            elif cmd_type == "STOP":
+                                                success = motor.stop()
+                                                actual = motor.get_status()["throttle"]
+                                                response = f"ACK:STOP:{actual}:{'OK' if success else 'FAIL'}"
+                                            elif cmd_type == "ESTOP":
+                                                success = motor.emergency_stop()
+                                                actual = motor.get_status()["throttle"]
+                                                response = f"ACK:ESTOP:{actual}:{'OK' if success else 'FAIL'}"
                                             if response:
-                                                # Wait for PC to switch to receive mode
-                                                time.sleep(0.15)  # 150ms delay before ACK
-
-                                                # Critical commands (ESTOP) - send ACK multiple times
-                                                if "ESTOP" in response:
-                                                    for i in range(3):
-                                                        lora_serial.write((response + "\n").encode())
-                                                        lora_serial.flush()
-                                                        print(f"[LORA-TX] {response} (attempt {i+1}/3)")
-                                                        time.sleep(0.1)
-                                                else:
-                                                    lora_serial.write((response + "\n").encode())
-                                                    lora_serial.flush()
-                                                    print(f"[LORA-TX] {response}")
+                                                lora_serial.write((response + "\n").encode())
+                                                lora_serial.flush()
+                                                print(f"[LORA-TX] {response}")
                                 except Exception as e:
                                     print(f"[LORA-RX] Error: {e}")
                             time.sleep(0.05)

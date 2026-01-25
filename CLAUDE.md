@@ -15,7 +15,7 @@ The system includes data logging, real-time web visualization, LoRa communicatio
 
 **Python Dependencies:**
 - `adafruit-circuitpython-bme280` - BME280 sensor interface
-- `mpu6050-raspberrypi` - MPU6050 sensor interface  
+- `mpu6050-raspberrypi` - MPU6050 sensor interface
 - `numpy` - Numerical calculations
 - `flask` - Web server for dashboard
 - `pyserial` - Serial communication for LoRa
@@ -91,12 +91,12 @@ python src/web_server.py        # alternative web server
 
 **Sensor Array Structure (12 elements):**
 - [0] - Elapsed time [s]
-- [1] - BME280 Temperature [°C] 
+- [1] - BME280 Temperature [°C]
 - [2] - BME280 Humidity [%]
 - [3] - BME280 Pressure [hPa]
 - [4] - BME280 Altitude [m]
 - [5] - MPU6050 Acceleration X [m/s²]
-- [6] - MPU6050 Acceleration Y [m/s²] 
+- [6] - MPU6050 Acceleration Y [m/s²]
 - [7] - MPU6050 Acceleration Z [m/s²]
 - [8] - MPU6050 Gyro X [°/s]
 - [9] - MPU6050 Gyro Y [°/s]
@@ -110,11 +110,11 @@ python src/web_server.py        # alternative web server
 
 **Data Transmission Thresholds:**
 - Temp BME280: 0.25°C
-- Humidity: 1.0%  
+- Humidity: 1.0%
 - Pressure: 0.5 hPa
 - Altitude: 0.5m
 - Acceleration: 0.25 m/s² all axes
-- Gyroscope: 5.0°/s all axes  
+- Gyroscope: 5.0°/s all axes
 - Temp MPU: 0.25°C
 
 ## Key Configuration
@@ -125,7 +125,7 @@ python src/web_server.py        # alternative web server
 
 **MPU6050 Settings:**
 - Gyro range: ±2000°/s
-- Accelerometer range: ±16g  
+- Accelerometer range: ±16g
 - I2C address: 0x68
 
 **LoRa Settings:**
@@ -196,7 +196,6 @@ TRITON includes brushless motor control via ESC (Electronic Speed Controller) fo
 **Command Format:** `CMD:<type>:<value>\n`
 - `CMD:THROTTLE:50` - Set throttle to 50%
 - `CMD:STOP:0` - Stop motor
-- `CMD:ESTOP:0` - Emergency stop
 
 **ACK Format:** `ACK:<type>:<actual_value>:<OK|FAIL>`
 - `ACK:THROTTLE:50:OK` - Confirmed motor at 50%
@@ -212,48 +211,16 @@ PWM_MAX_US = 2000           # Full forward (2000 microseconds)
 MAX_THROTTLE_PERCENT = 75   # Safety limit
 ```
 
-### Dual-Mode Operating Protocol
+### Continuous Transmission Protocol
 
-The system implements a **dual-mode protocol** that allows switching between autonomous Pi control and manual PC control, while always ensuring ESTOP has highest priority.
+The PC continuously transmits the target throttle every 150ms (like RC controllers). This ensures reliable command delivery despite LoRa timing issues.
 
-#### Operating Modes
-
-| Mode | Description | Motor Commands | Sensor Data | Use Case |
-|------|-------------|----------------|-------------|----------|
-| **PASSIVE** | Pi runs autonomous navigation | Work (on change only) | Priority | Autonomous missions |
-| **ACTIVE** | PC has manual control | Priority | Works | Manual control/testing |
-| **ESTOP** | Emergency stop | Blocks ALL | Blocks ALL | Safety override |
-
-#### Mode Behavior Details
-
-**PASSIVE Mode (Pi Autonomous):**
-- PC primarily listens for sensor data from Pi
-- Motor commands only sent when operator explicitly changes throttle
-- Pi handles its own navigation decisions locally
-- Long listen windows (500ms) for sensor data reception
-
-**ACTIVE Mode (Manual Control):**
-- PC continuously transmits motor commands
-- Uses adaptive timing (fast when changing, slow when stable)
-- Sensor data received during listen windows
-- Shorter listen windows (100ms) during active changes
-
-**ESTOP (Emergency Stop):**
-- Highest priority - blocks everything else
-- PC sends ESTOP command every 50ms until Pi confirms
-- Pi immediately stops motor and acknowledges
-- Operator must explicitly clear ESTOP after confirmation
-
-#### Command Format Extensions
-
-```
-CMD:MODE:PASSIVE    - Switch to passive mode
-CMD:MODE:ACTIVE     - Switch to active mode
-CMD:ESTOP:0         - Trigger emergency stop
-
-ACK:MODE:PASSIVE:OK - Mode change confirmed
-ACK:ESTOP:0:OK      - Emergency stop confirmed
-```
+**How it works:**
+1. User sets throttle via web dashboard
+2. PC updates `target_throttle` state
+3. Background thread continuously sends `CMD:THROTTLE:<target>`
+4. Pi receives and applies command, sends ACK with actual state
+5. PC confirms when `actual == target`
 
 ### Hybrid Transmission Protocol
 
@@ -268,8 +235,6 @@ The PC uses a **hybrid transmission approach** that balances motor control respo
 MOTOR_TX_INTERVAL_FAST = 0.15    # 150ms when actively changing throttle
 MOTOR_TX_INTERVAL_SLOW = 2.0     # 2 seconds when throttle is stable
 MOTOR_ACTIVE_DURATION = 3.0      # Stay in fast mode for 3 seconds after change
-PASSIVE_LISTEN_INTERVAL = 0.1    # Passive mode: check frequently
-ESTOP_RETRY_INTERVAL = 0.05      # ESTOP: retry every 50ms
 ```
 
 **How it works:**
@@ -495,6 +460,80 @@ pgrep -x pigpiod
 1. Check USB connection
 2. Verify port: `ls /dev/ttyUSB*`
 3. Check permissions: `sudo usermod -a -G dialout $USER` (then logout/login)
+
+## LoRa Communication - Critical Learnings
+
+### Half-Duplex Timing Issues
+
+LoRa modules are **half-duplex** - they cannot send and receive simultaneously. This creates timing challenges:
+
+**Problem: ACKs not received**
+When PC sends a command and Pi responds with ACK, the PC might miss it because:
+1. PC sends command
+2. Pi receives, processes, sends ACK immediately
+3. But PC might still be in "send mode" or sleeping
+
+**Solution: Delayed ACK**
+Pi should wait before sending ACK to ensure PC has switched to receive mode:
+```python
+# On Pi: after receiving command, wait before sending ACK
+time.sleep(0.15)  # 150ms delay before ACK
+lora_serial.write((response + "\n").encode())
+```
+
+**Solution: Extended listen window**
+PC should listen longer to catch the delayed ACK:
+```python
+# On PC: listen for 350-400ms after sending command
+listen_end = time.time() + 0.35
+while time.time() < listen_end:
+    while lora_serial.in_waiting:
+        line = lora_serial.readline().decode(errors='ignore').strip()
+        if line:
+            process_lora_line(line)
+    time.sleep(0.02)
+```
+
+### Buffer Draining
+
+**Problem:** Reading one line at a time can lose data when multiple messages arrive.
+
+**Solution:** Always drain the entire buffer:
+```python
+# BAD: reads only one line, may miss following data
+line = lora_serial.readline()
+
+# GOOD: drain entire buffer
+while lora_serial.in_waiting:
+    line = lora_serial.readline().decode(errors='ignore').strip()
+    if line:
+        process_line(line)
+```
+
+### Critical ACKs - Send Multiple Times
+
+For important commands, send ACK multiple times for redundancy:
+```python
+# On Pi: send critical ACKs 3 times
+for i in range(3):
+    lora_serial.write((response + "\n").encode())
+    lora_serial.flush()
+    time.sleep(0.1)
+```
+
+### Race Conditions with Multiple Threads
+
+**Problem:** Multiple threads reading from the same serial port steal data from each other.
+
+**Solution:** Only ONE thread should read from the serial port. All other threads should request data through that thread or use locks properly.
+
+### State Synchronization
+
+When PC and Pi can get out of sync (e.g., PC thinks motor is stopped but Pi has it running):
+
+1. **ACK carries actual state:** Pi always reports actual motor state in ACK, not just echo of command
+2. **PC trusts ACK:** PC updates its state based on ACK, not on what it sent
+3. **Continuous sync:** Periodic status transmission keeps both sides aligned
 
 ## System Architecture (Updated)
 

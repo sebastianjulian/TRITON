@@ -246,60 +246,6 @@
       transform: translateY(-2px);
     }
 
-    /* Mode Status Indicator in Nav */
-    .mode-status-indicator {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 6px 12px;
-      background: rgba(0, 0, 0, 0.3);
-      border-radius: 20px;
-      border: 1px solid var(--color-border);
-      font-size: 0.85em;
-      margin-right: 10px;
-    }
-
-    .mode-status-label {
-      color: var(--color-text-muted);
-      font-weight: 400;
-    }
-
-    .mode-status-value {
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-
-    .mode-status-value.mode-active {
-      color: #3b82f6;
-    }
-
-    .mode-status-value.mode-passive {
-      color: #22c55e;
-    }
-
-    .mode-status-value.mode-estop {
-      color: #ef4444;
-      animation: pulse-red 0.5s infinite;
-    }
-
-    .connection-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: #6b7280;
-      margin-left: 4px;
-    }
-
-    .connection-dot.connected {
-      background: #22c55e;
-      box-shadow: 0 0 6px #22c55e;
-    }
-
-    .connection-dot.disconnected {
-      background: #ef4444;
-    }
-
     header {
       background: var(--bg-header);
       padding: 70px 20px 20px 20px;
@@ -675,113 +621,6 @@
     @keyframes pulse-red {
       0%, 100% { opacity: 1; }
       50% { opacity: 0.5; }
-    }
-
-    /* Mode Selector Styles */
-    .mode-selector-container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 15px;
-    }
-
-    .mode-label {
-      font-size: 0.85em;
-      color: var(--color-text-muted);
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-
-    .mode-buttons {
-      display: flex;
-      gap: 10px;
-    }
-
-    .mode-btn {
-      padding: 12px 20px;
-      border: 2px solid var(--color-border);
-      border-radius: 8px;
-      background: var(--bg-card);
-      color: var(--color-text-secondary);
-      cursor: pointer;
-      transition: all 0.3s ease;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      min-width: 120px;
-    }
-
-    .mode-btn .mode-desc {
-      font-size: 0.7em;
-      color: var(--color-text-muted);
-      margin-top: 4px;
-    }
-
-    .mode-btn:hover {
-      border-color: var(--color-primary);
-      background: var(--bg-secondary);
-    }
-
-    .mode-btn.mode-active {
-      border-color: var(--color-primary);
-      background: var(--color-primary);
-      color: var(--bg-primary);
-    }
-
-    .mode-btn.mode-active .mode-desc {
-      color: var(--bg-secondary);
-    }
-
-    .mode-btn.mode-passive-selected {
-      border-color: #4ade80;
-      background: #4ade80;
-      color: #0a1520;
-    }
-
-    .estop-indicator {
-      background: #ef4444;
-      color: white;
-      padding: 4px 12px;
-      border-radius: 4px;
-      font-weight: 700;
-      font-size: 0.9em;
-      animation: pulse-red 0.5s infinite;
-      margin-left: 10px;
-    }
-
-    .clear-estop-btn {
-      background: #22c55e;
-      color: white;
-      padding: 4px 12px;
-      border-radius: 4px;
-      border: none;
-      font-weight: 700;
-      font-size: 0.9em;
-      margin-left: 10px;
-      cursor: pointer;
-      transition: background 0.2s ease;
-    }
-
-    .clear-estop-btn:hover {
-      background: #16a34a;
-    }
-
-    .force-clear-estop-btn {
-      background: #f59e0b;
-      color: white;
-      padding: 4px 12px;
-      border-radius: 4px;
-      border: none;
-      font-weight: 700;
-      font-size: 0.85em;
-      margin-left: 6px;
-      cursor: pointer;
-      transition: background 0.2s ease;
-    }
-
-    .force-clear-estop-btn:hover {
-      background: #d97706;
     }
 
     .motor-controls-grid {
@@ -4067,12 +3906,6 @@
     <div class="header-nav">
       <nav class="main-nav">
         <a href="/">← Back to Homepage</a>
-        <!-- Mode Status Indicator -->
-        <div class="mode-status-indicator" id="modeStatusIndicator">
-          <span class="mode-status-label">Mode:</span>
-          <span class="mode-status-value" id="modeStatusValue">ACTIVE</span>
-          <span class="connection-dot" id="connectionDot" title="LoRa Connection"></span>
-        </div>
         <a href="#motor-control" class="motor-nav-link">Motor Control</a>
         <a href="#mission-control">Mission Control</a>
         <a href="#bme280">BME280 Data</a>
@@ -4320,30 +4153,14 @@
   <section id="motor-control" class="motor-control-section">
     <h2>Motor Control</h2>
 
-    <!-- Mode Selector and Emergency Stop -->
+    <!-- Emergency Stop Button - Always Visible -->
     <div class="emergency-stop-container">
-      <div class="mode-selector-container">
-        <span class="mode-label">Operating Mode:</span>
-        <div class="mode-buttons">
-          <button id="passiveModeBtn" class="mode-btn" onclick="setOperatingMode('passive')">
-            PASSIVE
-            <span class="mode-desc">Pi Autonomous</span>
-          </button>
-          <button id="activeModeBtn" class="mode-btn mode-active" onclick="setOperatingMode('active')">
-            ACTIVE
-            <span class="mode-desc">Manual Control</span>
-          </button>
-        </div>
-      </div>
       <button id="emergencyStopBtn" class="emergency-stop-btn" onclick="emergencyStop()">
         EMERGENCY STOP
       </button>
       <div class="motor-status-display">
         <span class="motor-status-label">Status:</span>
         <span id="motorStatusText" class="motor-status-value">Disconnected</span>
-        <span id="estopIndicator" class="estop-indicator" style="display: none;">ESTOP ACTIVE</span>
-        <button id="clearEstopBtn" class="clear-estop-btn" style="display: none;" onclick="clearEstop()">CLEAR ESTOP</button>
-        <button id="forceClearEstopBtn" class="force-clear-estop-btn" style="display: none;" onclick="forceClearEstop()">FORCE CLEAR</button>
       </div>
     </div>
 
@@ -7793,107 +7610,7 @@
     async function emergencyStop() {
       document.getElementById('throttleSlider').value = 0;
       document.getElementById('throttleValue').textContent = 0;
-
-      try {
-        const response = await fetch('/motor/estop', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' }
-        });
-        const result = await response.json();
-        console.log('ESTOP triggered:', result);
-
-        // Show ESTOP indicator
-        document.getElementById('estopIndicator').style.display = 'inline';
-        updateMotorStatus();
-      } catch (error) {
-        console.error('ESTOP error:', error);
-      }
-    }
-
-    // Clear emergency stop
-    async function clearEstop() {
-      try {
-        const response = await fetch('/motor/estop/clear', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' }
-        });
-        const result = await response.json();
-
-        if (result.status === 'success') {
-          document.getElementById('estopIndicator').style.display = 'none';
-          document.getElementById('clearEstopBtn').style.display = 'none';
-          document.getElementById('forceClearEstopBtn').style.display = 'none';
-          console.log('ESTOP cleared');
-        } else {
-          console.error('Cannot clear ESTOP:', result.message);
-          alert('Cannot clear ESTOP: ' + result.message);
-        }
-        updateMotorStatus();
-      } catch (error) {
-        console.error('Clear ESTOP error:', error);
-      }
-    }
-
-    // Force clear emergency stop (use when Pi doesn't respond)
-    async function forceClearEstop() {
-      if (!confirm('Force clear ESTOP? The Pi may not have received the stop command. Only use if motor is physically stopped.')) {
-        return;
-      }
-      try {
-        const response = await fetch('/motor/estop/force-clear', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' }
-        });
-        const result = await response.json();
-
-        if (result.status === 'success') {
-          document.getElementById('estopIndicator').style.display = 'none';
-          document.getElementById('clearEstopBtn').style.display = 'none';
-          document.getElementById('forceClearEstopBtn').style.display = 'none';
-          console.log('ESTOP force cleared');
-          alert('ESTOP force cleared. Verify motor is stopped before resuming.');
-        } else {
-          console.error('Cannot force clear ESTOP:', result.message);
-        }
-        updateMotorStatus();
-      } catch (error) {
-        console.error('Force clear ESTOP error:', error);
-      }
-    }
-
-    // Set operating mode (passive/active)
-    async function setOperatingMode(mode) {
-      try {
-        const response = await fetch(`/motor/mode/${mode}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' }
-        });
-        const result = await response.json();
-
-        if (result.status === 'success') {
-          updateModeButtons(mode);
-          console.log('Mode changed to:', mode);
-        } else {
-          console.error('Mode change failed:', result.message);
-        }
-      } catch (error) {
-        console.error('Mode change error:', error);
-      }
-    }
-
-    // Update mode button UI
-    function updateModeButtons(activeMode) {
-      const passiveBtn = document.getElementById('passiveModeBtn');
-      const activeBtn = document.getElementById('activeModeBtn');
-
-      if (activeMode === 'passive') {
-        passiveBtn.classList.add('mode-passive-selected');
-        passiveBtn.classList.remove('mode-btn');
-        activeBtn.classList.remove('mode-active');
-      } else {
-        activeBtn.classList.add('mode-active');
-        passiveBtn.classList.remove('mode-passive-selected');
-      }
+      await sendMotorCommand('emergency_stop');
     }
 
     // Ramp test state
@@ -8050,53 +7767,8 @@
         const statusText = document.getElementById('motorStatusText');
         const currentThrottle = document.getElementById('currentThrottle');
         const loraConnection = document.getElementById('loraConnection');
-        const estopIndicator = document.getElementById('estopIndicator');
 
         currentThrottle.textContent = `${status.throttle}%`;
-
-        // Update mode buttons
-        updateModeButtons(status.mode || 'active');
-
-        // Update nav bar mode status indicator
-        const modeStatusValue = document.getElementById('modeStatusValue');
-        const connectionDot = document.getElementById('connectionDot');
-        const currentMode = status.mode || 'active';
-
-        if (status.estop_active) {
-          modeStatusValue.textContent = 'ESTOP';
-          modeStatusValue.className = 'mode-status-value mode-estop';
-        } else {
-          modeStatusValue.textContent = currentMode.toUpperCase();
-          modeStatusValue.className = 'mode-status-value mode-' + currentMode;
-        }
-
-        // Update connection dot based on status
-        const isConnected = status.status !== 'disconnected';
-        connectionDot.className = 'connection-dot ' + (isConnected ? 'connected' : 'disconnected');
-        connectionDot.title = isConnected ? 'LoRa Connected' : 'LoRa Disconnected';
-
-        // Handle ESTOP state
-        const clearEstopBtn = document.getElementById('clearEstopBtn');
-        const forceClearEstopBtn = document.getElementById('forceClearEstopBtn');
-        if (status.estop_active) {
-          estopIndicator.style.display = 'inline';
-          if (status.estop_confirmed) {
-            estopIndicator.textContent = 'ESTOP CONFIRMED';
-            estopIndicator.style.background = '#dc2626';
-            clearEstopBtn.style.display = 'inline';
-            forceClearEstopBtn.style.display = 'none';
-          } else {
-            estopIndicator.textContent = 'ESTOP PENDING...';
-            estopIndicator.style.background = '#f59e0b';
-            clearEstopBtn.style.display = 'none';
-            // Show force-clear button for pending ESTOP (user can override if needed)
-            forceClearEstopBtn.style.display = 'inline';
-          }
-        } else {
-          estopIndicator.style.display = 'none';
-          clearEstopBtn.style.display = 'none';
-          forceClearEstopBtn.style.display = 'none';
-        }
 
         // Update status display
         switch(status.status) {
@@ -8112,15 +7784,9 @@
             loraConnection.textContent = 'Connected';
             loraConnection.style.color = '#4ade80';
             break;
-          case 'estop':
+          case 'emergency_stop':
             statusText.textContent = 'EMERGENCY STOP';
             statusText.className = 'motor-status-value status-emergency';
-            loraConnection.textContent = 'Connected';
-            loraConnection.style.color = '#4ade80';
-            break;
-          case 'connected':
-            statusText.textContent = 'Connected';
-            statusText.className = 'motor-status-value status-stopped';
             loraConnection.textContent = 'Connected';
             loraConnection.style.color = '#4ade80';
             break;
@@ -8136,11 +7802,6 @@
         loraConnection.textContent = 'Error';
         loraConnection.style.color = '#ef4444';
       }
-    }
-
-    // Alias for backward compatibility
-    function updateMotorStatus() {
-      pollMotorStatus();
     }
 
     // Start polling motor status every 2 seconds
