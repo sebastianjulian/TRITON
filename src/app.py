@@ -1347,13 +1347,15 @@ def motor_transmit_loop():
                     lora_serial.flush()
                     print("[ESTOP] Sending emergency stop command...", flush=True)
 
-                    # Listen for ACK - longer window for reliability
-                    time.sleep(0.05)
-                    listen_end = time.time() + 0.2  # 200ms listen window
+                    # Listen for ACK - drain ALL available data
+                    time.sleep(0.1)  # Give Pi time to respond
+                    listen_end = time.time() + 0.3  # 300ms listen window
                     while time.time() < listen_end:
-                        if lora_serial.in_waiting:
+                        # Drain entire buffer
+                        while lora_serial.in_waiting:
                             line = lora_serial.readline().decode(errors='ignore').strip()
-                            process_lora_line(line)
+                            if line:
+                                process_lora_line(line)
                         time.sleep(0.02)
 
                 time.sleep(ESTOP_RETRY_INTERVAL)
@@ -1375,15 +1377,18 @@ def motor_transmit_loop():
                         command = f"CMD:THROTTLE:{target}\n"
                         lora_serial.write(command.encode())
                         lora_serial.flush()
-                        print(f"[PASSIVE] Sending throttle command: {target}% (pending)", flush=True)
+                        print(f"[PASSIVE] Sending CMD:THROTTLE:{target} (pending, confirmed={confirmed})", flush=True)
 
-                        # Short listen for ACK
-                        time.sleep(0.05)
-                        listen_end = time.time() + 0.15
+                        # Give Pi time to process and respond
+                        time.sleep(0.1)
+
+                        # Drain ALL available data
+                        listen_end = time.time() + 0.2
                         while time.time() < listen_end:
-                            if lora_serial.in_waiting:
+                            while lora_serial.in_waiting:
                                 line = lora_serial.readline().decode(errors='ignore').strip()
-                                process_lora_line(line)
+                                if line:
+                                    process_lora_line(line)
                             time.sleep(0.02)
 
                         time.sleep(0.2)  # Retry interval when command pending
@@ -1391,11 +1396,11 @@ def motor_transmit_loop():
                         # No pending command - just listen for sensor data
                         listen_end = time.time() + 0.5  # 500ms listen window
                         while time.time() < listen_end:
-                            if lora_serial.in_waiting:
+                            while lora_serial.in_waiting:
                                 line = lora_serial.readline().decode(errors='ignore').strip()
-                                process_lora_line(line)
-                            else:
-                                time.sleep(0.02)
+                                if line:
+                                    process_lora_line(line)
+                            time.sleep(0.02)
 
                         time.sleep(PASSIVE_LISTEN_INTERVAL)
 
@@ -1411,17 +1416,23 @@ def motor_transmit_loop():
                         command = f"CMD:THROTTLE:{target}\n"
                         lora_serial.write(command.encode())
                         lora_serial.flush()
+                        if command_pending:
+                            print(f"[TX] Sending CMD:THROTTLE:{target} (pending, confirmed={confirmed})", flush=True)
 
-                    # Listen for ACKs and sensor data
-                    listen_time = 0.1 if is_actively_changing else 0.5
+                    # Give Pi time to process and respond
+                    time.sleep(0.05)
+
+                    # Listen for ACKs and sensor data - drain ALL available data
+                    listen_time = 0.15 if is_actively_changing else 0.5
                     listen_end = time.time() + listen_time
 
                     while time.time() < listen_end:
-                        if lora_serial.in_waiting:
+                        # Drain entire buffer
+                        while lora_serial.in_waiting:
                             line = lora_serial.readline().decode(errors='ignore').strip()
-                            process_lora_line(line)
-                        else:
-                            time.sleep(0.02)
+                            if line:
+                                process_lora_line(line)
+                        time.sleep(0.02)
 
                 # Adaptive sleep interval
                 sleep_time = MOTOR_TX_INTERVAL_FAST if is_actively_changing else MOTOR_TX_INTERVAL_SLOW
