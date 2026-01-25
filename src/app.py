@@ -1321,8 +1321,7 @@ def motor_transmit_loop():
     print("[LORA] Communication thread started", flush=True)
 
     last_throttle_change = 0
-    last_target = 0
-    pending_command = None  # For passive mode command queuing
+    last_confirmed_target = -1  # Track what Pi has confirmed
 
     while motor_tx_running:
         try:
@@ -1336,6 +1335,7 @@ def motor_transmit_loop():
                 estop_active = motor_state["estop_active"]
                 estop_confirmed = motor_state["estop_confirmed"]
                 target = motor_state["target_throttle"]
+                confirmed = motor_state["confirmed_throttle"]
 
             # ============ ESTOP HANDLING (Highest Priority) ============
             if estop_active and not estop_confirmed:
@@ -1346,52 +1346,66 @@ def motor_transmit_loop():
                     lora_serial.flush()
                     print("[ESTOP] Sending emergency stop command...", flush=True)
 
-                    # Brief listen for ACK
-                    time.sleep(0.03)
-                    if lora_serial.in_waiting:
-                        line = lora_serial.readline().decode(errors='ignore').strip()
-                        process_lora_line(line)
-
-                time.sleep(ESTOP_RETRY_INTERVAL)
-                continue  # Skip normal operation until ESTOP confirmed
-
-            # ============ PASSIVE MODE (Pi autonomous, PC monitors) ============
-            if current_mode == MODE_PASSIVE:
-                with lora_lock:
-                    # Primarily receive sensor data from Pi
-                    listen_end = time.time() + 0.5  # 500ms listen window
-
+                    # Listen for ACK - longer window for reliability
+                    time.sleep(0.05)
+                    listen_end = time.time() + 0.2  # 200ms listen window
                     while time.time() < listen_end:
                         if lora_serial.in_waiting:
                             line = lora_serial.readline().decode(errors='ignore').strip()
                             process_lora_line(line)
-                        else:
-                            time.sleep(0.02)
+                        time.sleep(0.02)
 
-                    # Check if there's a pending command to send (during Pi's listen window)
-                    # In passive mode, we only send when explicitly requested
-                    if target != last_target:
-                        # Operator changed throttle - send command
+                time.sleep(ESTOP_RETRY_INTERVAL)
+                continue  # Skip normal operation until ESTOP confirmed
+
+            # Check if target matches confirmed (command was successful)
+            command_pending = (target != confirmed)
+
+            # Detect throttle changes
+            if target != last_confirmed_target and confirmed == target:
+                last_confirmed_target = target
+                last_throttle_change = time.time()
+
+            # ============ PASSIVE MODE (Pi autonomous, PC monitors) ============
+            if current_mode == MODE_PASSIVE:
+                with lora_lock:
+                    # If command is pending, send it repeatedly until confirmed
+                    if command_pending:
                         command = f"CMD:THROTTLE:{target}\n"
                         lora_serial.write(command.encode())
                         lora_serial.flush()
-                        print(f"[PASSIVE] Sent throttle command: {target}%", flush=True)
-                        last_target = target
+                        print(f"[PASSIVE] Sending throttle command: {target}% (pending)", flush=True)
 
-                time.sleep(PASSIVE_LISTEN_INTERVAL)
+                        # Short listen for ACK
+                        time.sleep(0.05)
+                        listen_end = time.time() + 0.15
+                        while time.time() < listen_end:
+                            if lora_serial.in_waiting:
+                                line = lora_serial.readline().decode(errors='ignore').strip()
+                                process_lora_line(line)
+                            time.sleep(0.02)
+
+                        time.sleep(0.2)  # Retry interval when command pending
+                    else:
+                        # No pending command - just listen for sensor data
+                        listen_end = time.time() + 0.5  # 500ms listen window
+                        while time.time() < listen_end:
+                            if lora_serial.in_waiting:
+                                line = lora_serial.readline().decode(errors='ignore').strip()
+                                process_lora_line(line)
+                            else:
+                                time.sleep(0.02)
+
+                        time.sleep(PASSIVE_LISTEN_INTERVAL)
 
             # ============ ACTIVE MODE (PC controls motor) ============
             else:  # MODE_ACTIVE
-                # Detect throttle changes for adaptive timing
-                if target != last_target:
-                    last_throttle_change = time.time()
-                    last_target = target
-
                 time_since_change = time.time() - last_throttle_change
-                is_actively_changing = time_since_change < MOTOR_ACTIVE_DURATION
+                # Stay in fast mode if command is pending OR recently changed
+                is_actively_changing = command_pending or (time_since_change < MOTOR_ACTIVE_DURATION)
 
                 with lora_lock:
-                    # Send motor command (frequently when changing, periodically when stable)
+                    # Send motor command (frequently when changing/pending, periodically when stable)
                     if is_actively_changing or time_since_change % MOTOR_TX_INTERVAL_SLOW < 0.2:
                         command = f"CMD:THROTTLE:{target}\n"
                         lora_serial.write(command.encode())
