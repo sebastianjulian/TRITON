@@ -501,6 +501,170 @@
       transform: translateY(-1px);
     }
 
+    /* Recording Button Styles */
+    .record-btn {
+      background: linear-gradient(145deg, #dc2626, #b91c1c) !important;
+      border: 1px solid #dc2626 !important;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      position: relative;
+    }
+
+    .record-btn.recording {
+      background: linear-gradient(145deg, #16a34a, #15803d) !important;
+      border-color: #16a34a !important;
+      animation: pulse-recording 1.5s ease-in-out infinite;
+    }
+
+    @keyframes pulse-recording {
+      0%, 100% { box-shadow: 0 0 10px rgba(22, 163, 74, 0.5); }
+      50% { box-shadow: 0 0 25px rgba(22, 163, 74, 0.8); }
+    }
+
+    .record-indicator {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #fff;
+    }
+
+    .record-btn.recording .record-indicator {
+      background: #fff;
+      animation: blink-recording 1s ease-in-out infinite;
+    }
+
+    @keyframes blink-recording {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+
+    .recording-status {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 15px;
+      background: var(--bg-tertiary);
+      border-radius: 6px;
+      border: 1px solid var(--color-border);
+      font-size: 0.9em;
+    }
+
+    .recording-status.active {
+      border-color: #16a34a;
+      background: rgba(22, 163, 74, 0.1);
+    }
+
+    /* Recordings List Styles */
+    .recordings-section {
+      margin-top: 20px;
+      padding: 15px;
+      background: var(--bg-tertiary);
+      border-radius: 8px;
+      border: 1px solid var(--color-border);
+    }
+
+    .recordings-section h4 {
+      margin: 0 0 15px 0;
+      color: var(--color-text-primary);
+      font-size: 1em;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .recordings-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-height: 250px;
+      overflow-y: auto;
+    }
+
+    .recording-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 12px;
+      background: var(--bg-card);
+      border-radius: 6px;
+      border: 1px solid var(--color-border);
+      transition: all 0.2s ease;
+    }
+
+    .recording-item:hover {
+      border-color: var(--color-primary);
+      background: var(--bg-secondary);
+    }
+
+    .recording-info {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .recording-name {
+      font-weight: 500;
+      color: var(--color-text-primary);
+      font-size: 0.9em;
+    }
+
+    .recording-meta {
+      font-size: 0.75em;
+      color: var(--color-text-muted);
+    }
+
+    .recording-actions {
+      display: flex;
+      gap: 6px;
+    }
+
+    .recording-actions button {
+      padding: 5px 10px !important;
+      font-size: 0.8em !important;
+      margin: 0 !important;
+    }
+
+    .recording-actions .delete-btn {
+      background: #dc2626 !important;
+      border-color: #dc2626 !important;
+    }
+
+    .no-recordings {
+      text-align: center;
+      color: var(--color-text-muted);
+      padding: 20px;
+      font-style: italic;
+    }
+
+    /* Recording Nav Link Indicator */
+    .recording-nav-link {
+      position: relative;
+    }
+
+    .recording-nav-link.is-recording::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: -12px;
+      transform: translateY(-50%);
+      width: 8px;
+      height: 8px;
+      background: #ef4444;
+      border-radius: 50%;
+      animation: nav-recording-pulse 1s ease-in-out infinite;
+    }
+
+    @keyframes nav-recording-pulse {
+      0%, 100% { opacity: 1; box-shadow: 0 0 4px #ef4444; }
+      50% { opacity: 0.5; box-shadow: 0 0 8px #ef4444; }
+    }
+
+    .recording-nav-link.is-recording {
+      color: #ef4444 !important;
+      border-color: #ef4444 !important;
+    }
+
     .download-controls select {
       background: var(--bg-card);
       color: var(--color-text-primary);
@@ -3908,6 +4072,7 @@
         <a href="/">← Back to Homepage</a>
         <a href="#motor-control" class="motor-nav-link">Motor Control</a>
         <a href="#mission-control">Mission Control</a>
+        <a href="#mission-control" class="recording-nav-link" id="recordingNavLink">Recording</a>
         <a href="#bme280">BME280 Data</a>
         <a href="#mpu6050">MPU6050 Data</a>
         <a href="#correlation">Correlation</a>
@@ -4223,9 +4388,30 @@
         <option value="10" selected>10x Speed (0.2s)</option>
       </select>
       <button id="clearBtn" onclick="clearTestData()" style="background-color: #ef4444;">Clear Data</button>
+
+      <div style="border-left: 2px solid var(--color-border); height: 30px; margin: 0 10px;"></div>
+
+      <button id="recordBtn" class="record-btn" onclick="toggleRecording()">
+        <span class="record-indicator"></span>
+        <span id="recordBtnText">Start Recording</span>
+      </button>
+
+      <div id="recordingStatus" class="recording-status" style="display: none;">
+        <span id="recordingTime">00:00</span>
+        <span id="recordingPoints">0 points</span>
+      </div>
     </div>
     <div style="margin-top: 10px;">
       <span id="generateStatus" style="color: #38bdf8;"></span>
+    </div>
+
+    <!-- Recordings List -->
+    <div class="recordings-section">
+      <h4>Saved Recordings</h4>
+      <div id="recordingsList" class="recordings-list">
+        <div class="no-recordings">No recordings yet. Click "Start Recording" to begin.</div>
+      </div>
+      <button onclick="refreshRecordingsList()" style="margin-top: 10px; background: var(--bg-secondary);">Refresh List</button>
     </div>
 
     <!-- Time Range Filter -->
@@ -7406,10 +7592,16 @@
       const res = await fetch("/download/list");
       const logs = await res.json();
       const select = document.getElementById("logSelect");
-      logs.forEach(filename => {
+      logs.forEach(item => {
         const opt = document.createElement("option");
-        opt.value = filename;
-        opt.textContent = filename;
+        // Handle both old format (string) and new format (object)
+        if (typeof item === 'string') {
+          opt.value = item;
+          opt.textContent = item;
+        } else {
+          opt.value = item.filename;
+          opt.textContent = item.display || item.filename;
+        }
         select.appendChild(opt);
       });
     }
@@ -7583,6 +7775,221 @@
       } finally {
         clearBtn.disabled = false;
         clearBtn.textContent = "Clear Data";
+      }
+    }
+
+    // ==================== Recording Functions ====================
+
+    let isRecording = false;
+    let recordingStartTime = null;
+    let recordingTimerInterval = null;
+    let recordingPointCount = 0;
+
+    async function toggleRecording() {
+      if (isRecording) {
+        await stopRecording();
+      } else {
+        await startRecording();
+      }
+    }
+
+    async function startRecording() {
+      const recordBtn = document.getElementById('recordBtn');
+      const recordBtnText = document.getElementById('recordBtnText');
+      const recordingStatus = document.getElementById('recordingStatus');
+
+      try {
+        const response = await fetch('/recording/start', { method: 'POST' });
+        const result = await response.json();
+
+        if (result.status === 'success') {
+          isRecording = true;
+          recordingStartTime = Date.now();
+          recordingPointCount = 0;
+
+          recordBtn.classList.add('recording');
+          recordBtnText.textContent = 'Stop Recording';
+          recordingStatus.style.display = 'flex';
+          recordingStatus.classList.add('active');
+
+          // Update nav link indicator
+          document.getElementById('recordingNavLink').classList.add('is-recording');
+
+          // Start timer
+          recordingTimerInterval = setInterval(updateRecordingTimer, 1000);
+          updateRecordingTimer();
+
+          // Start polling for point count
+          pollRecordingStatus();
+
+          console.log('[RECORDING] Started:', result.filename);
+        } else {
+          alert('Failed to start recording: ' + result.message);
+        }
+      } catch (error) {
+        console.error('Error starting recording:', error);
+        alert('Error starting recording');
+      }
+    }
+
+    async function stopRecording() {
+      const recordBtn = document.getElementById('recordBtn');
+      const recordBtnText = document.getElementById('recordBtnText');
+      const recordingStatus = document.getElementById('recordingStatus');
+
+      try {
+        const response = await fetch('/recording/stop', { method: 'POST' });
+        const result = await response.json();
+
+        if (result.status === 'success') {
+          isRecording = false;
+
+          recordBtn.classList.remove('recording');
+          recordBtnText.textContent = 'Start Recording';
+          recordingStatus.style.display = 'none';
+          recordingStatus.classList.remove('active');
+
+          // Update nav link indicator
+          document.getElementById('recordingNavLink').classList.remove('is-recording');
+
+          // Stop timer
+          if (recordingTimerInterval) {
+            clearInterval(recordingTimerInterval);
+            recordingTimerInterval = null;
+          }
+
+          // Refresh recordings list
+          await refreshRecordingsList();
+
+          console.log('[RECORDING] Stopped:', result.filename, '- Points:', result.point_count);
+        } else {
+          alert('Failed to stop recording: ' + result.message);
+        }
+      } catch (error) {
+        console.error('Error stopping recording:', error);
+        alert('Error stopping recording');
+      }
+    }
+
+    function updateRecordingTimer() {
+      if (!recordingStartTime) return;
+
+      const elapsed = Math.floor((Date.now() - recordingStartTime) / 1000);
+      const minutes = Math.floor(elapsed / 60).toString().padStart(2, '0');
+      const seconds = (elapsed % 60).toString().padStart(2, '0');
+
+      document.getElementById('recordingTime').textContent = `${minutes}:${seconds}`;
+    }
+
+    async function pollRecordingStatus() {
+      if (!isRecording) return;
+
+      try {
+        const response = await fetch('/recording/status');
+        const status = await response.json();
+
+        if (status.is_recording) {
+          recordingPointCount = status.point_count;
+          document.getElementById('recordingPoints').textContent = `${status.point_count} points`;
+
+          // Continue polling
+          setTimeout(pollRecordingStatus, 1000);
+        }
+      } catch (error) {
+        console.error('Error polling recording status:', error);
+      }
+    }
+
+    async function refreshRecordingsList() {
+      const listContainer = document.getElementById('recordingsList');
+
+      try {
+        const response = await fetch('/recordings/list');
+        const recordings = await response.json();
+
+        if (recordings.length === 0) {
+          listContainer.innerHTML = '<div class="no-recordings">No recordings yet. Click "Start Recording" to begin.</div>';
+          return;
+        }
+
+        listContainer.innerHTML = recordings.map(rec => `
+          <div class="recording-item">
+            <div class="recording-info">
+              <span class="recording-name">${rec.filename}</span>
+              <span class="recording-meta">${rec.modified} | ${rec.point_count} points | ${formatFileSize(rec.size)}</span>
+            </div>
+            <div class="recording-actions">
+              <button onclick="downloadRecording('${rec.filename}')">Download</button>
+              <button class="delete-btn" onclick="deleteRecording('${rec.filename}')">Delete</button>
+            </div>
+          </div>
+        `).join('');
+      } catch (error) {
+        console.error('Error loading recordings:', error);
+        listContainer.innerHTML = '<div class="no-recordings">Error loading recordings</div>';
+      }
+    }
+
+    function formatFileSize(bytes) {
+      if (bytes < 1024) return bytes + ' B';
+      if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+      return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+    }
+
+    function downloadRecording(filename) {
+      window.location.href = `/recordings/download/${encodeURIComponent(filename)}`;
+    }
+
+    async function deleteRecording(filename) {
+      if (!confirm(`Delete recording "${filename}"?`)) return;
+
+      try {
+        const response = await fetch(`/recordings/delete/${encodeURIComponent(filename)}`, {
+          method: 'DELETE'
+        });
+        const result = await response.json();
+
+        if (result.status === 'success') {
+          await refreshRecordingsList();
+        } else {
+          alert('Failed to delete: ' + result.message);
+        }
+      } catch (error) {
+        console.error('Error deleting recording:', error);
+        alert('Error deleting recording');
+      }
+    }
+
+    // Check recording status on page load
+    async function checkRecordingStatus() {
+      try {
+        const response = await fetch('/recording/status');
+        const status = await response.json();
+
+        if (status.is_recording) {
+          // Recording was in progress, restore UI state
+          isRecording = true;
+          recordingStartTime = new Date(status.start_time).getTime();
+          recordingPointCount = status.point_count;
+
+          const recordBtn = document.getElementById('recordBtn');
+          const recordBtnText = document.getElementById('recordBtnText');
+          const recordingStatus = document.getElementById('recordingStatus');
+
+          recordBtn.classList.add('recording');
+          recordBtnText.textContent = 'Stop Recording';
+          recordingStatus.style.display = 'flex';
+          recordingStatus.classList.add('active');
+
+          // Update nav link indicator
+          document.getElementById('recordingNavLink').classList.add('is-recording');
+
+          recordingTimerInterval = setInterval(updateRecordingTimer, 1000);
+          updateRecordingTimer();
+          pollRecordingStatus();
+        }
+      } catch (error) {
+        console.error('Error checking recording status:', error);
       }
     }
 
@@ -9258,7 +9665,11 @@
       loadProfileList();
       // Start live data fetching (stored in window for playback control)
       window.liveDataInterval = setInterval(fetchData, 1000);
-      
+
+      // Initialize recording status and list
+      checkRecordingStatus();
+      refreshRecordingsList();
+
       // Smooth scrolling for anchor links with offset for fixed header
       document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function (e) {

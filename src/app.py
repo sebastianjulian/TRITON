@@ -104,6 +104,7 @@ import json
 import glob as glob_module
 import io
 import csv
+import threading
 from datetime import datetime
 
 from flask import Flask, request, jsonify, render_template, send_from_directory, Response
@@ -212,6 +213,19 @@ for key in [
 ]:
     history[key] = []
 
+# ==================== Recording State ====================
+RECORDINGS_DIR = os.path.join(LOG_DIR, "recordings")
+os.makedirs(RECORDINGS_DIR, exist_ok=True)
+
+recording_state = {
+    "is_recording": False,
+    "filename": None,
+    "filepath": None,
+    "start_time": None,
+    "point_count": 0
+}
+recording_lock = threading.Lock()
+
 @app.route("/", methods=["GET"])
 def index():
     return render_template("index.html")
@@ -236,6 +250,9 @@ def update():
                 history[key].append(float(content["data"][key]))
             except:
                 history[key].append(None)
+
+    # Write to recording if active
+    append_recording_data(content["data"], content.get("timestamp", datetime.now().isoformat()))
 
     return jsonify(status="ok")
 
@@ -287,7 +304,10 @@ def generate_random_data():
                 history[key].append(float(random_data[key]))
             except:
                 history[key].append(None)
-    
+
+    # Write to recording if active
+    append_recording_data(random_data, generated_payload["timestamp"])
+
     return jsonify({"status": "success", "message": "Random data generated"})
 
 @app.route("/save_session_csv", methods=["POST"])
@@ -374,15 +394,237 @@ def download_latest():
 
 @app.route('/download/list')
 def list_logs():
-    files = sorted([f for f in os.listdir(ARCHIVE_DIR) if f.endswith(".csv")])
+    """List all downloadable files from archive and recordings directories"""
+    files = []
+
+    # Get archived logs
+    try:
+        for f in sorted(os.listdir(ARCHIVE_DIR)):
+            if f.endswith(".csv"):
+                files.append({"filename": f, "path": "archive", "display": f"[Archive] {f}"})
+    except Exception as e:
+        print(f"[WARN] Error listing archive: {e}")
+
+    # Get recordings
+    try:
+        for f in sorted(os.listdir(RECORDINGS_DIR)):
+            if f.endswith(".csv"):
+                files.append({"filename": f, "path": "recording", "display": f"[Recording] {f}"})
+    except Exception as e:
+        print(f"[WARN] Error listing recordings: {e}")
+
+    # Sort by filename (which includes timestamp)
+    files.sort(key=lambda x: x["filename"], reverse=True)
     return jsonify(files)
+
 
 @app.route('/download/archive/<filename>')
 def download_archive(filename):
-    path = os.path.join(ARCHIVE_DIR, filename)
-    if os.path.isfile(path):
-        return send_from_directory(ARCHIVE_DIR, filename, as_attachment=True)
+    """Download from archive or recordings directory"""
+    safe_filename = os.path.basename(filename)
+
+    # Check recordings first (newer feature)
+    rec_path = os.path.join(RECORDINGS_DIR, safe_filename)
+    if os.path.isfile(rec_path):
+        return send_from_directory(RECORDINGS_DIR, safe_filename, as_attachment=True)
+
+    # Check archive
+    arch_path = os.path.join(ARCHIVE_DIR, safe_filename)
+    if os.path.isfile(arch_path):
+        return send_from_directory(ARCHIVE_DIR, safe_filename, as_attachment=True)
+
     return "File not found", 404
+
+
+# ==================== Recording API Endpoints ====================
+
+def write_recording_header(filepath):
+    """Write CSV header to recording file"""
+    headers = ["Timestamp", "Elapsed [s]", "Temp_BME280 [°C]", "Hum [%]", "Press [hPa]", "Alt [m]",
+               "Acc x [m/s²]", "Acc y [m/s²]", "Acc z [m/s²]",
+               "Gyro x [°/s]", "Gyro y [°/s]", "Gyro z [°/s]", "Temp_MPU [°C]"]
+    with open(filepath, 'w', encoding='utf-8', newline='') as f:
+        writer = csv.writer(f)
+        writer.writerow(headers)
+
+
+def append_recording_data(data_dict, timestamp):
+    """Append a data point to the active recording file"""
+    global recording_state
+
+    with recording_lock:
+        if not recording_state["is_recording"] or not recording_state["filepath"]:
+            return
+
+        try:
+            row = [
+                timestamp,
+                data_dict.get("Elapsed [s]", ""),
+                data_dict.get("Temp_BME280 [°C]", ""),
+                data_dict.get("Hum [%]", ""),
+                data_dict.get("Press [hPa]", ""),
+                data_dict.get("Alt [m]", ""),
+                data_dict.get("Acc x [m/s²]", ""),
+                data_dict.get("Acc y [m/s²]", ""),
+                data_dict.get("Acc z [m/s²]", ""),
+                data_dict.get("Gyro x [°/s]", ""),
+                data_dict.get("Gyro y [°/s]", ""),
+                data_dict.get("Gyro z [°/s]", ""),
+                data_dict.get("Temp_MPU [°C]", "")
+            ]
+            with open(recording_state["filepath"], 'a', encoding='utf-8', newline='') as f:
+                writer = csv.writer(f)
+                writer.writerow(row)
+            recording_state["point_count"] += 1
+        except Exception as e:
+            print(f"[RECORDING] Error appending data: {e}")
+
+
+@app.route('/recording/start', methods=['POST'])
+def start_recording():
+    """Start a new recording session"""
+    global recording_state
+
+    with recording_lock:
+        if recording_state["is_recording"]:
+            return jsonify({
+                "status": "error",
+                "message": "Recording already in progress",
+                "filename": recording_state["filename"]
+            }), 400
+
+        # Generate filename with timestamp
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        filename = f"recording_{timestamp}.csv"
+        filepath = os.path.join(RECORDINGS_DIR, filename)
+
+        # Write header
+        write_recording_header(filepath)
+
+        # Update state
+        recording_state["is_recording"] = True
+        recording_state["filename"] = filename
+        recording_state["filepath"] = filepath
+        recording_state["start_time"] = datetime.now().isoformat()
+        recording_state["point_count"] = 0
+
+        print(f"[RECORDING] Started recording to {filename}")
+
+        return jsonify({
+            "status": "success",
+            "message": "Recording started",
+            "filename": filename,
+            "start_time": recording_state["start_time"]
+        })
+
+
+@app.route('/recording/stop', methods=['POST'])
+def stop_recording():
+    """Stop the current recording session"""
+    global recording_state
+
+    with recording_lock:
+        if not recording_state["is_recording"]:
+            return jsonify({
+                "status": "error",
+                "message": "No recording in progress"
+            }), 400
+
+        filename = recording_state["filename"]
+        point_count = recording_state["point_count"]
+        start_time = recording_state["start_time"]
+
+        # Reset state
+        recording_state["is_recording"] = False
+        recording_state["filename"] = None
+        recording_state["filepath"] = None
+        recording_state["start_time"] = None
+        recording_state["point_count"] = 0
+
+        print(f"[RECORDING] Stopped recording. Saved {point_count} points to {filename}")
+
+        return jsonify({
+            "status": "success",
+            "message": "Recording stopped",
+            "filename": filename,
+            "point_count": point_count,
+            "start_time": start_time,
+            "end_time": datetime.now().isoformat()
+        })
+
+
+@app.route('/recording/status', methods=['GET'])
+def get_recording_status():
+    """Get current recording status"""
+    with recording_lock:
+        return jsonify({
+            "is_recording": recording_state["is_recording"],
+            "filename": recording_state["filename"],
+            "start_time": recording_state["start_time"],
+            "point_count": recording_state["point_count"]
+        })
+
+
+@app.route('/recordings/list', methods=['GET'])
+def list_recordings():
+    """List all saved recordings"""
+    recordings = []
+    try:
+        for f in os.listdir(RECORDINGS_DIR):
+            if f.endswith('.csv'):
+                filepath = os.path.join(RECORDINGS_DIR, f)
+                stat = os.stat(filepath)
+
+                # Count rows (subtract 1 for header)
+                with open(filepath, 'r', encoding='utf-8') as file:
+                    row_count = sum(1 for _ in file) - 1
+
+                recordings.append({
+                    'filename': f,
+                    'size': stat.st_size,
+                    'modified': datetime.fromtimestamp(stat.st_mtime).strftime('%Y-%m-%d %H:%M:%S'),
+                    'point_count': max(0, row_count)
+                })
+    except Exception as e:
+        print(f"[WARN] Error listing recordings: {e}")
+
+    # Sort by modified date (newest first)
+    recordings.sort(key=lambda x: x['modified'], reverse=True)
+    return jsonify(recordings)
+
+
+@app.route('/recordings/download/<filename>')
+def download_recording(filename):
+    """Download a specific recording file"""
+    # Security: sanitize filename
+    safe_filename = os.path.basename(filename)
+    if not safe_filename.endswith('.csv'):
+        return "Invalid file type", 400
+
+    filepath = os.path.join(RECORDINGS_DIR, safe_filename)
+    if os.path.isfile(filepath):
+        return send_from_directory(RECORDINGS_DIR, safe_filename, as_attachment=True)
+    return "Recording not found", 404
+
+
+@app.route('/recordings/delete/<filename>', methods=['DELETE'])
+def delete_recording(filename):
+    """Delete a specific recording file"""
+    # Security: sanitize filename
+    safe_filename = os.path.basename(filename)
+    if not safe_filename.endswith('.csv'):
+        return jsonify({"status": "error", "message": "Invalid file type"}), 400
+
+    filepath = os.path.join(RECORDINGS_DIR, safe_filename)
+    if not os.path.isfile(filepath):
+        return jsonify({"status": "error", "message": "Recording not found"}), 404
+
+    try:
+        os.remove(filepath)
+        return jsonify({"status": "success", "message": f"Deleted {safe_filename}"})
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
 
 @app.route('/api/missions/list', methods=['GET'])
 def list_missions():
@@ -419,6 +661,22 @@ def list_missions():
     except Exception as e:
         print(f"[WARN] Error reading archive directory: {e}")
 
+    # Get files from recordings directory
+    try:
+        for f in os.listdir(RECORDINGS_DIR):
+            if f.endswith('.csv'):
+                filepath = os.path.join(RECORDINGS_DIR, f)
+                stat = os.stat(filepath)
+                missions.append({
+                    'filename': f,
+                    'path': 'logs/recordings',
+                    'size': stat.st_size,
+                    'modified': datetime.fromtimestamp(stat.st_mtime).strftime('%Y-%m-%d %H:%M:%S'),
+                    'is_recording': True
+                })
+    except Exception as e:
+        print(f"[WARN] Error reading recordings directory: {e}")
+
     # Sort by modified date (newest first)
     missions.sort(key=lambda x: x['modified'], reverse=True)
 
@@ -431,8 +689,10 @@ def load_mission(filepath):
     import csv
     import re
 
-    # Security: only allow files from logs/ or logs/previous_data/
-    if filepath.startswith('logs/previous_data/'):
+    # Security: only allow files from logs/, logs/previous_data/, or logs/recordings/
+    if filepath.startswith('logs/recordings/'):
+        full_path = os.path.join(RECORDINGS_DIR, os.path.basename(filepath))
+    elif filepath.startswith('logs/previous_data/'):
         full_path = os.path.join(ARCHIVE_DIR, os.path.basename(filepath))
     elif filepath.startswith('logs/'):
         full_path = os.path.join(LOG_DIR, os.path.basename(filepath))
@@ -1489,6 +1749,9 @@ def process_sensor_data(line):
                         history[key].append(None)
                 except (ValueError, IndexError):
                     history[key].append(None)
+
+        # Write to recording if active
+        append_recording_data(data_dict, timestamp_str)
 
         return True
 
