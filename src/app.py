@@ -1540,21 +1540,35 @@ def trigger_estop():
 
 def clear_estop(force=False):
     """Clear emergency stop state (only after confirmed or force after timeout)."""
-    global motor_state
+    global motor_state, lora_serial
 
     with motor_lock:
-        if motor_state["estop_confirmed"]:
-            motor_state["estop_active"] = False
-            motor_state["status"] = "stopped"
-            print("[ESTOP] Emergency stop cleared", flush=True)
-            return True, "ESTOP cleared"
-        elif force:
-            # Force clear - user takes responsibility
+        if motor_state["estop_confirmed"] or force:
+            # Send ESTOP_CLEAR command to Pi
+            with lora_lock:
+                if lora_serial and lora_serial.is_open:
+                    try:
+                        # Send clear command multiple times for reliability
+                        for _ in range(3):
+                            lora_serial.write(b"CMD:ESTOP:CLEAR\n")
+                            lora_serial.flush()
+                            time.sleep(0.1)
+                        print("[ESTOP] Sent ESTOP:CLEAR command to Pi", flush=True)
+                    except Exception as e:
+                        print(f"[ESTOP] Failed to send clear command: {e}", flush=True)
+
             motor_state["estop_active"] = False
             motor_state["estop_confirmed"] = False
+            motor_state["target_throttle"] = 0
+            motor_state["confirmed_throttle"] = 0
             motor_state["status"] = "stopped"
-            print("[ESTOP] Emergency stop FORCE CLEARED (unconfirmed)", flush=True)
-            return True, "ESTOP force cleared (Pi may not have received)"
+
+            if force:
+                print("[ESTOP] Emergency stop FORCE CLEARED", flush=True)
+                return True, "ESTOP force cleared"
+            else:
+                print("[ESTOP] Emergency stop cleared", flush=True)
+                return True, "ESTOP cleared"
         else:
             # Check if timeout exceeded
             triggered_time = motor_state.get("estop_triggered_time", 0)
