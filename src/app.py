@@ -1214,67 +1214,110 @@ motor_tx_running = False
 
 LORA_COM_PORT = 'COM8'
 LORA_BAUD_RATE = 9600
-MOTOR_TX_INTERVAL = 0.15  # Send commands every 150ms
+MOTOR_TX_INTERVAL_FAST = 0.15  # When actively changing throttle
+MOTOR_TX_INTERVAL_SLOW = 2.0   # When throttle is stable (allow sensor data through)
+MOTOR_ACTIVE_DURATION = 3.0    # Stay in fast mode for 3 seconds after throttle change
 
 
 def init_lora_serial():
     """Initialize LoRa serial connection for sending commands."""
     global lora_serial
+    import sys
     try:
         if lora_serial is None or not lora_serial.is_open:
             lora_serial = serial.Serial(LORA_COM_PORT, LORA_BAUD_RATE, timeout=0.1)
-            print(f"[INFO] LoRa serial initialized on {LORA_COM_PORT}")
+            print(f"[INFO] LoRa serial initialized on {LORA_COM_PORT}", flush=True)
             return True
+        else:
+            return True  # Already open
     except Exception as e:
-        print(f"[WARN] Could not initialize LoRa serial: {e}")
+        print(f"[WARN] Could not initialize LoRa serial: {e}", flush=True)
+        lora_serial = None  # Reset to ensure retry
         return False
-    return True
 
 
 def motor_transmit_loop():
-    """Background thread that continuously transmits current target throttle."""
-    global motor_state, motor_tx_running
+    """Background thread that transmits throttle and receives sensor data."""
+    global motor_state, motor_tx_running, lora_serial
 
-    print("[MOTOR-TX] Continuous transmission thread started")
+    print("[MOTOR-TX] Transmission thread started", flush=True)
+
+    last_throttle_change = 0
+    last_target = 0
 
     while motor_tx_running:
         try:
             if init_lora_serial():
                 with motor_lock:
                     target = motor_state["target_throttle"]
+                    last_change_time = motor_state.get("last_command_time")
 
-                command = f"CMD:THROTTLE:{target}\n"
+                # Detect throttle changes
+                if target != last_target:
+                    last_throttle_change = time.time()
+                    last_target = target
+
+                # Determine if we're in active mode (recent throttle change)
+                time_since_change = time.time() - last_throttle_change
+                is_active = time_since_change < MOTOR_ACTIVE_DURATION
 
                 with lora_lock:
-                    # Send command
-                    lora_serial.write(command.encode())
-                    lora_serial.flush()
+                    # Only send command if in active mode OR as periodic heartbeat
+                    if is_active or time_since_change % MOTOR_TX_INTERVAL_SLOW < 0.2:
+                        command = f"CMD:THROTTLE:{target}\n"
+                        lora_serial.write(command.encode())
+                        lora_serial.flush()
 
-                    # Check for ACK
-                    time.sleep(0.05)  # Brief wait for response
-                    if lora_serial.in_waiting:
-                        line = lora_serial.readline().decode(errors='ignore').strip()
-                        if line and line.startswith("ACK:"):
-                            parts = line.split(":")
-                            if len(parts) >= 4:
-                                try:
-                                    actual = int(parts[2])
-                                    with motor_lock:
-                                        motor_state["confirmed_throttle"] = actual
-                                        motor_state["throttle"] = actual
-                                        motor_state["last_ack_time"] = datetime.now().isoformat()
-                                        motor_state["status"] = "running" if actual > 0 else "stopped"
+                    # Listen for incoming data (sensor data + ACKs)
+                    # Longer listen window when not actively sending
+                    listen_time = 0.1 if is_active else 0.5
+                    listen_end = time.time() + listen_time
 
-                                        if actual == motor_state["target_throttle"]:
-                                            # Target reached - can slow down transmission
-                                            pass
-                                except ValueError:
-                                    pass
+                    while time.time() < listen_end:
+                        if lora_serial.in_waiting:
+                            line = lora_serial.readline().decode(errors='ignore').strip()
+                            if not line:
+                                continue
 
-            time.sleep(MOTOR_TX_INTERVAL)
+                            print(f"[LORA-RAW] {line}", flush=True)
+
+                            if line.startswith("ACK:"):
+                                # Process motor acknowledgment
+                                parts = line.split(":")
+                                if len(parts) >= 4:
+                                    try:
+                                        actual = int(parts[2])
+                                        with motor_lock:
+                                            motor_state["confirmed_throttle"] = actual
+                                            motor_state["throttle"] = actual
+                                            motor_state["last_ack_time"] = datetime.now().isoformat()
+                                            motor_state["status"] = "running" if actual > 0 else "stopped"
+                                    except ValueError:
+                                        pass
+                            elif "," in line and not line.startswith("CMD:"):
+                                # Process sensor data
+                                print(f"[LORA-RX] Sensor data received", flush=True)
+                                process_sensor_data(line)
+                                with motor_lock:
+                                    if motor_state["status"] == "disconnected":
+                                        motor_state["status"] = "connected"
+                        else:
+                            time.sleep(0.02)  # Brief sleep if no data
+
+                # Sleep interval depends on mode
+                sleep_time = MOTOR_TX_INTERVAL_FAST if is_active else MOTOR_TX_INTERVAL_SLOW
+                time.sleep(sleep_time)
 
         except Exception as e:
             print(f"[MOTOR-TX] Error: {e}")
+            # Reset serial connection on error
+            with lora_lock:
+                try:
+                    if lora_serial:
+                        lora_serial.close()
+                except:
+                    pass
+                lora_serial = None
             time.sleep(0.5)
 
     print("[MOTOR-TX] Continuous transmission thread stopped")
@@ -1476,7 +1519,7 @@ def process_ack(line):
 
 def lora_receiver_loop():
     """Background thread that receives data from LoRa."""
-    global lora_receiver_running, motor_state
+    global lora_receiver_running, motor_state, lora_serial
 
     print("[LORA-RX] Receiver thread started")
 
@@ -1510,6 +1553,14 @@ def lora_receiver_loop():
 
         except Exception as e:
             print(f"[LORA-RX] Error: {e}")
+            # Reset serial connection on error
+            with lora_lock:
+                try:
+                    if lora_serial:
+                        lora_serial.close()
+                except:
+                    pass
+                lora_serial = None
             time.sleep(1)
 
     print("[LORA-RX] Receiver thread stopped")

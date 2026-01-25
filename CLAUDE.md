@@ -212,16 +212,29 @@ PWM_MAX_US = 2000           # Full forward (2000 microseconds)
 MAX_THROTTLE_PERCENT = 75   # Safety limit
 ```
 
-### Continuous Transmission Protocol
+### Hybrid Transmission Protocol
 
-The PC continuously transmits the target throttle every 150ms (like RC controllers). This ensures reliable command delivery despite LoRa timing issues.
+The PC uses a **hybrid transmission approach** that balances motor control responsiveness with sensor data reception. This is critical because LoRa modules are **half-duplex** - they cannot receive while transmitting.
+
+**The Problem:**
+- Continuous transmission (e.g., every 150ms) blocks sensor data reception
+- The PC would be transmitting so often it never has a window to receive Pi's sensor data
+
+**The Solution - Adaptive Transmission:**
+```python
+MOTOR_TX_INTERVAL_FAST = 0.15  # 150ms when actively changing throttle
+MOTOR_TX_INTERVAL_SLOW = 2.0   # 2 seconds when throttle is stable
+MOTOR_ACTIVE_DURATION = 3.0    # Stay in fast mode for 3 seconds after change
+```
 
 **How it works:**
-1. User sets throttle via web dashboard
-2. PC updates `target_throttle` state
-3. Background thread continuously sends `CMD:THROTTLE:<target>`
-4. Pi receives and applies command, sends ACK with actual state
-5. PC confirms when `actual == target`
+1. User changes throttle via web dashboard
+2. PC enters "active mode" - transmits every 150ms for 3 seconds
+3. After 3 seconds of no changes, PC enters "idle mode" - transmits every 2 seconds
+4. In idle mode, PC spends more time listening (500ms vs 100ms windows)
+5. This allows sensor data from Pi to be received between transmissions
+
+**Key Insight:** Motor control only needs fast transmission when actively changing. Once stable, slow heartbeat transmission is sufficient while prioritizing sensor data reception.
 
 ## Raspberry Pi Auto-Start Setup (systemd)
 
@@ -343,21 +356,36 @@ for _ in range(10):
 
 **Root Cause:** Send-and-wait protocol moved to next command before confirming previous command executed.
 
-**Failed Approaches:**
-1. **Wait for ACK before next command:** Still had timing issues with half-duplex LoRa.
-2. **Verify actual vs requested state:** Better, but single commands still unreliable.
+**Working Solution:** Hybrid transmission protocol with fast mode during active changes:
+- When throttle changes, PC enters "fast mode" (150ms intervals) for 3 seconds
+- This ensures rapid command delivery during ramp tests
+- After stabilizing, slows down to allow sensor data through
 
-**Working Solution:** Continuous transmission protocol - PC keeps sending target throttle every 150ms until confirmed:
+---
+
+#### Problem: Sensor data not appearing on dashboard (but motor control works)
+
+**Symptoms:** Motor control works from web dashboard, but sensor graphs show no data. Pi logs show `[LORA-TX]` lines for sensor data.
+
+**Root Cause:** The PC was transmitting motor commands too frequently (every 150ms), leaving no receive window for incoming sensor data. LoRa is half-duplex - can't receive while transmitting.
+
+**Diagnosis:**
+- Motor control works = PC→Pi communication OK
+- No sensor data = Pi→PC communication blocked
+- PC transmitting 7x/second blocks all incoming data
+
+**Working Solution:** Implemented hybrid transmission protocol:
 ```python
-MOTOR_TX_INTERVAL = 0.15  # 150ms
-
-def motor_transmit_loop():
-    while motor_tx_running:
-        command = f"CMD:THROTTLE:{target}\n"
-        lora_serial.write(command.encode())
-        # Check for ACK...
-        time.sleep(MOTOR_TX_INTERVAL)
+MOTOR_TX_INTERVAL_FAST = 0.15  # Fast when changing throttle
+MOTOR_TX_INTERVAL_SLOW = 2.0   # Slow when stable
+MOTOR_ACTIVE_DURATION = 3.0    # Fast mode duration after change
 ```
+
+The PC now:
+1. Transmits frequently only when throttle is actively changing
+2. Slows to 2-second intervals when stable
+3. Uses longer listen windows (500ms) in slow mode
+4. This allows sensor data to get through between transmissions
 
 ---
 
