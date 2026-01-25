@@ -503,8 +503,8 @@
 
     /* Recording Button Styles */
     .record-btn {
-      background: linear-gradient(145deg, #dc2626, #b91c1c) !important;
-      border: 1px solid #dc2626 !important;
+      background: linear-gradient(145deg, #16a34a, #15803d) !important;
+      border: 1px solid #16a34a !important;
       display: flex;
       align-items: center;
       gap: 8px;
@@ -512,14 +512,14 @@
     }
 
     .record-btn.recording {
-      background: linear-gradient(145deg, #16a34a, #15803d) !important;
-      border-color: #16a34a !important;
+      background: linear-gradient(145deg, #dc2626, #b91c1c) !important;
+      border-color: #dc2626 !important;
       animation: pulse-recording 1.5s ease-in-out infinite;
     }
 
     @keyframes pulse-recording {
-      0%, 100% { box-shadow: 0 0 10px rgba(22, 163, 74, 0.5); }
-      50% { box-shadow: 0 0 25px rgba(22, 163, 74, 0.8); }
+      0%, 100% { box-shadow: 0 0 10px rgba(220, 38, 38, 0.5); }
+      50% { box-shadow: 0 0 25px rgba(220, 38, 38, 0.8); }
     }
 
     .record-indicator {
@@ -979,13 +979,21 @@
 
     /* Motor section toggle chip */
     .section-toggle-chip[data-section="motor-control"] {
-      background: rgba(255, 100, 100, 0.15);
-      border-color: rgba(255, 100, 100, 0.3);
+      background: linear-gradient(145deg, #dc2626, #b91c1c);
+      border-color: #dc2626;
+      color: #ffffff;
+    }
+
+    .section-toggle-chip[data-section="motor-control"]:hover {
+      background: linear-gradient(145deg, #ef4444, #dc2626);
+      box-shadow: 0 0 15px rgba(220, 38, 38, 0.5);
     }
 
     .section-toggle-chip[data-section="motor-control"].active {
-      background: rgba(255, 100, 100, 0.25);
-      border-color: #ff6b6b;
+      background: linear-gradient(145deg, #dc2626, #b91c1c);
+      border-color: #ef4444;
+      color: #ffffff;
+      box-shadow: 0 0 10px rgba(220, 38, 38, 0.4);
     }
 
     /* Time Range Filter Styles */
