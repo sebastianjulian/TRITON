@@ -444,9 +444,18 @@ def main():
                             if response:
                                 # Wait for PC to switch to receive mode
                                 time.sleep(0.15)  # 150ms delay before ACK
-                                lora_serial.write((response + "\n").encode())
-                                lora_serial.flush()
-                                print(f"[LORA-TX] {response}")
+
+                                # Critical commands (ESTOP) - send ACK multiple times for reliability
+                                if "ESTOP" in response:
+                                    for i in range(3):
+                                        lora_serial.write((response + "\n").encode())
+                                        lora_serial.flush()
+                                        print(f"[LORA-TX] {response} (attempt {i+1}/3)")
+                                        time.sleep(0.1)
+                                else:
+                                    lora_serial.write((response + "\n").encode())
+                                    lora_serial.flush()
+                                    print(f"[LORA-TX] {response}")
 
                             # Print motor status
                             status = motor.get_status()
@@ -534,9 +543,18 @@ def main():
                                             if response:
                                                 # Wait for PC to switch to receive mode
                                                 time.sleep(0.15)  # 150ms delay before ACK
-                                                lora_serial.write((response + "\n").encode())
-                                                lora_serial.flush()
-                                                print(f"[LORA-TX] {response}")
+
+                                                # Critical commands (ESTOP) - send ACK multiple times
+                                                if "ESTOP" in response:
+                                                    for i in range(3):
+                                                        lora_serial.write((response + "\n").encode())
+                                                        lora_serial.flush()
+                                                        print(f"[LORA-TX] {response} (attempt {i+1}/3)")
+                                                        time.sleep(0.1)
+                                                else:
+                                                    lora_serial.write((response + "\n").encode())
+                                                    lora_serial.flush()
+                                                    print(f"[LORA-TX] {response}")
                                 except Exception as e:
                                     print(f"[LORA-RX] Error: {e}")
                             time.sleep(0.05)

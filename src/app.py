@@ -1387,9 +1387,9 @@ def motor_transmit_loop():
                     lora_serial.flush()
                     print("[ESTOP] Sending ESTOP:CLEAR command...", flush=True)
 
-                    # Listen for ACK
+                    # Listen for ACK - Pi sends 3x with 100ms gaps after 150ms delay
                     time.sleep(0.03)
-                    listen_end = time.time() + 0.4
+                    listen_end = time.time() + 0.6  # 600ms to catch multi-ACK
                     while time.time() < listen_end:
                         while lora_serial.in_waiting:
                             line = lora_serial.readline().decode(errors='ignore').strip()
@@ -1409,9 +1409,9 @@ def motor_transmit_loop():
                     lora_serial.flush()
                     print("[ESTOP] Sending emergency stop command...", flush=True)
 
-                    # Listen for ACK - Pi delays 150ms before sending ACK
+                    # Listen for ACK - Pi delays 150ms then sends 3x with 100ms gaps
                     time.sleep(0.03)  # Small delay after send
-                    listen_end = time.time() + 0.4  # 400ms listen window to catch delayed ACK
+                    listen_end = time.time() + 0.6  # 600ms listen window to catch multi-ACK
                     while time.time() < listen_end:
                         # Drain entire buffer
                         while lora_serial.in_waiting:
