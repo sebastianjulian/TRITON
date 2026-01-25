@@ -7601,6 +7601,11 @@
 
     // Set motor to preset value
     async function setMotorPreset(percent) {
+      // If setting to 0 (stop), abort any running ramp test
+      if (percent === 0) {
+        rampTestAborted = true;
+      }
+
       document.getElementById('throttleSlider').value = percent;
       document.getElementById('throttleValue').textContent = percent;
       await sendMotorCommand('preset', percent);
@@ -7608,6 +7613,9 @@
 
     // Emergency stop
     async function emergencyStop() {
+      // Abort any running ramp test
+      rampTestAborted = true;
+
       document.getElementById('throttleSlider').value = 0;
       document.getElementById('throttleValue').textContent = 0;
       await sendMotorCommand('emergency_stop');
