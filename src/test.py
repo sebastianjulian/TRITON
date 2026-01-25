@@ -57,6 +57,10 @@ PWM_MAX_US = 2000           # Full forward (2000 microseconds)
 MAX_THROTTLE_PERCENT = 75   # Safety limit
 PWM_REFRESH_RATE = 50       # How often to refresh PWM signal (Hz)
 
+# Operating Modes
+MODE_PASSIVE = "PASSIVE"    # Autonomous navigation on Pi
+MODE_ACTIVE = "ACTIVE"      # Manual control from PC
+
 # Sensor Labels
 LABELS = [
     "Elapsed [s]",
@@ -261,9 +265,67 @@ def parse_motor_command(line):
         try:
             value = int(parts[2])
         except ValueError:
-            value = 0
+            # For MODE command, value is a string
+            value = parts[2].upper()
 
     return command_type, value
+
+
+def process_command(motor, cmd_type, value, current_mode, estop_active):
+    """
+    Process a motor command and return the response.
+
+    Returns: (response_string, new_mode, new_estop_active)
+    """
+    success = False
+    response = ""
+    new_mode = current_mode
+    new_estop = estop_active
+
+    # ESTOP handling - highest priority
+    if cmd_type == "ESTOP":
+        success = motor.emergency_stop()
+        actual = motor.get_status()["throttle"]
+        response = f"ACK:ESTOP:{actual}:{'OK' if success else 'FAIL'}"
+        new_estop = True
+        print("[ESTOP] !!! EMERGENCY STOP ACTIVATED !!!")
+
+    # If ESTOP is active, only allow ESTOP clear (via new throttle command after confirmation)
+    elif estop_active:
+        # In ESTOP state, accept commands but motor stays stopped
+        if cmd_type == "THROTTLE" and value == 0:
+            # Allowing throttle 0 to confirm ESTOP state
+            actual = motor.get_status()["throttle"]
+            response = f"ACK:THROTTLE:{actual}:OK"
+        else:
+            print(f"[WARN] ESTOP active - ignoring {cmd_type} command")
+            response = f"ACK:{cmd_type}:0:ESTOP_ACTIVE"
+
+    elif cmd_type == "THROTTLE":
+        success = motor.set_throttle(value)
+        actual = motor.get_status()["throttle"]
+        response = f"ACK:THROTTLE:{actual}:{'OK' if success else 'FAIL'}"
+
+    elif cmd_type == "STOP":
+        success = motor.stop()
+        actual = motor.get_status()["throttle"]
+        response = f"ACK:STOP:{actual}:{'OK' if success else 'FAIL'}"
+
+    elif cmd_type == "MODE":
+        mode_str = str(value).upper()
+        if mode_str in [MODE_PASSIVE, MODE_ACTIVE]:
+            new_mode = mode_str
+            response = f"ACK:MODE:{new_mode}:OK"
+            print(f"[MODE] Operating mode changed to: {new_mode}")
+        else:
+            response = f"ACK:MODE:{current_mode}:INVALID"
+            print(f"[WARN] Invalid mode: {value}")
+
+    else:
+        print(f"[WARN] Unknown command: {cmd_type}")
+        response = f"ACK:{cmd_type}:0:UNKNOWN"
+
+    return response, new_mode, new_estop
 
 
 # ==================== MAIN ====================
@@ -332,6 +394,10 @@ def main():
     min_data = [float('inf')] * len(LABELS)
     max_data = [float('-inf')] * len(LABELS)
 
+    # ───── OPERATING STATE ─────
+    current_mode = MODE_ACTIVE  # Start in active (manual control) mode
+    estop_active = False        # Emergency stop state
+
     # ───── MAIN LOOP ─────
     start_time = time.perf_counter()
     last_log_time = start_time
@@ -360,27 +426,9 @@ def main():
                         cmd_type, value = parse_motor_command(line)
 
                         if cmd_type is not None:
-                            success = False
-                            response = ""
-
-                            if cmd_type == "THROTTLE":
-                                success = motor.set_throttle(value)
-                                actual = motor.get_status()["throttle"]
-                                response = f"ACK:THROTTLE:{actual}:{'OK' if success else 'FAIL'}"
-
-                            elif cmd_type == "STOP":
-                                success = motor.stop()
-                                actual = motor.get_status()["throttle"]
-                                response = f"ACK:STOP:{actual}:{'OK' if success else 'FAIL'}"
-
-                            elif cmd_type == "ESTOP":
-                                success = motor.emergency_stop()
-                                actual = motor.get_status()["throttle"]
-                                response = f"ACK:ESTOP:{actual}:{'OK' if success else 'FAIL'}"
-
-                            else:
-                                print(f"[WARN] Unknown command: {cmd_type}")
-                                response = f"ACK:{cmd_type}:0:UNKNOWN"
+                            response, current_mode, estop_active = process_command(
+                                motor, cmd_type, value, current_mode, estop_active
+                            )
 
                             # Send acknowledgment
                             if response:
@@ -390,7 +438,7 @@ def main():
 
                             # Print motor status
                             status = motor.get_status()
-                            print(f"[MOTOR] Throttle: {status['throttle']}% | PWM: {status['pulse_width']}us")
+                            print(f"[MOTOR] Throttle: {status['throttle']}% | PWM: {status['pulse_width']}us | Mode: {current_mode}")
 
                 except Exception as e:
                     print(f"[LORA-RX] Error: {e}")
@@ -468,20 +516,9 @@ def main():
                                         print(f"[LORA-RX] {cmd_line}")
                                         cmd_type, value = parse_motor_command(cmd_line)
                                         if cmd_type is not None:
-                                            success = False
-                                            response = ""
-                                            if cmd_type == "THROTTLE":
-                                                success = motor.set_throttle(value)
-                                                actual = motor.get_status()["throttle"]
-                                                response = f"ACK:THROTTLE:{actual}:{'OK' if success else 'FAIL'}"
-                                            elif cmd_type == "STOP":
-                                                success = motor.stop()
-                                                actual = motor.get_status()["throttle"]
-                                                response = f"ACK:STOP:{actual}:{'OK' if success else 'FAIL'}"
-                                            elif cmd_type == "ESTOP":
-                                                success = motor.emergency_stop()
-                                                actual = motor.get_status()["throttle"]
-                                                response = f"ACK:ESTOP:{actual}:{'OK' if success else 'FAIL'}"
+                                            response, current_mode, estop_active = process_command(
+                                                motor, cmd_type, value, current_mode, estop_active
+                                            )
                                             if response:
                                                 lora_serial.write((response + "\n").encode())
                                                 lora_serial.flush()

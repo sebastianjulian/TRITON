@@ -353,6 +353,26 @@ This ensures:
 - Reliable sensor data reception when motor is stable
 - No data loss due to transmission conflicts
 
+### Dual-Mode Operating Protocol
+
+The system supports two operating modes for flexible control:
+
+| Mode | Description | Motor Commands | Sensor Data | Best For |
+|------|-------------|----------------|-------------|----------|
+| **PASSIVE** | Pi autonomous | On change only | Priority | Autonomous missions |
+| **ACTIVE** | PC manual control | Priority | Works | Manual control/testing |
+
+**ESTOP (Emergency Stop)** always has highest priority and blocks all other operations until confirmed.
+
+**Command Extensions:**
+```
+CMD:MODE:PASSIVE    - Switch to passive (Pi autonomous)
+CMD:MODE:ACTIVE     - Switch to active (PC manual)
+CMD:ESTOP:0         - Emergency stop (highest priority)
+```
+
+**Mode Selection UI:** The dashboard includes a mode selector with PASSIVE and ACTIVE buttons, plus a nav bar indicator showing current mode and connection status.
+
 ### Data Flow
 1. **Raspberry Pi** (`test.py`) collects sensor data and transmits via LoRa
 2. **PC** (`lorareceivertest.py`) receives LoRa data and logs to CSV

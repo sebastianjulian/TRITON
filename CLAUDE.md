@@ -212,6 +212,49 @@ PWM_MAX_US = 2000           # Full forward (2000 microseconds)
 MAX_THROTTLE_PERCENT = 75   # Safety limit
 ```
 
+### Dual-Mode Operating Protocol
+
+The system implements a **dual-mode protocol** that allows switching between autonomous Pi control and manual PC control, while always ensuring ESTOP has highest priority.
+
+#### Operating Modes
+
+| Mode | Description | Motor Commands | Sensor Data | Use Case |
+|------|-------------|----------------|-------------|----------|
+| **PASSIVE** | Pi runs autonomous navigation | Work (on change only) | Priority | Autonomous missions |
+| **ACTIVE** | PC has manual control | Priority | Works | Manual control/testing |
+| **ESTOP** | Emergency stop | Blocks ALL | Blocks ALL | Safety override |
+
+#### Mode Behavior Details
+
+**PASSIVE Mode (Pi Autonomous):**
+- PC primarily listens for sensor data from Pi
+- Motor commands only sent when operator explicitly changes throttle
+- Pi handles its own navigation decisions locally
+- Long listen windows (500ms) for sensor data reception
+
+**ACTIVE Mode (Manual Control):**
+- PC continuously transmits motor commands
+- Uses adaptive timing (fast when changing, slow when stable)
+- Sensor data received during listen windows
+- Shorter listen windows (100ms) during active changes
+
+**ESTOP (Emergency Stop):**
+- Highest priority - blocks everything else
+- PC sends ESTOP command every 50ms until Pi confirms
+- Pi immediately stops motor and acknowledges
+- Operator must explicitly clear ESTOP after confirmation
+
+#### Command Format Extensions
+
+```
+CMD:MODE:PASSIVE    - Switch to passive mode
+CMD:MODE:ACTIVE     - Switch to active mode
+CMD:ESTOP:0         - Trigger emergency stop
+
+ACK:MODE:PASSIVE:OK - Mode change confirmed
+ACK:ESTOP:0:OK      - Emergency stop confirmed
+```
+
 ### Hybrid Transmission Protocol
 
 The PC uses a **hybrid transmission approach** that balances motor control responsiveness with sensor data reception. This is critical because LoRa modules are **half-duplex** - they cannot receive while transmitting.
@@ -222,9 +265,11 @@ The PC uses a **hybrid transmission approach** that balances motor control respo
 
 **The Solution - Adaptive Transmission:**
 ```python
-MOTOR_TX_INTERVAL_FAST = 0.15  # 150ms when actively changing throttle
-MOTOR_TX_INTERVAL_SLOW = 2.0   # 2 seconds when throttle is stable
-MOTOR_ACTIVE_DURATION = 3.0    # Stay in fast mode for 3 seconds after change
+MOTOR_TX_INTERVAL_FAST = 0.15    # 150ms when actively changing throttle
+MOTOR_TX_INTERVAL_SLOW = 2.0     # 2 seconds when throttle is stable
+MOTOR_ACTIVE_DURATION = 3.0      # Stay in fast mode for 3 seconds after change
+PASSIVE_LISTEN_INTERVAL = 0.1    # Passive mode: check frequently
+ESTOP_RETRY_INTERVAL = 0.05      # ESTOP: retry every 50ms
 ```
 
 **How it works:**
@@ -235,6 +280,32 @@ MOTOR_ACTIVE_DURATION = 3.0    # Stay in fast mode for 3 seconds after change
 5. This allows sensor data from Pi to be received between transmissions
 
 **Key Insight:** Motor control only needs fast transmission when actively changing. Once stable, slow heartbeat transmission is sufficient while prioritizing sensor data reception.
+
+### Updating Pi After Code Changes
+
+When code changes are made to `test.py`, you need to update the Raspberry Pi:
+
+```bash
+# SSH into Pi
+ssh az@raspberrypi.local
+
+# Navigate to project
+cd ~/TRITON/TRITON
+
+# Pull latest changes
+git pull
+
+# Restart the service
+sudo systemctl restart triton-sensors
+
+# Check status
+sudo systemctl status triton-sensors
+
+# View live logs
+journalctl -u triton-sensors -f
+```
+
+**Note:** The systemd service file does NOT need to be updated unless you change the script path or user.
 
 ## Raspberry Pi Auto-Start Setup (systemd)
 
