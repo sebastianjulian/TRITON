@@ -282,24 +282,25 @@ def process_command(motor, cmd_type, value, current_mode, estop_active):
     new_mode = current_mode
     new_estop = estop_active
 
-    # ESTOP handling - highest priority
-    if cmd_type == "ESTOP":
+    # ESTOP CLEAR - check FIRST before ESTOP trigger
+    if cmd_type == "ESTOP" and str(value).upper() == "CLEAR":
+        new_estop = False
+        motor.stop()
+        actual = motor.get_status()["throttle"]
+        response = f"ACK:ESTOP_CLEAR:{actual}:OK"
+        print("[ESTOP] Emergency stop CLEARED via ESTOP:CLEAR")
+
+    # ESTOP trigger
+    elif cmd_type == "ESTOP":
         success = motor.emergency_stop()
         actual = motor.get_status()["throttle"]
         response = f"ACK:ESTOP:{actual}:{'OK' if success else 'FAIL'}"
         new_estop = True
         print("[ESTOP] !!! EMERGENCY STOP ACTIVATED !!!")
 
-    # If ESTOP is active, only allow ESTOP clear command
+    # If ESTOP is active, only allow clear commands
     elif estop_active:
-        # Check for ESTOP clear command
-        if cmd_type == "ESTOP_CLEAR" or (cmd_type == "ESTOP" and value == "CLEAR"):
-            new_estop = False
-            motor.stop()
-            actual = motor.get_status()["throttle"]
-            response = f"ACK:ESTOP_CLEAR:{actual}:OK"
-            print("[ESTOP] Emergency stop CLEARED")
-        elif cmd_type == "THROTTLE" and value == 0:
+        if cmd_type == "THROTTLE" and value == 0:
             # Throttle 0 also clears ESTOP (safe to resume)
             new_estop = False
             motor.stop()
