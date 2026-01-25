@@ -322,7 +322,7 @@ The system now uses a unified script on the Raspberry Pi that handles everything
 
 ### Motor Control Protocol
 
-The system uses a **continuous transmission protocol** for reliable motor control over half-duplex LoRa:
+The system uses a **hybrid transmission protocol** for reliable motor control while maintaining sensor data reception over half-duplex LoRa.
 
 **Command Format:** `CMD:<type>:<value>\n`
 - `CMD:THROTTLE:50` - Set throttle to 50%
@@ -332,7 +332,26 @@ The system uses a **continuous transmission protocol** for reliable motor contro
 **ACK Format:** `ACK:<type>:<actual_value>:<OK|FAIL>`
 - `ACK:THROTTLE:50:OK` - Confirmed motor at 50%
 
-The PC continuously transmits the target throttle every 150ms until the Pi confirms the motor has reached the desired state. This ensures reliable command delivery even with LoRa timing issues.
+#### Hybrid Transmission (Solving Half-Duplex LoRa)
+
+LoRa modules are **half-duplex** - they cannot receive while transmitting. This creates a challenge: if the PC transmits motor commands too frequently, it blocks incoming sensor data from the Pi.
+
+**The Solution - Adaptive Transmission:**
+```python
+MOTOR_TX_INTERVAL_FAST = 0.15  # 150ms when actively changing throttle
+MOTOR_TX_INTERVAL_SLOW = 2.0   # 2 seconds when throttle is stable
+MOTOR_ACTIVE_DURATION = 3.0    # Stay in fast mode for 3 seconds after change
+```
+
+| Mode | Transmission Rate | Listen Window | When Active |
+|------|-------------------|---------------|-------------|
+| **Fast** | Every 150ms | 100ms | 3 seconds after throttle change |
+| **Slow** | Every 2 seconds | 500ms | When throttle is stable |
+
+This ensures:
+- Responsive motor control when actively adjusting throttle
+- Reliable sensor data reception when motor is stable
+- No data loss due to transmission conflicts
 
 ### Data Flow
 1. **Raspberry Pi** (`test.py`) collects sensor data and transmits via LoRa
@@ -443,10 +462,12 @@ MAX_THROTTLE_PERCENT = 75   # Maximum allowed throttle (safety limit)
 PWM_REFRESH_RATE = 50       # How often to refresh PWM signal (Hz)
 ```
 
-### Continuous Transmission Settings
+### Hybrid Transmission Settings
 ```python
-# PC-side motor command transmission
-MOTOR_TX_INTERVAL = 0.15    # Send commands every 150ms (like RC controllers)
+# PC-side motor command transmission (adaptive)
+MOTOR_TX_INTERVAL_FAST = 0.15  # Fast mode: 150ms (when throttle changing)
+MOTOR_TX_INTERVAL_SLOW = 2.0   # Slow mode: 2 seconds (when stable)
+MOTOR_ACTIVE_DURATION = 3.0    # Stay in fast mode for 3 seconds after change
 ```
 
 ### Data Transmission Thresholds

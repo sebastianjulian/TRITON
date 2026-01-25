@@ -1646,8 +1646,26 @@
         <div class="feature-card">
           <h4>Autonomous Operation</h4>
           <p>
-            Raspberry Pi-based sensor collection with intelligent error handling and graceful degradation. 
+            Raspberry Pi-based sensor collection with intelligent error handling and graceful degradation.
             System continues operation even with partial sensor failures, ensuring mission continuity and data collection reliability.
+          </p>
+        </div>
+
+        <div class="feature-card">
+          <h4>Motor Control</h4>
+          <p>
+            Web-based brushless motor control via LoRa with throttle presets, slider control, and ramp testing.
+            Hybrid transmission protocol ensures responsive motor control while maintaining sensor data reception
+            over half-duplex LoRa.
+          </p>
+        </div>
+
+        <div class="feature-card">
+          <h4>ESC Integration</h4>
+          <p>
+            Hobbywing Quicrun WP10BL120 ESC with precise PWM control via pigpio.
+            50Hz servo frequency with configurable pulse widths (1000-2000μs) and 75% safety throttle limit
+            for reliable propulsion control.
           </p>
         </div>
       </div>
@@ -1656,27 +1674,27 @@
     <section id="architecture" class="mission-overview">
       <div class="container">
         <h2>System Architecture</h2>
-        <p>TRITON uses a two-part system designed for reliability and real-time performance:</p>
-        
+        <p>TRITON uses a two-part system with bidirectional LoRa communication for sensor data and motor control:</p>
+
         <div class="data-flow">
         <div class="flow-step">
           <h4>Raspberry Pi</h4>
-          <p>Sensor data collection<br>LoRa transmission<br>Autonomous operation</p>
+          <p>Sensor collection<br>Motor/ESC control<br>LoRa TX/RX</p>
         </div>
-        <div class="flow-arrow">→</div>
+        <div class="flow-arrow">⇄</div>
         <div class="flow-step">
           <h4>LoRa Network</h4>
-          <p>Long-range wireless<br>Reliable transmission<br>Low power consumption</p>
+          <p>Sensor data (Pi→PC)<br>Motor commands (PC→Pi)<br>Hybrid protocol</p>
         </div>
-        <div class="flow-arrow">→</div>
+        <div class="flow-arrow">⇄</div>
         <div class="flow-step">
           <h4>PC Base Station</h4>
-          <p>Data reception & logging<br>Real-time analysis<br>Web dashboard hosting</p>
+          <p>Data reception<br>Motor command TX<br>Web dashboard</p>
         </div>
         <div class="flow-arrow">→</div>
         <div class="flow-step">
           <h4>Mission Control</h4>
-          <p>Live visualization<br>Statistical analysis<br>Mission comparison<br>Chart export</p>
+          <p>Live visualization<br>Motor control UI<br>Data export</p>
         </div>
         </div>
       </div>
@@ -1725,6 +1743,34 @@
           </div>
         </div>
 
+        <h3>Motor/ESC System</h3>
+        <div class="specs-list">
+          <div class="spec-item">
+            <span class="spec-label">ESC:</span>
+            <span class="spec-value">Hobbywing Quicrun WP10BL120</span>
+          </div>
+          <div class="spec-item">
+            <span class="spec-label">PWM Frequency:</span>
+            <span class="spec-value">50Hz (servo standard)</span>
+          </div>
+          <div class="spec-item">
+            <span class="spec-label">Pulse Range:</span>
+            <span class="spec-value">1000-2000μs (neutral: 1500μs)</span>
+          </div>
+          <div class="spec-item">
+            <span class="spec-label">GPIO Pin:</span>
+            <span class="spec-value">Pin 12 (GPIO18)</span>
+          </div>
+          <div class="spec-item">
+            <span class="spec-label">Safety Limit:</span>
+            <span class="spec-value">75% max throttle</span>
+          </div>
+          <div class="spec-item">
+            <span class="spec-label">Control Mode:</span>
+            <span class="spec-value">Hybrid TX (150ms/2s adaptive)</span>
+          </div>
+        </div>
+
         <h3>Data Management</h3>
         <div class="specs-list">
           <div class="spec-item">
@@ -1761,19 +1807,21 @@
             <div class="ascii-diagram">
               <pre>
 ┌─────────────────┐    LoRa     ┌─────────────────┐
-│  Raspberry Pi   │◄─────────►  │   PC Station    │
+│  Raspberry Pi   │◄═══════════►│   PC Station    │
 │                 │  9600 baud  │                 │
-├─────────────────┤             ├─────────────────┤
+├─────────────────┤  Bidirect.  ├─────────────────┤
 │ BME280 Sensor   │             │ Data Reception  │
-│ • Temperature   │             │ • CSV Logging   │
-│ • Humidity      │             │ • Statistics    │
+│ • Temperature   │  ────────►  │ • CSV Logging   │
+│ • Humidity      │ Sensor Data │ • Statistics    │
 │ • Pressure      │             │ • Web Dashboard │
-│ • Altitude      │             │                 │
 ├─────────────────┤             ├─────────────────┤
-│ MPU6050 IMU     │             │ Mission Control │
-│ • Accelerometer │             │ • Real-time     │
-│ • Gyroscope     │             │   Visualization │
-│ • Temperature   │             │ • Data Export   │
+│ MPU6050 IMU     │             │ Motor Commands  │
+│ • Accelerometer │  ◄────────  │ • Throttle TX   │
+│ • Gyroscope     │ CMD:THROTTLE│ • Hybrid Mode   │
+├─────────────────┤             ├─────────────────┤
+│ Motor/ESC       │             │ Mission Control │
+│ • PWM Control   │             │ • Motor UI      │
+│ • 75% Max       │             │ • Ramp Test     │
 └─────────────────┘             └─────────────────┘
               </pre>
             </div>
