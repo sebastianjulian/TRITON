@@ -1347,9 +1347,9 @@ def motor_transmit_loop():
                     lora_serial.flush()
                     print("[ESTOP] Sending emergency stop command...", flush=True)
 
-                    # Listen for ACK - drain ALL available data
-                    time.sleep(0.1)  # Give Pi time to respond
-                    listen_end = time.time() + 0.3  # 300ms listen window
+                    # Listen for ACK - Pi delays 150ms before sending ACK
+                    time.sleep(0.03)  # Small delay after send
+                    listen_end = time.time() + 0.4  # 400ms listen window to catch delayed ACK
                     while time.time() < listen_end:
                         # Drain entire buffer
                         while lora_serial.in_waiting:
@@ -1379,11 +1379,11 @@ def motor_transmit_loop():
                         lora_serial.flush()
                         print(f"[PASSIVE] Sending CMD:THROTTLE:{target} (pending, confirmed={confirmed})", flush=True)
 
-                        # Give Pi time to process and respond
-                        time.sleep(0.1)
+                        # Pi delays 150ms before sending ACK, so listen longer
+                        time.sleep(0.03)
 
-                        # Drain ALL available data
-                        listen_end = time.time() + 0.2
+                        # Drain ALL available data - extended window for delayed ACK
+                        listen_end = time.time() + 0.35
                         while time.time() < listen_end:
                             while lora_serial.in_waiting:
                                 line = lora_serial.readline().decode(errors='ignore').strip()
@@ -1419,11 +1419,11 @@ def motor_transmit_loop():
                         if command_pending:
                             print(f"[TX] Sending CMD:THROTTLE:{target} (pending, confirmed={confirmed})", flush=True)
 
-                    # Give Pi time to process and respond
-                    time.sleep(0.05)
+                    # Give Pi time to receive command (transmission takes ~20ms at 9600 baud)
+                    time.sleep(0.03)
 
-                    # Listen for ACKs and sensor data - drain ALL available data
-                    listen_time = 0.15 if is_actively_changing else 0.5
+                    # Listen for ACKs and sensor data - Pi delays 150ms before ACK, so listen longer
+                    listen_time = 0.35 if is_actively_changing else 0.5  # 350ms when active
                     listen_end = time.time() + listen_time
 
                     while time.time() < listen_end:

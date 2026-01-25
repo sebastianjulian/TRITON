@@ -440,8 +440,10 @@ def main():
                                 motor, cmd_type, value, current_mode, estop_active
                             )
 
-                            # Send acknowledgment
+                            # Send acknowledgment with delay to ensure PC is listening
                             if response:
+                                # Wait for PC to switch to receive mode
+                                time.sleep(0.15)  # 150ms delay before ACK
                                 lora_serial.write((response + "\n").encode())
                                 lora_serial.flush()
                                 print(f"[LORA-TX] {response}")
@@ -530,6 +532,8 @@ def main():
                                                 motor, cmd_type, value, current_mode, estop_active
                                             )
                                             if response:
+                                                # Wait for PC to switch to receive mode
+                                                time.sleep(0.15)  # 150ms delay before ACK
                                                 lora_serial.write((response + "\n").encode())
                                                 lora_serial.flush()
                                                 print(f"[LORA-TX] {response}")
