@@ -1207,7 +1207,8 @@ motor_state = {
     "last_ack_time": None,
     "mode": MODE_ACTIVE,  # Current operating mode
     "estop_active": False,  # Emergency stop flag
-    "estop_confirmed": False  # Whether Pi has acknowledged ESTOP
+    "estop_confirmed": False,  # Whether Pi has acknowledged ESTOP
+    "estop_clearing": False  # Whether we're trying to clear ESTOP
 }
 motor_lock = threading.Lock()
 
@@ -1302,8 +1303,47 @@ def process_ack(ack_line):
     if len(parts) >= 4:
         try:
             cmd_type = parts[1]
-            actual = int(parts[2])
+            actual_str = parts[2]
             status = parts[3]
+
+            # Handle ESTOP ACK
+            if cmd_type == "ESTOP":
+                with motor_lock:
+                    motor_state["estop_confirmed"] = True
+                    motor_state["confirmed_throttle"] = 0
+                    motor_state["throttle"] = 0
+                    motor_state["status"] = "ESTOP"
+                    motor_state["last_ack_time"] = datetime.now().isoformat()
+                print(f"[ACK] ESTOP confirmed by Pi", flush=True)
+                return
+
+            # Handle ESTOP_CLEAR ACK
+            if cmd_type == "ESTOP_CLEAR":
+                with motor_lock:
+                    motor_state["estop_active"] = False
+                    motor_state["estop_confirmed"] = False
+                    motor_state["estop_clearing"] = False  # Stop sending clear commands
+                    motor_state["confirmed_throttle"] = 0
+                    motor_state["throttle"] = 0
+                    motor_state["target_throttle"] = 0
+                    motor_state["status"] = "stopped"
+                    motor_state["last_ack_time"] = datetime.now().isoformat()
+                print(f"[ACK] ESTOP_CLEAR confirmed by Pi - ready for commands", flush=True)
+                return
+
+            # Handle ESTOP_ACTIVE status (Pi rejected command because it's in ESTOP)
+            if status == "ESTOP_ACTIVE":
+                with motor_lock:
+                    # Pi is in ESTOP mode - sync our state
+                    if not motor_state["estop_active"]:
+                        print(f"[ACK] Pi reports ESTOP_ACTIVE - syncing state", flush=True)
+                        motor_state["estop_active"] = True
+                        motor_state["estop_confirmed"] = True
+                        motor_state["status"] = "ESTOP"
+                return
+
+            # Normal throttle/stop ACK
+            actual = int(actual_str)
             with motor_lock:
                 motor_state["confirmed_throttle"] = actual
                 motor_state["throttle"] = actual
@@ -1335,8 +1375,30 @@ def motor_transmit_loop():
                 current_mode = motor_state["mode"]
                 estop_active = motor_state["estop_active"]
                 estop_confirmed = motor_state["estop_confirmed"]
+                estop_clearing = motor_state["estop_clearing"]
                 target = motor_state["target_throttle"]
                 confirmed = motor_state["confirmed_throttle"]
+
+            # ============ ESTOP CLEAR HANDLING (when user requests clear) ============
+            if estop_clearing:
+                with lora_lock:
+                    command = "CMD:ESTOP:CLEAR\n"
+                    lora_serial.write(command.encode())
+                    lora_serial.flush()
+                    print("[ESTOP] Sending ESTOP:CLEAR command...", flush=True)
+
+                    # Listen for ACK
+                    time.sleep(0.03)
+                    listen_end = time.time() + 0.4
+                    while time.time() < listen_end:
+                        while lora_serial.in_waiting:
+                            line = lora_serial.readline().decode(errors='ignore').strip()
+                            if line:
+                                process_lora_line(line)
+                        time.sleep(0.02)
+
+                time.sleep(0.2)  # Retry interval
+                continue  # Keep sending until estop_clearing is set to False by ACK handler
 
             # ============ ESTOP HANDLING (Highest Priority) ============
             if estop_active and not estop_confirmed:
@@ -1540,35 +1602,24 @@ def trigger_estop():
 
 def clear_estop(force=False):
     """Clear emergency stop state (only after confirmed or force after timeout)."""
-    global motor_state, lora_serial
+    global motor_state
 
     with motor_lock:
         if motor_state["estop_confirmed"] or force:
-            # Send ESTOP_CLEAR command to Pi
-            with lora_lock:
-                if lora_serial and lora_serial.is_open:
-                    try:
-                        # Send clear command multiple times for reliability
-                        for _ in range(3):
-                            lora_serial.write(b"CMD:ESTOP:CLEAR\n")
-                            lora_serial.flush()
-                            time.sleep(0.1)
-                        print("[ESTOP] Sent ESTOP:CLEAR command to Pi", flush=True)
-                    except Exception as e:
-                        print(f"[ESTOP] Failed to send clear command: {e}", flush=True)
-
-            motor_state["estop_active"] = False
-            motor_state["estop_confirmed"] = False
+            # Set clearing flag - transmit loop will send ESTOP:CLEAR continuously
+            motor_state["estop_clearing"] = True
             motor_state["target_throttle"] = 0
-            motor_state["confirmed_throttle"] = 0
-            motor_state["status"] = "stopped"
+            motor_state["status"] = "clearing"
 
             if force:
-                print("[ESTOP] Emergency stop FORCE CLEARED", flush=True)
-                return True, "ESTOP force cleared"
+                # Force clear: also reset estop_active immediately
+                motor_state["estop_active"] = False
+                motor_state["estop_confirmed"] = False
+                print("[ESTOP] FORCE CLEAR initiated - sending ESTOP:CLEAR to Pi", flush=True)
+                return True, "ESTOP force clear initiated"
             else:
-                print("[ESTOP] Emergency stop cleared", flush=True)
-                return True, "ESTOP cleared"
+                print("[ESTOP] Clear initiated - sending ESTOP:CLEAR to Pi", flush=True)
+                return True, "ESTOP clear initiated"
         else:
             # Check if timeout exceeded
             triggered_time = motor_state.get("estop_triggered_time", 0)
