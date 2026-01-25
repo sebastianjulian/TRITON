@@ -707,59 +707,67 @@
       box-shadow: 0 0 15px rgba(255, 100, 100, 0.4) !important;
     }
 
-    .emergency-stop-container {
+    /* Motor Header with E-Stop and Status */
+    .motor-header {
       display: flex;
       align-items: center;
-      gap: 30px;
-      margin-bottom: 25px;
-      padding: 20px;
-      background: linear-gradient(145deg, rgba(255, 50, 50, 0.1), rgba(200, 0, 0, 0.05));
-      border-radius: 12px;
-      border: 2px solid rgba(255, 100, 100, 0.3);
+      gap: 24px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
     }
 
     .emergency-stop-btn {
-      background: linear-gradient(145deg, #ff3333, #cc0000);
+      background: #dc2626;
       color: white;
-      font-size: 1.4em;
+      font-size: 1.3em;
       font-weight: 800;
-      padding: 20px 50px;
+      padding: 24px 48px;
       border: none;
-      border-radius: 12px;
+      border-radius: 10px;
       cursor: pointer;
       text-transform: uppercase;
       letter-spacing: 2px;
-      box-shadow: 0 6px 20px rgba(255, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2);
       transition: all 0.15s ease;
-      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+      flex-shrink: 0;
+      box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
     }
 
     .emergency-stop-btn:hover {
-      background: linear-gradient(145deg, #ff4444, #dd0000);
-      transform: scale(1.02);
-      box-shadow: 0 8px 30px rgba(255, 0, 0, 0.6);
+      background: #ef4444;
+      box-shadow: 0 6px 24px rgba(239, 68, 68, 0.5);
+      transform: translateY(-2px);
     }
 
     .emergency-stop-btn:active {
-      transform: scale(0.98);
-      box-shadow: 0 2px 10px rgba(255, 0, 0, 0.4);
+      transform: scale(0.98) translateY(0);
+      box-shadow: 0 2px 8px rgba(220, 38, 38, 0.3);
     }
 
-    .motor-status-display {
+    .motor-status-bar {
       display: flex;
-      flex-direction: column;
-      gap: 5px;
+      align-items: center;
+      gap: 24px;
+      padding: 12px 20px;
+      background: var(--bg-tertiary);
+      border-radius: 8px;
+      border: 1px solid var(--color-border);
+    }
+
+    .motor-status-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
 
     .motor-status-label {
-      font-size: 0.85em;
+      font-size: 0.8em;
       color: var(--color-text-muted);
       text-transform: uppercase;
-      letter-spacing: 1px;
+      letter-spacing: 0.5px;
     }
 
     .motor-status-value {
-      font-size: 1.3em;
+      font-size: 0.95em;
       font-weight: 600;
       color: var(--color-text-primary);
       font-family: 'JetBrains Mono', monospace;
@@ -770,61 +778,56 @@
     }
 
     .motor-status-value.status-stopped {
-      color: #fbbf24;
+      color: var(--color-text-secondary);
     }
 
     .motor-status-value.status-emergency {
       color: #ef4444;
-      animation: pulse-red 1s infinite;
     }
 
     .motor-status-value.status-disconnected {
       color: #6b7280;
     }
 
-    @keyframes pulse-red {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.5; }
-    }
-
-    .motor-controls-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 20px;
-    }
-
-    .motor-control-panel {
+    /* Main Motor Control Panel */
+    .motor-main-panel {
       background: var(--gradient-card);
-      padding: 20px;
+      padding: 24px;
       border-radius: 12px;
       border: 1px solid var(--color-border);
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
     }
 
-    .motor-control-panel h3 {
-      margin: 0 0 15px 0;
-      color: var(--color-text-primary);
-      font-size: 1em;
+    /* Throttle Display */
+    .throttle-display {
       text-align: center;
-      padding-bottom: 10px;
-      border-bottom: 1px solid var(--color-border);
+      margin-bottom: 20px;
     }
 
+    .throttle-value-large {
+      font-size: 3.5em;
+      font-weight: 700;
+      color: var(--color-primary);
+      font-family: 'JetBrains Mono', monospace;
+      line-height: 1;
+    }
+
+    .throttle-value-large .percent {
+      font-size: 0.5em;
+      color: var(--color-text-muted);
+    }
+
+    /* Throttle Slider */
     .throttle-slider-container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 15px;
-      margin-bottom: 15px;
+      margin-bottom: 24px;
     }
 
     .throttle-slider {
       width: 100%;
-      height: 12px;
+      height: 8px;
       -webkit-appearance: none;
       appearance: none;
-      background: linear-gradient(90deg, var(--color-accent) 0%, var(--color-primary) 50%, #ff6b6b 100%);
-      border-radius: 6px;
+      background: var(--bg-tertiary);
+      border-radius: 4px;
       outline: none;
       cursor: pointer;
     }
@@ -832,12 +835,12 @@
     .throttle-slider::-webkit-slider-thumb {
       -webkit-appearance: none;
       appearance: none;
-      width: 28px;
-      height: 28px;
-      background: var(--color-text-primary);
+      width: 24px;
+      height: 24px;
+      background: var(--color-primary);
       border-radius: 50%;
       cursor: pointer;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
       transition: transform 0.2s ease;
     }
 
@@ -846,135 +849,88 @@
     }
 
     .throttle-slider::-moz-range-thumb {
-      width: 28px;
-      height: 28px;
-      background: var(--color-text-primary);
+      width: 24px;
+      height: 24px;
+      background: var(--color-primary);
       border-radius: 50%;
       cursor: pointer;
       border: none;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
     }
 
-    .throttle-value-display {
-      font-size: 2.5em;
-      font-weight: 700;
-      color: var(--color-primary);
-      font-family: 'JetBrains Mono', monospace;
-      text-shadow: var(--glow-primary);
-    }
-
-    .throttle-apply-btn {
-      width: 100%;
-      padding: 12px;
-      background: var(--color-primary);
-      color: var(--bg-primary);
-      border: none;
-      border-radius: 8px;
-      font-size: 1em;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      box-shadow: var(--glow-primary);
-    }
-
-    .throttle-apply-btn:hover {
-      background: var(--color-accent);
-      transform: translateY(-2px);
-    }
-
-    .preset-buttons-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
+    /* Preset Buttons */
+    .preset-buttons-row {
+      display: flex;
       gap: 10px;
+      margin-bottom: 16px;
     }
 
     .preset-btn {
-      padding: 18px 10px;
-      font-size: 1.1em;
-      font-weight: 700;
-      border: none;
-      border-radius: 8px;
+      flex: 1;
+      padding: 14px 10px;
+      font-size: 0.95em;
+      font-weight: 600;
+      border: 1px solid var(--color-border);
+      border-radius: 6px;
       cursor: pointer;
       transition: all 0.2s ease;
-      text-transform: uppercase;
-    }
-
-    .preset-btn.preset-stop {
-      background: linear-gradient(145deg, #fbbf24, #d97706);
-      color: #1a1a1a;
-      grid-column: span 2;
-    }
-
-    .preset-btn.preset-25 {
-      background: linear-gradient(145deg, #4ade80, #22c55e);
-      color: #1a1a1a;
-    }
-
-    .preset-btn.preset-50 {
-      background: linear-gradient(145deg, #60a5fa, #3b82f6);
-      color: white;
-    }
-
-    .preset-btn.preset-75 {
-      background: linear-gradient(145deg, #f472b6, #ec4899);
-      color: white;
-      grid-column: span 2;
-    }
-
-    .preset-btn.preset-ramp {
-      background: linear-gradient(145deg, #a855f7, #7c3aed);
-      color: white;
-      grid-column: span 2;
-      margin-top: 5px;
-    }
-
-    .preset-btn.preset-ramp.running {
-      background: linear-gradient(145deg, #ef4444, #dc2626);
-      animation: pulse-ramp 1s infinite;
-    }
-
-    @keyframes pulse-ramp {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.7; }
+      background: var(--bg-tertiary);
+      color: var(--color-text-primary);
     }
 
     .preset-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+      background: var(--color-primary);
+      color: var(--bg-primary);
+      border-color: var(--color-primary);
     }
 
-    .preset-btn:active {
-      transform: translateY(0);
+    .preset-btn.active {
+      background: var(--color-primary);
+      color: var(--bg-primary);
+      border-color: var(--color-primary);
     }
 
-    .motor-info-panel {
-      background: var(--bg-tertiary);
-    }
-
-    .motor-info-grid {
+    /* Action Buttons Row */
+    .motor-actions-row {
       display: flex;
-      flex-direction: column;
-      gap: 12px;
+      gap: 10px;
     }
 
-    .motor-info-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 8px 12px;
-      background: var(--bg-secondary);
-      border-radius: 6px;
-    }
-
-    .motor-info-label {
-      font-size: 0.85em;
-      color: var(--color-text-muted);
-    }
-
-    .motor-info-value {
-      font-family: 'JetBrains Mono', monospace;
+    .motor-action-btn {
+      flex: 1;
+      padding: 14px 20px;
+      font-size: 0.95em;
       font-weight: 600;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .motor-action-btn.apply-btn {
+      background: var(--color-primary);
+      color: var(--bg-primary);
+    }
+
+    .motor-action-btn.apply-btn:hover {
+      opacity: 0.9;
+      transform: translateY(-1px);
+    }
+
+    .motor-action-btn.ramp-btn {
+      background: var(--bg-tertiary);
       color: var(--color-text-primary);
+      border: 1px solid var(--color-border);
+    }
+
+    .motor-action-btn.ramp-btn:hover {
+      background: var(--bg-secondary);
+    }
+
+    .motor-action-btn.ramp-btn.running {
+      background: #dc2626;
+      color: white;
+      border-color: #dc2626;
     }
 
     /* Motor section toggle chip */
@@ -994,6 +950,24 @@
       border-color: #ef4444;
       color: #ffffff;
       box-shadow: 0 0 10px rgba(220, 38, 38, 0.4);
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 600px) {
+      .motor-header {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .motor-status-bar {
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+      .preset-buttons-row {
+        flex-wrap: wrap;
+      }
+      .preset-btn {
+        min-width: calc(50% - 5px);
+      }
     }
 
     /* Time Range Filter Styles */
@@ -4326,59 +4300,51 @@
   <section id="motor-control" class="motor-control-section">
     <h2>Motor Control</h2>
 
-    <!-- Emergency Stop Button - Always Visible -->
-    <div class="emergency-stop-container">
+    <!-- Header: E-Stop + Status Bar -->
+    <div class="motor-header">
       <button id="emergencyStopBtn" class="emergency-stop-btn" onclick="emergencyStop()">
         EMERGENCY STOP
       </button>
-      <div class="motor-status-display">
-        <span class="motor-status-label">Status:</span>
-        <span id="motorStatusText" class="motor-status-value">Disconnected</span>
+      <div class="motor-status-bar">
+        <div class="motor-status-item">
+          <span class="motor-status-label">Status</span>
+          <span id="motorStatusText" class="motor-status-value">Disconnected</span>
+        </div>
+        <div class="motor-status-item">
+          <span class="motor-status-label">Throttle</span>
+          <span id="currentThrottle" class="motor-status-value">0%</span>
+        </div>
+        <div class="motor-status-item">
+          <span class="motor-status-label">Connection</span>
+          <span id="loraConnection" class="motor-status-value">Checking...</span>
+        </div>
       </div>
     </div>
 
-    <div class="motor-controls-grid">
-      <!-- Throttle Slider -->
-      <div class="motor-control-panel">
-        <h3>Throttle Control</h3>
-        <div class="throttle-slider-container">
-          <input type="range" id="throttleSlider" class="throttle-slider" min="0" max="100" value="0" oninput="updateThrottleDisplay(this.value)">
-          <div class="throttle-value-display">
-            <span id="throttleValue">0</span>%
-          </div>
-        </div>
-        <button class="throttle-apply-btn" onclick="applyThrottle()">Apply Throttle</button>
+    <!-- Main Control Panel -->
+    <div class="motor-main-panel">
+      <!-- Large Throttle Display -->
+      <div class="throttle-display">
+        <span class="throttle-value-large"><span id="throttleValue">0</span><span class="percent">%</span></span>
+      </div>
+
+      <!-- Slider -->
+      <div class="throttle-slider-container">
+        <input type="range" id="throttleSlider" class="throttle-slider" min="0" max="100" value="0" oninput="updateThrottleDisplay(this.value)">
       </div>
 
       <!-- Preset Buttons -->
-      <div class="motor-control-panel">
-        <h3>Quick Presets</h3>
-        <div class="preset-buttons-grid">
-          <button class="preset-btn preset-stop" onclick="setMotorPreset(0)">STOP</button>
-          <button class="preset-btn preset-25" onclick="setMotorPreset(25)">25%</button>
-          <button class="preset-btn preset-50" onclick="setMotorPreset(50)">50%</button>
-          <button class="preset-btn preset-75" onclick="setMotorPreset(75)">75%</button>
-          <button id="rampTestBtn" class="preset-btn preset-ramp" onclick="runRampTest()">RAMP TEST</button>
-        </div>
+      <div class="preset-buttons-row">
+        <button class="preset-btn" onclick="setMotorPreset(0)" data-preset="0">0%</button>
+        <button class="preset-btn" onclick="setMotorPreset(25)" data-preset="25">25%</button>
+        <button class="preset-btn" onclick="setMotorPreset(50)" data-preset="50">50%</button>
+        <button class="preset-btn" onclick="setMotorPreset(75)" data-preset="75">75%</button>
       </div>
 
-      <!-- Motor Info -->
-      <div class="motor-control-panel motor-info-panel">
-        <h3>Motor Information</h3>
-        <div class="motor-info-grid">
-          <div class="motor-info-item">
-            <span class="motor-info-label">Current Throttle:</span>
-            <span id="currentThrottle" class="motor-info-value">0%</span>
-          </div>
-          <div class="motor-info-item">
-            <span class="motor-info-label">Last Command:</span>
-            <span id="lastCommandTime" class="motor-info-value">-</span>
-          </div>
-          <div class="motor-info-item">
-            <span class="motor-info-label">Connection:</span>
-            <span id="loraConnection" class="motor-info-value">Checking...</span>
-          </div>
-        </div>
+      <!-- Action Buttons -->
+      <div class="motor-actions-row">
+        <button class="motor-action-btn apply-btn" onclick="applyThrottle()">Apply Throttle</button>
+        <button id="rampTestBtn" class="motor-action-btn ramp-btn" onclick="runRampTest()">Ramp Test</button>
       </div>
     </div>
   </section>
@@ -8006,6 +7972,11 @@
     // Update throttle display when slider moves
     function updateThrottleDisplay(value) {
       document.getElementById('throttleValue').textContent = value;
+      // Highlight matching preset button
+      const intValue = parseInt(value);
+      document.querySelectorAll('.preset-btn[data-preset]').forEach(btn => {
+        btn.classList.toggle('active', parseInt(btn.dataset.preset) === intValue);
+      });
     }
 
     // Apply throttle from slider
@@ -8023,6 +7994,12 @@
 
       document.getElementById('throttleSlider').value = percent;
       document.getElementById('throttleValue').textContent = percent;
+
+      // Highlight active preset button
+      document.querySelectorAll('.preset-btn[data-preset]').forEach(btn => {
+        btn.classList.toggle('active', parseInt(btn.dataset.preset) === percent);
+      });
+
       await sendMotorCommand('preset', percent);
     }
 
@@ -8047,14 +8024,14 @@
       // If already running, abort
       if (rampTestRunning) {
         rampTestAborted = true;
-        rampBtn.textContent = 'STOPPING...';
+        rampBtn.textContent = 'Stopping...';
         return;
       }
 
       rampTestRunning = true;
       rampTestAborted = false;
       rampBtn.classList.add('running');
-      rampBtn.textContent = 'STOP TEST';
+      rampBtn.textContent = 'Stop Test';
 
       const slider = document.getElementById('throttleSlider');
       const throttleDisplay = document.getElementById('throttleValue');
@@ -8067,7 +8044,7 @@
 
       try {
         // Ramp up: 0% -> 100%
-        rampBtn.textContent = 'RAMPING UP...';
+        rampBtn.textContent = 'Ramping Up...';
         for (let throttle = 0; throttle <= 100 && !rampTestAborted; throttle += stepSize) {
           const value = Math.min(100, Math.round(throttle));
           slider.value = value;
@@ -8078,7 +8055,7 @@
 
         // Hold at 100% for 3 seconds
         if (!rampTestAborted) {
-          rampBtn.textContent = 'HOLDING 100%...';
+          rampBtn.textContent = 'Holding 100%...';
           slider.value = 100;
           throttleDisplay.textContent = 100;
           await sendMotorCommand('throttle', 100);
@@ -8090,7 +8067,7 @@
         }
 
         // Ramp down: 100% -> 0%
-        rampBtn.textContent = 'RAMPING DOWN...';
+        rampBtn.textContent = 'Ramping Down...';
         for (let throttle = 100; throttle >= 0 && !rampTestAborted; throttle -= stepSize) {
           const value = Math.max(0, Math.round(throttle));
           slider.value = value;
@@ -8110,7 +8087,7 @@
         rampTestRunning = false;
         rampTestAborted = false;
         rampBtn.classList.remove('running');
-        rampBtn.textContent = 'RAMP TEST';
+        rampBtn.textContent = 'Ramp Test';
       }
     }
 
@@ -8118,7 +8095,6 @@
     async function sendMotorCommand(type, value = 0) {
       const statusText = document.getElementById('motorStatusText');
       const currentThrottle = document.getElementById('currentThrottle');
-      const lastCommandTime = document.getElementById('lastCommandTime');
 
       try {
         let endpoint = '/motor/';
@@ -8165,10 +8141,6 @@
             statusText.className = 'motor-status-value status-running';
             currentThrottle.textContent = `${value}%`;
           }
-
-          // Update last command time
-          const now = new Date();
-          lastCommandTime.textContent = now.toLocaleTimeString();
 
         } else {
           throw new Error(result.message || 'Command failed');
