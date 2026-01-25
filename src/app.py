@@ -1310,8 +1310,9 @@ def process_ack(ack_line):
                 motor_state["last_ack_time"] = datetime.now().isoformat()
                 if not motor_state["estop_active"]:
                     motor_state["status"] = "running" if actual > 0 else "stopped"
+            print(f"[ACK] {cmd_type}={actual}% status={status} -> motor_state updated", flush=True)
         except ValueError:
-            pass
+            print(f"[ACK] Parse error: {ack_line}", flush=True)
 
 
 def motor_transmit_loop():
@@ -1741,26 +1742,6 @@ def process_sensor_data(line):
         return False
 
 
-def process_ack(line):
-    """Process acknowledgment from Pi motor controller."""
-    global motor_state
-
-    # Format: ACK:<type>:<value>:<status>
-    parts = line.split(":")
-    if len(parts) >= 4:
-        cmd_type = parts[1]
-        value = parts[2]
-        status = parts[3]
-
-        with motor_lock:
-            motor_state["last_ack_time"] = datetime.now().isoformat()
-
-            if status == "OK":
-                print(f"[LORA-RX] ACK received: {cmd_type}={value} OK")
-            else:
-                print(f"[LORA-RX] ACK received: {cmd_type}={value} FAILED")
-
-
 def lora_receiver_loop():
     """Background thread that receives data from LoRa."""
     global lora_receiver_running, motor_state, lora_serial
@@ -1905,9 +1886,9 @@ if __name__ == "__main__":
     log = logging.getLogger('werkzeug')
     log.setLevel(logging.ERROR)  # Or use logging.CRITICAL to suppress all output
 
-    # Start LoRa receiver thread for sensor data and motor acknowledgments
-    print("[INFO] Starting LoRa receiver for motor control and sensor data...")
-    start_lora_receiver()
+    # NOTE: motor_transmit_loop handles ALL LoRa communication (send + receive)
+    # Do NOT start a separate lora_receiver_loop - it would cause a race condition
+    print("[INFO] LoRa communication handled by motor_transmit_loop")
 
     try:
         app.run(debug=False, host="0.0.0.0", use_reloader=False)
